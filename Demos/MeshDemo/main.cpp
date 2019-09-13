@@ -9,20 +9,16 @@
 
 #include <iostream>
 #include <stdexcept>
-#include <string>
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-#define GLM_FORCE_RADIANS
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+
+#include "bin/Application.h"
+
 
 
 // Macro for printing exceptions
 #define PrintException(exception_object)\
 	std::cerr << exception_object.what() << std::endl
+
+
 
 
 // Globals that define the OpenGL window and viewport
@@ -133,14 +129,61 @@ Model *CreateSquare(void){
     // The construction does *not* use shared vertices
     // 9 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3)
     GLfloat vertex[] = {
-        // First triangle
-        -0.5, -0.5,  0.0,    0.0,  0.0,  1.0,    1.0, 0.0, 0.0,
-         0.5, -0.5,  0.0,    0.0,  0.0,  1.0,    0.0, 1.0, 0.0,
-         0.5,  0.5,  0.0,    0.0,  0.0,  1.0,    0.0, 0.0, 1.0,
-        // Second triangle
-         0.5,  0.5,  0.0,    0.0,  0.0,  1.0,    1.0, 1.0, 0.0,
-        -0.5,  0.5,  0.0,    0.0,  0.0,  1.0,    0.0, 1.0, 1.0,
-        -0.5, -0.5,  0.0,    0.0,  0.0,  1.0,    0.1, 0.0, 1.0,
+         // First triangle
+		  0.5,  0.5,  -0.5,    0.0,  0.0,  -1.0,    1.0, 0.0, 0.0,
+          0.5, -0.5,  -0.5,    0.0,  0.0,  -1.0,    0.0, 1.0, 0.0,
+		 -0.5, -0.5,  -0.5,    0.0,  0.0,  -1.0,    0.0, 0.0, 1.0,
+		 // Second triangle
+		 -0.5, -0.5,  -0.5,    0.0,  0.0,  -1.0,    0.0, 0.0, 1.0,
+		 -0.5,  0.5,  -0.5,    0.0,  0.0,  -1.0,    1.0, 1.0, 0.0,
+		  0.5,  0.5,  -0.5,    0.0,  0.0,  -1.0,    1.0, 0.0, 0.0,
+		 
+		 // 3rd triangle
+		 0.5,   0.5,  -0.5,    0.0,  0.0,  1.0,    1.0, 0.0, 0.0, 
+		 0.5,   0.5,   0.5,    0.0,  0.0,  1.0,    0.0, 1.0, 1.0, 
+		 0.5,  -0.5,  -0.5,    0.0,  0.0,  1.0,    0.0, 1.0, 0.0, 
+		 // 4th triangle
+		 0.5,   -0.5,  0.5,    0.0,  0.0,  1.0,    1.0, 0.0, 1.0, 
+		 0.5,  -0.5,  -0.5,    0.0,  0.0,  1.0,    0.0, 1.0, 0.0, 
+		 0.5,   0.5,   0.5,    0.0,  0.0,  1.0,    0.0, 1.0, 1.0, 
+		 
+		 // 5th triangle
+		 -0.5,   0.5,  0.5,    0.0,  0.0,  1.0,    1.0, 1.0, 1.0, 
+		 -0.5,  -0.5,  0.5,    0.0,  0.0,  1.0,    0.1, 0.1, 0.1, 
+		  0.5,   0.5,  0.5,    0.0,  0.0,  1.0,    0.0, 1.0, 1.0, 
+		 // 6th triangle
+		  0.5,   0.5,  0.5,    0.0,  0.0,  1.0,    0.0, 1.0, 1.0, 
+		 -0.5,  -0.5,  0.5,    0.0,  0.0,  1.0,    0.1, 0.1, 0.1, 
+		  0.5,  -0.5,  0.5,    0.0,  0.0,  1.0,    1.0, 0.0, 1.0, 
+		  
+
+		 // 7 triangle
+		 -0.5,  0.5,  -0.5,    0.0,  0.0,  1.0,    1.0, 1.0, 0.0, 
+		 -0.5, -0.5,  -0.5,    0.0,  0.0,  1.0,    0.0, 0.0, 1.0, 
+		 -0.5,  0.5,   0.5,    0.0,  0.0,  1.0,    1.0, 1.0, 1.0, 
+		 // 8 triangle
+		 -0.5,   0.5,  0.5,    0.0,  0.0,  1.0,    1.0, 1.0, 1.0, 
+		 -0.5,  -0.5, -0.5,    0.0,  0.0,  1.0,    0.0, 0.0, 1.0, 
+		 -0.5,  -0.5,  0.5,    0.0,  0.0,  1.0,    0.1, 0.1, 0.1, 
+		 
+		 // 9 triangle
+		  0.5,  -0.5,  -0.5,    0.0,  0.0,  1.0,    0.0, 1.0, 0.0,
+		 -0.5,  -0.5,   0.5,    0.0,  0.0,  1.0,    0.1, 0.1, 0.1,
+		 -0.5,  -0.5,  -0.5,    0.0,  0.0,  1.0,    0.0, 0.0, 1.0,
+		 // 10 triangle
+		  0.5,  -0.5, -0.5,    0.0,  0.0,  1.0,    0.0, 1.0, 0.0, 
+		  0.5,  -0.5,  0.5,    0.0,  0.0,  1.0,    1.0, 0.0, 1.0, 
+		 -0.5,  -0.5,  0.5,    0.0,  0.0,  1.0,    0.1, 0.1, 0.1, 
+		 
+		 // 11 triangle
+		  0.5,  0.5, -0.5,    0.0,  0.0,  1.0,    1.0, 0.0, 0.0,  
+		 -0.5,  0.5,  0.5,    0.0,  0.0,  1.0,    1.0, 1.0, 1.0,  
+		  0.5,  0.5,  0.5,    0.0,  0.0,  1.0,    0.0, 1.0, 1.0,  
+
+		 // 12 triangle
+		 -0.5,  0.5,  -0.5,    0.0,  0.0,  1.0,    1.0, 1.0, 0.0, 
+		 -0.5,  0.5,   0.5,    0.0,  0.0,  1.0,    1.0, 1.0, 1.0, 
+		  0.5,  0.5,  -0.5,    0.0,  0.0,  1.0,    1.0, 0.0, 0.0, 
     };
 
     // Create model 
@@ -157,57 +200,107 @@ Model *CreateSquare(void){
 }
 
 
-// Create the geometry for a star centered at (0, 0, 0) and facing (0, 0, 1)
-Model *CreateStar(void){
+// Create the geometry for a torus centered at (0, 0, 0) and facing (0, 0, 1)
+Model *CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int num_loop_samples = 90, int num_circle_samples = 30) {
 
-    // The construction uses shared vertices 
+	// Create a torus
+	// The torus is built from a large loop with small circles around the loop
+	// Vertices are sampled along the circles
 
-    // Vertices that form the star
-    // 9 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3)
-    GLfloat vertex[] = {
-        // Center vertex
-         0.0,  0.0,  0.0,    0.0,  0.0,  1.0,    0.0,  0.0,  1.0,
-        // Corners
-         0.0,  0.5,  0.0,    0.0,  0.0,  1.0,    1.0,  0.0,  0.0,
-        -0.1,  0.1,  0.0,    0.0,  0.0,  1.0,    0.0,  1.0,  0.0,
-        -0.5,  0.0,  0.0,    0.0,  0.0,  1.0,    1.0,  0.0,  0.0,
-        -0.1, -0.1,  0.0,    0.0,  0.0,  1.0,    0.0,  1.0,  0.0,
-         0.0, -0.5,  0.0,    0.0,  0.0,  1.0,    1.0,  0.0,  0.0,
-         0.1, -0.1,  0.0,    0.0,  0.0,  1.0,    0.0,  1.0,  0.0,
-         0.5,  0.0,  0.0,    0.0,  0.0,  1.0,    1.0,  0.0,  0.0,
-         0.1,  0.1,  0.0,    0.0,  0.0,  1.0,    0.0,  1.0,  0.0,
-    };
+	// Number of vertices and faces to be created
+	const GLuint vertex_num = num_loop_samples * num_circle_samples;
+	const GLuint face_num = num_loop_samples * num_circle_samples * 2;
 
-    // Faces that form the star
-    // Every three indices define one triangle
-    GLuint face[] = {
-        0, 1, 2,
-        0, 2, 3,
-        0, 3, 4,
-        0, 4, 5,
-        0, 5, 6,
-        0, 6, 7,
-        0, 7, 8,
-        0, 8, 1,
-    };
+	// Number of attributes for vertices and faces
+	const int vertex_att = 9;  // 9 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3)
+	const int face_att = 3; // Vertex indices (3)
 
-    // Create model
-    Model *model;
-    model = new Model;
-    model->size = sizeof(face) / sizeof(GLuint);
+	// Data buffers for the torus
+	GLfloat *vertex = NULL;
+	GLuint *face = NULL;
 
-    // Create OpenGL buffer for vertices
-    glGenBuffers(1, &model->vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, model->vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex), vertex, GL_STATIC_DRAW);
+	// Allocate memory for buffers
+	try {
+		vertex = new GLfloat[vertex_num * vertex_att];
+		face = new GLuint[face_num * face_att];
+	}
+	catch (std::exception &e) {
+		throw e;
+	}
 
-    // Create OpenGL buffer for faces
-    glGenBuffers(1, &model->ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(face), face, GL_STATIC_DRAW);
+	// Create vertices 
+	float theta, phi; // Angles for circles
+	glm::vec3 loop_center;
+	glm::vec3 vertex_position;
+	glm::vec3 vertex_normal;
+	glm::vec3 vertex_color;
 
-    return model;
+	for (int i = 0; i < num_loop_samples; i++) { // large loop
+
+		theta = 2.0*glm::pi<GLfloat>()*i / num_loop_samples; // loop sample (angle theta)
+		loop_center = glm::vec3(loop_radius*cos(theta), loop_radius*sin(theta), 0); // centre of a small circle
+
+		for (int j = 0; j < num_circle_samples; j++) { // small circle
+
+			phi = 2.0*glm::pi<GLfloat>()*j / num_circle_samples; // circle sample (angle phi)
+
+			// Define position, normal and color of vertex
+			vertex_normal = glm::vec3(cos(theta)*cos(phi), sin(theta)*cos(phi), sin(phi));
+			vertex_position = loop_center + vertex_normal * circle_radius;
+			vertex_color = glm::vec3(1.0 - ((float)i / (float)num_loop_samples),
+				(float)i / (float)num_loop_samples,
+				(float)j / (float)num_circle_samples);
+
+			// Add vectors to the data buffer
+			for (int k = 0; k < 3; k++) {
+				vertex[(i*num_circle_samples + j)*vertex_att + k] = vertex_position[k];
+				vertex[(i*num_circle_samples + j)*vertex_att + k + 3] = vertex_normal[k];
+				vertex[(i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
+			}
+		}
+	}
+
+	// Create triangles
+	for (int i = 0; i < num_loop_samples; i++) {
+		for (int j = 0; j < num_circle_samples; j++) {
+			// Two triangles per quad
+			glm::vec3 t1(((i + 1) % num_loop_samples)*num_circle_samples + j,
+				i*num_circle_samples + ((j + 1) % num_circle_samples),
+				i*num_circle_samples + j);
+			glm::vec3 t2(((i + 1) % num_loop_samples)*num_circle_samples + j,
+				((i + 1) % num_loop_samples)*num_circle_samples + ((j + 1) % num_circle_samples),
+				i*num_circle_samples + ((j + 1) % num_circle_samples));
+			// Add two triangles to the data buffer
+			for (int k = 0; k < 3; k++) {
+				face[(i*num_circle_samples + j)*face_att * 2 + k] = (GLuint)t1[k];
+				face[(i*num_circle_samples + j)*face_att * 2 + k + face_att] = (GLuint)t2[k];
+			}
+		}
+	}
+
+	// Create model 
+	Model *model;
+	model = new Model;
+	model->size = face_num * face_att;
+
+	// Create OpenGL buffer for vertices
+	glGenBuffers(1, &model->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, model->vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
+
+	// Create OpenGL buffer for faces
+	glGenBuffers(1, &model->ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
+
+	// Free data buffers
+	delete[] vertex;
+	delete[] face;
+
+	return model;
 }
+
+
 
 
 // Main function that builds and runs the game
@@ -256,7 +349,7 @@ int main(void){
 
         // Create the shapes to be displayed
         Model *square = CreateSquare();
-        Model *star = CreateStar();
+        Model *torus = CreateTorus();
 
         // **** Set up shaders
 
@@ -316,9 +409,9 @@ int main(void){
         glm::mat4 square_translation = glm::translate(glm::mat4(1.0), glm::vec3(-0.3, 0.0, 0.0)); // Translation of square
         glm::mat4 square_scaling = glm::scale(glm::mat4(1.0), glm::vec3(0.5, 0.5, 0.5)); // Scale of square
 
-        // Transformation state of star
-        glm::mat4 star_translation = glm::translate(glm::mat4(1.0), glm::vec3(0.3, 0.0, 0.0)); // Translation of square
-        glm::mat4 star_scaling = glm::scale(glm::mat4(1.0), glm::vec3(0.5, 0.5, 0.5)); // Scale of star
+        // Transformation state of torus
+        glm::mat4 torus_translation = glm::translate(glm::mat4(1.0), glm::vec3(0.3, 0.0, 0.0)); // Translation of square
+        glm::mat4 torus_scaling = glm::scale(glm::mat4(1.0), glm::vec3(0.5, 0.5, 0.5)); // Scale of torus
 
         // Get time in seconds at the beginning of execution
         last_time = glfwGetTime();
@@ -348,7 +441,7 @@ int main(void){
                 // Set rotation for shapes
                 current_angle += angle*elapsed_time;
                 current_angle = fmod(current_angle, 2.0f*glm::pi<float>());
-                rotation = glm::rotate(glm::mat4(1.0), current_angle, glm::vec3(0.0, 1.0, 0.0));
+                rotation = glm::rotate(glm::mat4(1.0), current_angle, glm::vec3(0.0, 0.0, 1.0));
             }
 
             // Select proper shader program to use
@@ -370,16 +463,18 @@ int main(void){
             // Set attributes for shader
             // Should be consistent with how we created the buffers for the model
             GLint vertex_att = glGetAttribLocation(program, "vertex");
-            glVertexAttribPointer(vertex_att, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), 0);
+            glVertexAttribPointer(vertex_att, 3, GL_FLOAT, GL_FALSE, 9 *sizeof(GLfloat), 0);
             glEnableVertexAttribArray(vertex_att);
 
             GLint normal_att = glGetAttribLocation(program, "normal");
-            glVertexAttribPointer(normal_att, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void *) (3*sizeof(GLfloat)));
+            glVertexAttribPointer(normal_att, 3, GL_FLOAT, GL_FALSE, 9 *sizeof(GLfloat), (void *) (3*sizeof(GLfloat)));
             glEnableVertexAttribArray(normal_att);
 
             GLint color_att = glGetAttribLocation(program, "color");
             glVertexAttribPointer(color_att, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void *) (6*sizeof(GLfloat)));
             glEnableVertexAttribArray(color_att);
+
+
 
             // Set world transformation matrix for square in shader
             glm::mat4 transf = square_translation * rotation * square_scaling;
@@ -389,11 +484,15 @@ int main(void){
             // Draw square mesh (draw only vertex buffer)
             glDrawArrays(GL_TRIANGLES, 0, square->size);
 
-            // **** Draw the star
+
+
+
+
+            // **** Draw the torus
 
             // Set up data buffers
-            glBindBuffer(GL_ARRAY_BUFFER, star->vbo);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, star->ebo);
+            glBindBuffer(GL_ARRAY_BUFFER, torus->vbo);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, torus->ebo);
 
             // Set attributes for shader
             // Should be consistent with how we created the buffers for the model
@@ -409,13 +508,15 @@ int main(void){
             glVertexAttribPointer(color_att, 3, GL_FLOAT, GL_FALSE, 9*sizeof(GLfloat), (void *) (6*sizeof(GLfloat)));
             glEnableVertexAttribArray(color_att);
 
-            // Set world transformation matrix for star in shader
-            transf = star_translation * rotation * star_scaling;
+
+
+            // Set world transformation matrix for torus in shader
+            transf = torus_translation * rotation * torus_scaling;
             world_mat = glGetUniformLocation(program, "world_mat");
             glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
 
-            // Draw star mesh using both vertex and element buffers
-            glDrawElements(GL_TRIANGLES, star->size, GL_UNSIGNED_INT, 0);
+            // Draw torus mesh using both vertex and element buffers
+            glDrawElements(GL_TRIANGLES, torus->size, GL_UNSIGNED_INT, 0);
 
             // Update other events like input handling
             glfwPollEvents();
