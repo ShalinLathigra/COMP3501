@@ -15,11 +15,14 @@ public:
 	Entity(glm::vec3 pos, glm::vec3 scale);
 	~Entity();
 
+	//Place to put Torus/Cube functions
 	static Model* CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int num_loop_samples = 90, int num_circle_samples = 30);
 	static Model* CreateCube(void);
 
+	//Update function
 	void Update(float deltaTime);
 
+	//Setters
 	inline void SetPosition(glm::vec3 pos) { position = pos; }
 	inline void SetDirection(glm::vec3 dir) { direction = dir; }
 	inline void SetScale(glm::vec3 scal) { scale = scal; }
@@ -28,18 +31,27 @@ public:
 	inline void SetSpeed(float sp) { speed = sp; }
 	inline void SetMass(float m) { mass = m; }
 	
+	//Getters
 	inline glm::vec3 GetPosition() { return position; }
 	inline glm::vec3 GetVelocity() { return speed * direction; }
 	inline glm::vec3 GetScale() { return scale; }
 	inline glm::quat GetOrientation() { return orientation; }
+
+	//Function to generate the transformation matrix for cubes
 	glm::mat4 Entity::GenerateMatrix();
 
+	//used by player now, might use it for cubes If I decide to
 	void Fall();
-	void Move(glm::vec3 dir, float deltaTime);
 
+	//Used by everything all the time.
+	void Move(glm::vec3 dir, float deltaTime);
 	inline bool CanMove() { return canMove; }
+
+	//Used by cubes all the time
 	inline void SetLifeSpan(float time) { live = true; lifeSpan = time; }
 	bool IsAlive();
+
+
 private:
 	float fallSpeed;
 	float speed;

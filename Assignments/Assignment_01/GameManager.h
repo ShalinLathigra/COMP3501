@@ -20,18 +20,28 @@ private:
 	int maxDepth;
 	float boxDuration;
 	float maxRotSpeed;
+	int count;
+
 public:
+	//Getters
 	inline int GetCount() { return count; }
+	Entity* GetEntity(int index);
+
+	//Utility Functions
 	void printVec3(glm::vec3 vec);
 	void printVec2(glm::vec2 vec);
-	Entity* GetEntity(int index);
-	int count;
-	void AddPlayer(Entity* play);
+
+	//Update + Functino to calculate xy dist between two vectors
 	float HorizontalDistBetween(glm::vec3 a, glm::vec3 b);
 	void Update(float deltaTime);
+
+	//Add player/Entities to collections
+	void AddPlayer(Entity* play);
 	void AddEntity(Entity newEntity);
-	void HandleInput(int key);
 	void AddRandomEntity();
+
+	//pretty self explanatory. Handles the input key
+	void HandleInput(int key);
 	GameManager();
 	~GameManager();
 };

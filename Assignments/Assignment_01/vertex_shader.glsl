@@ -8,66 +8,50 @@ in vec3 color;
 uniform mat4 world_mat;
 uniform mat4 view_mat;
 uniform mat4 projection_mat;
+uniform float z;
+uniform float isColored;
+//uniform float time;
 
 // Attributes forwarded to the fragment shader
 out vec4 color_interp;
+//out float offset;
+//out float outline;
 
 
 void main()
 {
+	
+	vec3 w = vec3(1.0, 1.0, 1.0);
 	vec3 r = vec3(1.0, 0.0, 0.0);
 	vec3 o = vec3(1.0, 0.5, 0.0);
 	vec3 y = vec3(1.0, 1.0, 0.0);
 	vec3 g = vec3(0.0, 1.0, 0.0);
 	vec3 b = vec3(0.0, 0.0, 1.0);
-	vec3 p = vec3(1.0, 0.0, 1.0);
+	vec3 p = vec3(0.6, 0.0, 1.0);
+	vec3 end;
 	
-	float rT = 1.0;
-	float oT = 2.0;
-	float yT = 3.0;
-	float gT = 4.0;
-	float bT = 5.0;
-	float pT = 6.0;
-
-    gl_Position = projection_mat * view_mat * world_mat * vec4(vertex, 1.0);
-
-	float z = -1.0 * vertex.z;
-
-	if (z<3)
-	{
-		color_interp = vec4(color, 1.0);
-	} 
-	else
-	{
-		color_interp = vec4(r, 1.0);
+	gl_Position = projection_mat * view_mat * world_mat * vec4(vertex, 1.0);
+	if (isColored == 0) {
+		end = w;
 	}
-	/*
-	else if (z < rT)
-	{
-		color_interp = vec4((rT - z) * color + z * r, 1.0);
-	} 
-	else if (z < oT)
-	{
-		color_interp = vec4((oT - z) * r + z * o, 1.0);
-	} 
-	else if (z < yT)
-	{
-		color_interp = vec4((yT - z) * b + z * y, 1.0);
-	} 
-	else if (z < gT)
-	{
-		color_interp = vec4((gT - z) * y + z * g, 1.0);
-	} 
-	else if (z < bT)
-	{
-		color_interp = vec4((bT - z) * g + z * b, 1.0);
-	} 
-	else if (z < pT)
-	{
-		color_interp = vec4((pT - z) * b + z * p, 1.0);
+	else if (z > -1){
+		end = (1 + z) * w + (-z) * r;
+	} else if (z > -2){
+		end = (2 + z) * r + (-z - 1) * o;
+	} else if (z > -3){
+		end = (3 + z) * o + (-z - 2) * y;
+	} else if (z > -4){
+		end = (4 + z) * y + (-z - 3) * g;
+	} else if (z > -5){
+		end = (5 + z) * g + (-z - 4) * b;
+	} else if (z > -4){
+		end = (6 + z) * b + (-z - 5) * p;
+	} else {
+	 	end = p;
 	}
-	else
-	{
-		color_interp = vec4(p, 1.0);
-	}*/
+	
+	end = (9 + z)/8.0 * end;
+	color_interp = vec4(end, 1.0);
+	//offset = time;
+	//outline = isColored;
 }

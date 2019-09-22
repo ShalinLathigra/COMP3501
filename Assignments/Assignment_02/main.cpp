@@ -4,19 +4,30 @@
  * Outline Reference: https://www.codeproject.com/Articles/8499/Generating-Outlines-in-OpenGL
  *
  */
-#include "Includes.h"
-#include "Entity.h"
-#include "GameManager.h"
+
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <fstream>
 #include <sstream>
 
+
+# define FACE_SET 0
+# define INDEXED_FACE_SET 1
+
 // Macro for printing exceptions
 #define PrintException(exception_object)\
 	std::cerr << exception_object.what() << std::endl
-
-#define MODEL_TORUS 1
-#define MODEL_CUBE 0
 
 // Globals that define the OpenGL window and viewport
 const std::string window_title_g = "Claw Game but it's a Septagon";
@@ -32,8 +43,6 @@ float camera_near_clip_distance_g = 0.01; // Near clipping plane
 float camera_far_clip_distance_g = 1000.0; // Far clipping plane
 float camera_fov_g = 30.0; // Field-of-view for projection
 
-//Declare Game manager so KeyCallback doesn't freak out
-GameManager* gm;
 
 // Callback for when a key is pressed
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods){
@@ -42,8 +51,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_Q && action == GLFW_PRESS){
         glfwSetWindowShouldClose(window, true);
     }
-	//Pass input to GM
-	gm->HandleInput(key);
 }
 
 
@@ -61,10 +68,214 @@ void ResizeCallback(GLFWwindow* window, int width, int height){
     (*projection_matrix) = glm::frustum(-right, right, -top, top, camera_near_clip_distance_g, camera_far_clip_distance_g);
 }
 
+
+
+
+
+// Store information of one model for rendering
+typedef struct model {
+	GLuint vbo; // OpenGL vertex buffer object
+	GLuint ebo; // OpenGL element buffer object
+	GLuint size; // Size of data to be drawn
+} Model;
+
+
+// Create the geometry for a torus
+Model *CreateCylinder(float cylinder_radius = 0.5, float cylinder_height = .25, int num_samples = 7) {
+
+	// Create a torus
+	// The torus is built from a large loop with small circles around the loop
+	// Vertices are sampled along the circles
+	const int num_circle_samples = 2;
+	// Number of vertices and faces to be created
+	const GLuint vertex_num = num_samples * num_circle_samples * 2;
+	const GLuint face_num = num_samples * num_circle_samples * 2 + (num_samples - 2) * 2;
+
+	// Number of attributes for vertices and faces
+	//const int vertex_att = 11;  // 11 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3), 2D texture coordinates (2)
+	const int vertex_att = 9;  // 11 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3)
+	const int face_att = 3; // Vertex indices (3)
+
+	// Data buffers for the torus
+	GLfloat *vertex = NULL;
+	GLuint *face = NULL;
+
+	// Allocate memory for buffers
+	try {
+		vertex = new GLfloat[vertex_num * vertex_att];
+		face = new GLuint[face_num * face_att];
+	}
+	catch (std::exception &e) {
+		throw e;
+	}
+
+	// Create vertices 
+	float theta, phi; // Angles for circles
+	glm::vec3 loop_center;
+	glm::vec3 vertex_position;
+	glm::vec3 vertex_normal;
+	glm::vec3 vertex_color;
+	//glm::vec2 vertex_coord;
+
+	//used for calculating endcaps
+	glm::vec3 alt_normal;
+	int alt_start = num_samples * num_circle_samples;
+	//------------------------------------------------------------------------------------------------------
+	//
+	//												Define Verts:
+	//
+	//------------------------------------------------------------------------------------------------------
+	for (int i = 0; i < num_samples; i++) { // large loop
+
+		theta = 2.0*glm::pi<GLfloat>()*i / num_samples; // loop sample (angle theta)
+		loop_center = glm::vec3(cylinder_radius*cos(theta), 0, cylinder_radius*sin(theta)); // centre of a small circle
+
+		for (int j = 0; j < num_circle_samples; j++) { // small circle
+
+			phi = .5*glm::pi<GLfloat>() + 2.0*glm::pi<GLfloat>()*j / num_circle_samples; // circle sample (angle phi)
+
+			// Define position, normal and color of vertex
+			vertex_normal = glm::vec3(cos(theta)*cos(phi), 0.0f, sin(theta)*cos(phi));
+			vertex_position = loop_center + vertex_normal * cylinder_height + cos((float)j * glm::pi<GLfloat>()) * glm::vec3(0.0f, cylinder_height, 0.0f);
+			vertex_color = glm::vec3(1.0 - ((float)i / (float)num_samples),
+				(float)i / (float)num_samples,
+				(float)j);
+
+
+			//std::cout << "BAS: " << i * num_circle_samples + j << ": (" << vertex_position.x << ", " << vertex_position.y << ", " << vertex_position.z << ") ";
+			//std::cout << "(" << vertex_color.x << ", " << vertex_color.y << ", " << vertex_color.z << ")" << std::endl;
+			//
+			//
+			//
+			//std::cout << "ALT: " << alt_start + i * num_circle_samples + j << ": (" << vertex_position.x << ", " << vertex_position.y << ", " << vertex_position.z << ") ";
+			//std::cout << "(" << vertex_color.x << ", " << vertex_color.y << ", " << vertex_color.z << ")" << std::endl;
+
+
+			//vertex_coord = glm::vec2(theta / 2.0*glm::pi<GLfloat>(),
+			//	phi / 2.0*glm::pi<GLfloat>());
+
+			alt_normal = cos((float)j * glm::pi<GLfloat>()) * glm::vec3(0.0f, 1.0f, 0.0f);
+
+			// Add vectors to the data buffer
+			for (int k = 0; k < 3; k++) {
+				vertex[(i*num_circle_samples + j)*vertex_att + k] = vertex_position[k];
+				vertex[(i*num_circle_samples + j)*vertex_att + k + 3] = vertex_normal[k];
+				vertex[(i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
+
+				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k] = vertex_position[k];
+				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k + 3] = alt_normal[k];
+				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
+			}
+			//vertex[(i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
+			//vertex[(i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
+
+			//vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
+			//vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
+		}
+	}
+	//------------------------------------------------------------------------------------------------------
+	//
+	//												Define Sides:
+	//
+	//------------------------------------------------------------------------------------------------------
+	// Create triangles
+	for (int i = 0; i < num_samples; i++) {
+
+		int j = 1;
+
+		glm::vec3 t1(
+			((i + 1) % num_samples)*num_circle_samples + j,
+			i*num_circle_samples + j,
+			i*num_circle_samples + ((j + 1) % num_circle_samples));
+
+		glm::vec3 t2(
+			((i + 1) % num_samples)*num_circle_samples + j,
+			i*num_circle_samples + ((j + 1) % num_circle_samples),
+			((i + 1) % num_samples)*num_circle_samples + ((j + 1) % num_circle_samples));
+
+		//std::cout << "t" << 2 * i << ": (" << t1.x << ", " << t1.y << ", " << t1.z << ")" << std::endl;
+		//std::cout << "t" << 2 * i + 1 << ": (" << t2.x << ", " << t2.y << ", " << t2.z << ")" << std::endl;
+		// Add two triangles to the data buffer
+		for (int k = 0; k < 3; k++) {
+			face[(i)*face_att * 2 + k] = (GLuint)t1[k];
+			face[(i)*face_att * 2 + k + face_att] = (GLuint)t2[k];
+		}
+	}
+
+
+	//------------------------------------------------------------------------------------------------------
+	//
+	//												Define Endcaps:
+	//
+	//------------------------------------------------------------------------------------------------------
+	//Normals for sides is calculated properly, endcaps will have normals of +-1 * (0.0f, 1.0f, 0.0f) to account for the sharp corner
+
+	//say you have num_samples = 6,
+
+	// verts: 0, 1, 2, 3, 4, 5
+	// Will have faces from:	0,1,2,	0,2,3,	0,3,4,	0,4,5
+	// total number of faces equal to num_samples - 2, or 0, 1, 2, 3
+
+	int alt_face_start = num_samples * face_att * 2;
+	for (int i = 0; i < num_samples - 2; i++)
+	{
+		glm::vec3 t1(
+			alt_start,
+			alt_start + (i + 2) * 2,
+			alt_start + (i + 1) * 2
+		);
+
+		glm::vec3 t2(
+			alt_start + 1,
+			alt_start + (i + 1) * 2 + 1,
+			alt_start + (i + 2) * 2 + 1
+		);
+
+		for (int k = 0; k < 3; k++)
+		{
+			face[alt_face_start + i * face_att * 2 + k] = (GLuint)t1[k];
+			face[alt_face_start + i * face_att * 2 + face_att + k] = (GLuint)t2[k];
+		}
+	}
+
+
+	//------------------------------------------------------------------------------------------------------
+	//
+	//												Define Models:
+	//
+	//------------------------------------------------------------------------------------------------------
+	// Create model 
+	Model *model;
+	model = new Model;
+	model->size = face_num * face_att;
+
+	// Create OpenGL buffer for vertices
+	glGenBuffers(1, &model->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, model->vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
+
+	// Create OpenGL buffer for faces
+	glGenBuffers(1, &model->ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
+
+	// Free data buffers
+	delete[] vertex;
+	delete[] face;
+
+	return model;
+}
+
+
+
+
+
+
+
 void BindBuffers(int type, Model* m)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m->vbo);
-	if (type == MODEL_TORUS)
+	if (type == FACE_SET)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ebo);
 	}
@@ -86,32 +297,6 @@ void BindStatic(GLint &vertex_att, GLint &normal_att, GLint &color_att, GLuint &
 	glEnableVertexAttribArray(color_att);
 }
 
-void ClearStencil()
-{
-	//Clear all Stencil info
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	// Set the clear value for the stencil buffer, then clear it
-	glClearStencil(0);
-	glClear(GL_STENCIL_BUFFER_BIT);
-	glEnable(GL_STENCIL_TEST);
-	// Set the stencil buffer to write a 1 in every time
-	// a pixel is written to the screen
-	glStencilFunc(GL_ALWAYS, 1, 0xFFFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	// Render the object in black
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
-void SetStencil()
-{
-	//Set stencil info for outlines
-	glStencilFunc(GL_NOTEQUAL, 1, 0xFFFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	// Draw the object with thick lines
-	glLineWidth(5.0f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-}
-
 std::string LoadString(const char * filepath)
 {
 	std::string string;
@@ -129,8 +314,8 @@ std::string LoadString(const char * filepath)
 
 void CreateProgram(GLuint & program)
 {
-	std::string vp_str = LoadString("D:\\COMP3501\\Assignments\\Assignment_01\\vertex_shader.glsl");
-	std::string fp_str = LoadString("D:\\COMP3501\\Assignments\\Assignment_01\\fragment_shader.glsl");
+	std::string vp_str = LoadString("D:\\COMP3501\\Assignments\\Assignment_02\\vertex_shader.glsl");
+	std::string fp_str = LoadString("D:\\COMP3501\\Assignments\\Assignment_02\\fragment_shader.glsl");
 
 	const char* source_vp = vp_str.c_str();
 	const char* source_fp = fp_str.c_str();
@@ -229,23 +414,10 @@ int main(void){
         glm::mat4 projection_matrix = glm::frustum(-right, right, -top, top, camera_near_clip_distance_g, camera_far_clip_distance_g);
 
 
-
-        // Initialize Game Objects + Models
-		gm = new GameManager();
-		Model* torus = Entity::CreateTorus(.6f, .05f, 7, 4);
-		Model* cube = Entity::CreateCube();
-
-		Entity* player = new Entity(glm::vec3(0,0,0), glm::vec3(.5,.5,.5));
-		player->SetAxis(glm::vec3(0.0f, 0.0f, 1.0f));
-		player->SetRotSpeed(240.0f);	// Degrees per second
-		gm->AddPlayer(player);
-
-
         // **** Set up shaders
 
         // Create a shader from vertex program source code
 
-		GLint status;
 		GLuint program;
 		CreateProgram(program);
 
@@ -256,6 +428,10 @@ int main(void){
         glfwSetWindowUserPointer(window, (void *) &projection_matrix);
         glfwSetKeyCallback(window, KeyCallback);
         glfwSetFramebufferSizeCallback(window, ResizeCallback);
+
+
+		Model* cylinder = CreateCylinder();
+
 
         // Run the main loop
         while (!glfwWindowShouldClose(window)){
@@ -270,11 +446,7 @@ int main(void){
 			static double last_time = 0;
 			double current_time = glfwGetTime(); // Get time in seconds
 			//Game Logic
-
-			//Update all objects, pass in deltaTime
-			gm->Update(current_time - last_time);
-
-
+					   
 			last_time = current_time;
 
             // **** Draw the tester
@@ -302,78 +474,21 @@ int main(void){
 
 
 
-			//Clear Stencil information used for drawing the last outline
-			ClearStencil();
-
 			//Bind Torus Buffer + other attributes
-			BindBuffers(MODEL_TORUS, torus);
+			BindBuffers(INDEXED_FACE_SET, cylinder);
 			//Bind Vertex, Normal, Color Attributes
 			BindStatic(vertex_att, normal_att, color_att, program);
 
 			//Declare values to be filled in later
 			// Set world transformation matrix for player in shader
-			glm::vec3 offset(0);
-			for (int i = 0; i < 5; i++)
-			{
-				// Set z offset used for drawing the path to Torus
-				offset.z = -i * 2.0f;
-				transf = glm::translate(glm::mat4(1), gm->GetEntity(gm->GetCount())->GetPosition() + offset) * glm::mat4_cast(gm->GetEntity(gm->GetCount())->GetOrientation()) * glm::scale(glm::mat4(1.0), gm->GetEntity(gm->GetCount())->GetScale());
-				world_mat = glGetUniformLocation(program, "world_mat");
-				glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+			transf = glm::translate(glm::mat4(1), glm::vec3(-.5, -.5, 0.0)) * glm::mat4_cast(glm::quat()) * glm::scale(glm::mat4(1.0), glm::vec3(.5f, .5f, .5f));
+			world_mat = glGetUniformLocation(program, "world_mat");
+			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+
+			//Draw Torus
+			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
 
 
-				z = glGetUniformLocation(program, "z");
-				isColored = glGetUniformLocation(program, "isColored");
-				//time = glGetUniformLocation(program, "time");
-				//Player colour will always be white
-				glUniform1f(isColored, 0);
-				//glUniform1f(time, current_time);
-
-				//Bind z value, used to calculate colour. See top comment for why.
-				if (i == 0)
-				{
-					glUniform1f(z, gm->GetEntity(gm->GetCount())->GetPosition().z + offset.z);
-				}
-				else 
-				{
-					glUniform1f(z, -8.0f + (gm->GetEntity(gm->GetCount())->GetPosition().z / 8.0f));
-				}
-
-				//Draw Torus
-				glDrawElements(GL_TRIANGLES, torus->size, GL_UNSIGNED_INT, 0);
-			}
-
-			//Bind Cube buffer, re-bind all other attributes
-			BindBuffers(MODEL_CUBE, cube);
-
-			BindStatic(vertex_att, normal_att, color_att, program);
-
-			//Render all cubes
-			for (int i = 0; i < gm->GetCount(); i++)
-			{
-				// Set world transformation matrix for tester in shader
-				transf = gm->GetEntity(i)->GenerateMatrix();
-				world_mat = glGetUniformLocation(program, "world_mat");
-				glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
-
-				z = glGetUniformLocation(program, "z");
-				isColored = glGetUniformLocation(program, "isColored");
-				glUniform1f(z, gm->GetEntity(i)->GetPosition().z);
-				glUniform1f(isColored, 1);
-				
-				//Turn off Stencil Info
-				ClearStencil();
-				//Draw Arrays
-				glDrawArrays(GL_TRIANGLES, 0, cube->size);
-
-				//Turn off Color for outline
-				glUniform1f(isColored, 0);
-				//Enable Outline Drawing
-				SetStencil();
-				//Draw outlines
-				glDrawArrays(GL_TRIANGLES, 0, cube->size);
-
-			}
 
             // Update other events like input handling
             glfwPollEvents();

@@ -1,4 +1,4 @@
-
+//I'm lazy, don't want to type this every time.
 #include <iostream>
 #include <stdexcept>
 #include <string>

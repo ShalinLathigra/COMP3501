@@ -1,7 +1,9 @@
 #include "Entity.h"
 
 
+//Constructors
 
+//Loosely bounded objects
 Entity::Entity()
 {
 	maxBound = 10.0f;
@@ -14,6 +16,7 @@ Entity::Entity()
 	speed = 0.0f;
 	canMove = true;
 }
+//tightly bounded objects
 Entity::Entity(glm::vec3 pos, glm::vec3 sin)
 {
 	canMove = true;
@@ -32,15 +35,19 @@ Entity::~Entity()
 {
 }
 
+//Restrict x-y movement if "Falling"
 void Entity::Fall()
 {
 	direction.z = -fallSpeed;
 	canMove = false;
 }
+
+//Update position based off vel & passed time
 void Entity::Move(glm::vec3 vel, float deltaTime)
 {
 	if (canMove)
 	{
+		//Bound  x/y
 		if (position.x > maxBound && vel.x > 0)
 		{
 			vel.x = 0;
@@ -61,6 +68,7 @@ void Entity::Move(glm::vec3 vel, float deltaTime)
 	}
 	else 
 	{
+		//Bound Z
 		vel = glm::vec3(0.0f, 0.0f, vel.z);
 		if (position.z < -8.0f)
 		{
@@ -83,10 +91,12 @@ bool Entity::IsAlive()
 	return live;
 }
 
+
+//Update based off passed time from last frame
 void Entity::Update(float deltaTime)
 {
 	Move(speed * direction, deltaTime);
-	glm::quat rotation = glm::angleAxis(rotSpeed * glm::pi<float>() / 180.0f, axisOfRotation);
+	glm::quat rotation = glm::angleAxis(rotSpeed * deltaTime * glm::pi<float>() / 180.0f, axisOfRotation);
 	orientation *= rotation;
 
 	if (live)
@@ -98,6 +108,8 @@ void Entity::Update(float deltaTime)
 		}
 	}
 }
+
+
 // Create the geometry for a torus
 Model* Entity::CreateTorus(float loop_radius, float circle_radius, int num_loop_samples, int num_circle_samples) {
 
@@ -203,6 +215,7 @@ Model* Entity::CreateTorus(float loop_radius, float circle_radius, int num_loop_
 Model* Entity::CreateCube(void) {
 	// The construction does *not* use shared vertices
 	// 9 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3)
+	// Define Faces: 
 	GLfloat vertex[] = {
 		// First triangle
 		 0.5,  0.5,  -0.5,    0.0,  0.0,  -1.0,    1.0, 0.0, 0.0,
