@@ -1,10 +1,13 @@
+
+
+
 /*
  *
  * A program that demonstrates how to create and render a torus mesh
  *
  * Copyright (c) 2018 Oliver van Kaick <Oliver.vanKaick@carleton.ca>, David Mould <mould@scs.carleton.ca>
- */
-
+ *
+ 
 
 #include <iostream>
 #include <stdexcept>
@@ -59,8 +62,8 @@ out vec4 color_interp;\n\
 \n\
 void main()\n\
 {\n\
-	gl_Position = projection_mat * view_mat * world_mat * vec4(vertex, 1.0);\n\
-	color_interp = vec4(color, 1.0);\n\
+    gl_Position = projection_mat * view_mat * world_mat * vec4(vertex, 1.0);\n\
+    color_interp = vec4(color, 1.0);\n\
 }";
 
 
@@ -74,7 +77,7 @@ in vec4 color_interp;\n\
 \n\
 void main()\n\
 {\n\
-	gl_FragColor = color_interp;\n\
+    gl_FragColor = color_interp;\n\
 }";
 
 
@@ -143,7 +146,7 @@ Model *CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int num_l
 		throw e;
 	}
 
-	// Create vertices
+	// Create vertices 
 	float theta, phi; // Angles for circles
 	glm::vec3 loop_center;
 	glm::vec3 vertex_position;
@@ -198,7 +201,7 @@ Model *CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int num_l
 		}
 	}
 
-	// Create model
+	// Create model 
 	Model *model;
 	model = new Model;
 	model->size = face_num * face_att;
@@ -257,7 +260,7 @@ int main(void) {
 		glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
 
-		// Set current view
+		// Set current view 
 		glm::mat4 view_matrix = glm::lookAt(camera_position_g, camera_look_at_g, camera_up_g);
 
 		// Set projection
@@ -399,3 +402,6 @@ int main(void) {
 
 	return 0;
 }
+
+*/
+

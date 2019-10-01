@@ -1,24 +1,28 @@
 cmake_minimum_required(VERSION 2.6)
 
 # Name of project
-project(TorusDemo)
+set(PROJ_NAME "CameraDemo")
+project(${PROJ_NAME})
 
-# Specify project source files
+# Specify project files: header files and source files
+set(HDRS
+    asteroid.h camera.h game.h resource.h resource_manager.h scene_graph.h scene_node.h
+)
+ 
 set(SRCS
-   main.cpp 
-   main2.cpp 
-   fragment_shader.glsl
-   vertex_shader.glsl
-   
+   asteroid.cpp camera.cpp game.cpp main.cpp resource.cpp resource_manager.cpp scene_graph.cpp scene_node.cpp material_vp.glsl material_fp.glsl 
 )
 
-# Add executable based on the source files
-add_executable(TorusDemo ${SRCS})
+# Add path name to configuration file
+configure_file(path_config.h.in path_config.h)
+
+# Add executable based on the header and source files
+add_executable(${PROJ_NAME} ${HDRS} ${SRCS})
 
 # Require OpenGL library
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
-target_link_libraries(TorusDemo ${OPENGL_gl_LIBRARY})
+target_link_libraries(${PROJ_NAME} ${OPENGL_gl_LIBRARY})
 
 # Other libraries needed
 set(LIBRARY_PATH "" CACHE PATH "Folder with GLEW, GLFW, GLM, and SOIL libraries")
@@ -32,9 +36,9 @@ elseif(WIN32)
     find_library(GLFW_LIBRARY glfw3 HINTS ${LIBRARY_PATH}/lib)
     find_library(SOIL_LIBRARY SOIL HINTS ${LIBRARY_PATH}/lib)
 endif(NOT WIN32)
-target_link_libraries(TorusDemo ${GLEW_LIBRARY})
-target_link_libraries(TorusDemo ${GLFW_LIBRARY})
-target_link_libraries(TorusDemo ${SOIL_LIBRARY})
+target_link_libraries(${PROJ_NAME} ${GLEW_LIBRARY})
+target_link_libraries(${PROJ_NAME} ${GLFW_LIBRARY})
+target_link_libraries(${PROJ_NAME} ${SOIL_LIBRARY})
 
 # The rules here are specific to Windows Systems
 if(WIN32)
@@ -42,5 +46,5 @@ if(WIN32)
     set(CMAKE_SUPPRESS_REGENERATION TRUE)
  
     # This will use the proper libraries in debug mode in Visual Studio
-    set_target_properties(TorusDemo PROPERTIES DEBUG_POSTFIX _d)
+    set_target_properties(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX _d)
 endif(WIN32)

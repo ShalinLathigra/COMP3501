@@ -1,3 +1,5 @@
+// Material with no illumination simulation
+
 #version 130
 
 // Vertex buffer
@@ -16,5 +18,6 @@ out vec4 color_interp;
 void main()
 {
     gl_Position = projection_mat * view_mat * world_mat * vec4(vertex, 1.0);
+
     color_interp = vec4(color, 1.0);
 }

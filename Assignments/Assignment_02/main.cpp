@@ -5,9 +5,15 @@
  *
  */
 
+//Set cool = true for slightly increased coolness
+const bool cool = false;
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <vector>
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -18,8 +24,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <fstream>
-#include <sstream>
 
 
 # define FACE_SET 0
@@ -29,14 +33,14 @@
 #define PrintException(exception_object)\
 	std::cerr << exception_object.what() << std::endl
 
-// Globals that define the OpenGL window and viewport
-const std::string window_title_g = "Claw Game but it's a Septagon";
+// Globals that define the OpenGL window and viewport 
+const std::string window_title_g = "BOOM BOOM!";
 const unsigned int window_width_g = 800;
 const unsigned int window_height_g = 600;
 const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
 
 // Globals that define the OpenGL camera view and projection
-glm::vec3 camera_position_g(0.0, 0.0, 3.0); // Position of camera
+glm::vec3 camera_position_g(0.0, 0.0, 5.0); // Position of camera
 glm::vec3 camera_look_at_g(0.0, 0.0, 0.0); // Point looking at
 glm::vec3 camera_up_g(0.0, 1.0, 0.0); // Up vector
 float camera_near_clip_distance_g = 0.01; // Near clipping plane
@@ -81,7 +85,7 @@ typedef struct model {
 
 
 // Create the geometry for a torus
-Model *CreateCylinder(float cylinder_radius = 0.5, float cylinder_height = .25, int num_samples = 7) {
+Model *CreateCylinder(float cylinder_radius = .5, float cylinder_height = 1.0, int num_samples = 11) {
 
 	// Create a torus
 	// The torus is built from a large loop with small circles around the loop
@@ -128,7 +132,7 @@ Model *CreateCylinder(float cylinder_radius = 0.5, float cylinder_height = .25, 
 	for (int i = 0; i < num_samples; i++) { // large loop
 
 		theta = 2.0*glm::pi<GLfloat>()*i / num_samples; // loop sample (angle theta)
-		loop_center = glm::vec3(cylinder_radius*cos(theta), 0, cylinder_radius*sin(theta)); // centre of a small circle
+		loop_center = glm::vec3(cylinder_radius*cos(theta), -.5f * cylinder_height, cylinder_radius*sin(theta)); // centre of a small circle
 
 		for (int j = 0; j < num_circle_samples; j++) { // small circle
 
@@ -136,23 +140,10 @@ Model *CreateCylinder(float cylinder_radius = 0.5, float cylinder_height = .25, 
 
 			// Define position, normal and color of vertex
 			vertex_normal = glm::vec3(cos(theta)*cos(phi), 0.0f, sin(theta)*cos(phi));
-			vertex_position = loop_center + vertex_normal * cylinder_height + cos((float)j * glm::pi<GLfloat>()) * glm::vec3(0.0f, cylinder_height, 0.0f);
+			vertex_position = loop_center + glm::vec3(0.0f, j * cylinder_height, 0.0f);
 			vertex_color = glm::vec3(1.0 - ((float)i / (float)num_samples),
 				(float)i / (float)num_samples,
 				(float)j);
-
-
-			//std::cout << "BAS: " << i * num_circle_samples + j << ": (" << vertex_position.x << ", " << vertex_position.y << ", " << vertex_position.z << ") ";
-			//std::cout << "(" << vertex_color.x << ", " << vertex_color.y << ", " << vertex_color.z << ")" << std::endl;
-			//
-			//
-			//
-			//std::cout << "ALT: " << alt_start + i * num_circle_samples + j << ": (" << vertex_position.x << ", " << vertex_position.y << ", " << vertex_position.z << ") ";
-			//std::cout << "(" << vertex_color.x << ", " << vertex_color.y << ", " << vertex_color.z << ")" << std::endl;
-
-
-			//vertex_coord = glm::vec2(theta / 2.0*glm::pi<GLfloat>(),
-			//	phi / 2.0*glm::pi<GLfloat>());
 
 			alt_normal = cos((float)j * glm::pi<GLfloat>()) * glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -166,11 +157,6 @@ Model *CreateCylinder(float cylinder_radius = 0.5, float cylinder_height = .25, 
 				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k + 3] = alt_normal[k];
 				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
 			}
-			//vertex[(i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
-			//vertex[(i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
-
-			//vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
-			//vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
 		}
 	}
 	//------------------------------------------------------------------------------------------------------
@@ -183,18 +169,27 @@ Model *CreateCylinder(float cylinder_radius = 0.5, float cylinder_height = .25, 
 
 		int j = 1;
 
-		glm::vec3 t1(
+		glm::vec3 t1, t2;
+		if (cool)
+		{
+			t1 = glm::vec3(
+				((i + 1) % num_samples)*num_circle_samples + j,
+				i*num_circle_samples + j,
+				i*num_circle_samples + ((j + 1) % num_circle_samples));
+		}
+		else 
+		{
+			t1 = glm::vec3(
+				((i + 1) % num_samples)*num_circle_samples + j,
+				i*num_circle_samples + ((j + 1) % num_circle_samples),
+				i*num_circle_samples + j);
+		}
+
+		t2 = glm::vec3(
 			((i + 1) % num_samples)*num_circle_samples + j,
-			i*num_circle_samples + j,
+			((i + 1) % num_samples)*num_circle_samples + ((j + 1) % num_circle_samples),
 			i*num_circle_samples + ((j + 1) % num_circle_samples));
 
-		glm::vec3 t2(
-			((i + 1) % num_samples)*num_circle_samples + j,
-			i*num_circle_samples + ((j + 1) % num_circle_samples),
-			((i + 1) % num_samples)*num_circle_samples + ((j + 1) % num_circle_samples));
-
-		//std::cout << "t" << 2 * i << ": (" << t1.x << ", " << t1.y << ", " << t1.z << ")" << std::endl;
-		//std::cout << "t" << 2 * i + 1 << ": (" << t2.x << ", " << t2.y << ", " << t2.z << ")" << std::endl;
 		// Add two triangles to the data buffer
 		for (int k = 0; k < 3; k++) {
 			face[(i)*face_att * 2 + k] = (GLuint)t1[k];
@@ -209,26 +204,20 @@ Model *CreateCylinder(float cylinder_radius = 0.5, float cylinder_height = .25, 
 	//
 	//------------------------------------------------------------------------------------------------------
 	//Normals for sides is calculated properly, endcaps will have normals of +-1 * (0.0f, 1.0f, 0.0f) to account for the sharp corner
-
-	//say you have num_samples = 6,
-
-	// verts: 0, 1, 2, 3, 4, 5
-	// Will have faces from:	0,1,2,	0,2,3,	0,3,4,	0,4,5
-	// total number of faces equal to num_samples - 2, or 0, 1, 2, 3
-
+	
 	int alt_face_start = num_samples * face_att * 2;
 	for (int i = 0; i < num_samples - 2; i++)
 	{
 		glm::vec3 t1(
 			alt_start,
-			alt_start + (i + 2) * 2,
-			alt_start + (i + 1) * 2
+			alt_start + (i + 1) * 2,
+			alt_start + (i + 2) * 2
 		);
 
 		glm::vec3 t2(
 			alt_start + 1,
-			alt_start + (i + 1) * 2 + 1,
-			alt_start + (i + 2) * 2 + 1
+			alt_start + (i + 2) * 2 + 1,
+			alt_start + (i + 1) * 2 + 1
 		);
 
 		for (int k = 0; k < 3; k++)
@@ -433,6 +422,134 @@ int main(void){
 		Model* cylinder = CreateCylinder();
 
 
+		//ISROT
+		//Translate to get joint to origin
+		//rotate
+		//translate joint to end pos for joint
+		//
+		float yOff = .5f;
+		//central structure
+		glm::vec3 base_pos(0, .2f - yOff, 0);
+		glm::vec3 base_joint(0, 0, 0);
+		glm::vec3 base_axis(0, 1, 0);
+		float base_rot_speed = glm::pi<float>() / 180.0f;
+
+		glm::mat4 base_translation;
+		glm::quat base_orientation;
+		glm::mat4 base_orbit;
+		glm::mat4 base_scale = glm::scale(glm::mat4(1.0), glm::vec3(.6f, .4f, .6f));
+
+
+
+		glm::vec3 stand_pos(0, -.375f, 0);
+		//glm::vec3 stand_joint(0, 0, 0);
+		//glm::vec3 stand_axis(0, 1, 0);
+		//float stand_rot_speed = 0.0f;	//No rotation with respect to base
+
+		glm::mat4 stand_translation;
+		//glm::quat stand_orientation;
+		//glm::mat4 stand_orbit;
+		glm::mat4 stand_scale = glm::scale(glm::mat4(1.0), glm::vec3(.3f, .75f, .3f));
+
+
+
+
+		glm::vec3 outer_pos(0, -.05, 0);	//Position in relation to the base
+		glm::vec3 outer_joint(0, -.5f, 0);	//joint located at local 0, -.5, 0
+		glm::vec3 outer_flex_axis(1, 0, 0);	//Rotating only about x axis, getting it to tilt down
+		//glm::vec3 outer_rot_axis(0, 1, 0);	//Rotating only about z axis, getting it to rotate
+		//float outer_rot_speed = -1.0f * glm::pi<float>() / 90.0f;
+		float outer_flex_speed = 1.0f;
+
+		glm::mat4 outer_translation;
+		//glm::quat outer_orientation;
+		glm::mat4 outer_orbit;
+		glm::mat4 outer_scale = glm::scale(glm::mat4(1.0), glm::vec3(.1f, 1.0f, .1f));
+
+
+
+		glm::vec3 inner_pos(0, 0, 0);	//Position in relation to arm
+		//glm::vec3 inner_joint(0, 0, 0);	//joint located at local 0, -.5, 0
+		//glm::vec3 inner_flex_axis(1, 0, 0);	//Rotating only about x axis, getting it to tilt down
+		//glm::vec3 inner_rot_axis(0, 1, 0);	//Rotating only about z axis, getting it to rotate
+		//float inner_rot_speed = 2.0f * glm::pi<float>() / 90.0f;
+		float inner_move_speed = 1.5f;
+
+		glm::mat4 inner_translation;
+		//glm::quat inner_orientation;
+		//glm::mat4 inner_orbit;
+		glm::mat4 inner_scale = glm::scale(glm::mat4(1.0), glm::vec3(.05f, .75f, .05f));
+
+
+
+		float arm_flex_speed = 1.0f;
+		glm::vec3 arm_0_pos(0, .15, 0);	//Position in relation to the base
+		glm::vec3 arm_0_joint(0, -.15f, 0);	//joint located at local 0, -.5, 0
+		glm::vec3 arm_0_flex_axis(0.0f, 0.0f, 1.0f);	//Rotating only about x axis, getting it to tilt down
+		arm_0_flex_axis = glm::normalize(arm_0_flex_axis);
+		//glm::vec3 outer_rot_axis(0, 1, 0);	//Rotating only about z axis, getting it to rotate
+		//float outer_rot_speed = -1.0f * glm::pi<float>() / 90.0f;
+		float arm_0_flex_range = 4.0f;
+
+		glm::mat4 arm_0_translation;
+		glm::mat4 arm_0_orbit;
+		glm::mat4 arm_0_scale = glm::scale(glm::mat4(1.0), glm::vec3(.1f, .3f, .1f));
+
+
+		glm::vec3 arm_1_pos(0, .15, 0);	//Position in relation to the base
+		glm::vec3 arm_1_joint(0, -.15f, 0);	//joint located at local 0, -.5, 0
+		glm::vec3 arm_1_flex_axis(0.0f, 0.0f, 1.0f);	//Rotating only about x axis, getting it to tilt down
+		arm_1_flex_axis = glm::normalize(arm_1_flex_axis);
+		//glm::vec3 outer_rot_axis(0, 1, 0);	//Rotating only about z axis, getting it to rotate
+		//float outer_rot_speed = -1.0f * glm::pi<float>() / 90.0f;
+		float arm_1_flex_range = 4.0f;
+
+		glm::mat4 arm_1_translation;
+		glm::mat4 arm_1_orbit;
+		glm::mat4 arm_1_scale = glm::scale(glm::mat4(1.0), glm::vec3(.1f, .3f, .1f));
+
+
+		glm::vec3 arm_2_pos(0, .15, 0);	//Position in relation to the base
+		glm::vec3 arm_2_joint(0, -.15f, 0);	//joint located at local 0, -.5, 0
+		glm::vec3 arm_2_flex_axis(0.0f, 0.0f, 1.0f);	//Rotating only about x axis, getting it to tilt down
+		arm_2_flex_axis = glm::normalize(arm_2_flex_axis);
+		//glm::vec3 outer_rot_axis(0, 1, 0);	//Rotating only about z axis, getting it to rotate
+		//float outer_rot_speed = -1.0f * glm::pi<float>() / 90.0f;
+		float arm_2_flex_range = 4.0f;
+
+		glm::mat4 arm_2_translation;
+		glm::mat4 arm_2_orbit;
+		glm::mat4 arm_2_scale = glm::scale(glm::mat4(1.0), glm::vec3(.1f, .3f, .1f));
+
+
+
+		glm::vec3 claw_0_pos(0, 0, 0);	//Position in relation to the base
+		glm::vec3 claw_0_joint(0, -.25f, 0);	//joint located at local 0, -.5, 0
+		glm::vec3 claw_0_flex_axis(0.0f, 0.0f, 1.0f);	//Rotating only about x axis, getting it to tilt down
+		claw_0_flex_axis = glm::normalize(claw_0_flex_axis);
+		//glm::vec3 outer_rot_axis(0, 1, 0);	//Rotating only about z axis, getting it to rotate
+		//float outer_rot_speed = -1.0f * glm::pi<float>() / 90.0f;
+		float claw_0_flex_range = 4.0f;
+
+		glm::mat4 claw_0_translation;
+		glm::mat4 claw_0_orbit;
+		glm::mat4 claw_0_scale = glm::scale(glm::mat4(1.0), glm::vec3(.1f, .25f, .1f));
+
+
+		glm::vec3 claw_1_pos(0, 0, 0);	//Position in relation to the base
+		glm::vec3 claw_1_joint(0, -.25f, 0);	//joint located at local 0, -.5, 0
+		glm::vec3 claw_1_flex_axis(0.0f, 0.0f, -1.0f);	//Rotating only about x axis, getting it to tilt down
+		claw_1_flex_axis = glm::normalize(claw_1_flex_axis);
+		//glm::vec3 outer_rot_axis(0, 1, 0);	//Rotating only about z axis, getting it to rotate
+		//float outer_rot_speed = -1.0f * glm::pi<float>() / 90.0f;
+		float claw_1_flex_range = 4.0f;
+
+		glm::mat4 claw_1_translation;
+		glm::mat4 claw_1_orbit;
+		glm::mat4 claw_1_scale = glm::scale(glm::mat4(1.0), glm::vec3(.1f, .25f, .1f));
+
+
+
         // Run the main loop
         while (!glfwWindowShouldClose(window)){
             // Clear background
@@ -445,9 +562,65 @@ int main(void){
                 // Check how much time elapsed since the last update
 			static double last_time = 0;
 			double current_time = glfwGetTime(); // Get time in seconds
-			//Game Logic
-					   
-			last_time = current_time;
+			
+			if (current_time - last_time > .01)
+			{
+				//Game Logic
+				//Animate Base
+				glm::quat base_rotation = glm::angleAxis(base_rot_speed, base_axis);
+				base_orientation *= base_rotation;
+				base_orientation = glm::normalize(base_orientation);
+
+				//Animate Stand (Nothing actually needs to happen here, it is just gonna mimic the Base)
+				//glm::quat stand_rotation = glm::angleAxis(stand_rot_speed, stand_axis);
+				//stand_orientation *= stand_rotation;
+				//stand_orientation = glm::normalize(stand_orientation);
+
+				//Animate Arm
+				//glm::quat outer_rotation = glm::angleAxis(outer_rot_speed, outer_rot_axis);
+				//outer_orientation *= outer_rotation;
+				//outer_orientation = glm::normalize(outer_orientation);
+				//from 2 to 2.5
+				// = 2.25 + sin(time) * .25
+				float amount = 2.5 + sin(glm::pi<float>() * current_time * outer_flex_speed) * .5;
+				glm::quat outer_flex = glm::angleAxis(glm::pi<float>() / amount, outer_flex_axis);
+				outer_orbit = glm::mat4_cast(outer_flex) * glm::translate(glm::mat4(1.0), -outer_joint);
+
+
+				//Animate Inner
+				//glm::quat inner_rotation = glm::angleAxis(inner_rot_speed, inner_rot_axis);
+				//inner_orientation *= inner_rotation;
+				//inner_orientation = glm::normalize(inner_orientation);
+				inner_pos = glm::vec3(0.0f, .5f + .375f * cos(glm::pi<float>() * current_time * inner_move_speed), 0.0f);
+
+
+				//4.0 to -4.0
+				amount = sin(glm::pi<float>() * (float)current_time);
+
+				//-1/4 to 1/4
+				//-.25 + .5
+				amount = cos(glm::pi<float>() * current_time * arm_flex_speed) * .25f;
+				glm::quat arm_0_flex = glm::angleAxis(glm::pi<float>() * amount, arm_0_flex_axis);
+				arm_0_orbit = glm::mat4_cast(arm_0_flex) * glm::translate(glm::mat4(1), -arm_0_joint);
+				
+				glm::quat arm_1_flex = glm::angleAxis(glm::pi<float>() * amount, arm_1_flex_axis);
+				arm_1_orbit = glm::mat4_cast(arm_1_flex) * glm::translate(glm::mat4(1), -arm_1_joint);
+
+				glm::quat arm_2_flex = glm::angleAxis(glm::pi<float>() * amount, arm_2_flex_axis);
+				arm_2_orbit = glm::mat4_cast(arm_2_flex) * glm::translate(glm::mat4(1), -arm_2_joint);
+
+				amount = .05f + .20f * abs(sin(glm::pi<float>() * (float)current_time));
+				glm::quat claw_0_flex = glm::angleAxis(glm::pi<float>() * amount, claw_0_flex_axis);
+				claw_0_orbit = glm::mat4_cast(claw_0_flex) * glm::translate(glm::mat4(1), -claw_0_joint);
+
+
+				glm::quat claw_1_flex = glm::angleAxis(glm::pi<float>() * amount, claw_1_flex_axis);
+				claw_1_orbit = glm::mat4_cast(claw_1_flex) * glm::translate(glm::mat4(1), -claw_1_joint);
+
+
+
+				last_time = current_time;
+			}
 
             // **** Draw the tester
 
@@ -461,34 +634,126 @@ int main(void){
 			GLint view_mat;
 			GLint projection_mat;
 
-			GLint vertex_att, normal_att, color_att, z, isColored;// , time;
-
-
-			// Set view matrix in shader
-			view_mat = glGetUniformLocation(program, "view_mat");
-			glUniformMatrix4fv(view_mat, 1, GL_FALSE, glm::value_ptr(view_matrix));
-
-			// Set projection matrix in shader
-			projection_mat = glGetUniformLocation(program, "projection_mat");
-			glUniformMatrix4fv(projection_mat, 1, GL_FALSE, glm::value_ptr(projection_matrix));
-
-
+			GLint vertex_att, normal_att, color_att;// , time;
 
 			//Bind Torus Buffer + other attributes
 			BindBuffers(INDEXED_FACE_SET, cylinder);
 			//Bind Vertex, Normal, Color Attributes
 			BindStatic(vertex_att, normal_att, color_att, program);
 
+			view_mat = glGetUniformLocation(program, "view_mat");
+			glUniformMatrix4fv(view_mat, 1, GL_FALSE, glm::value_ptr(view_matrix));
+			projection_mat = glGetUniformLocation(program, "projection_mat");
+			glUniformMatrix4fv(projection_mat, 1, GL_FALSE, glm::value_ptr(projection_matrix));
+
+
 			//Declare values to be filled in later
 			// Set world transformation matrix for player in shader
-			transf = glm::translate(glm::mat4(1), glm::vec3(-.5, -.5, 0.0)) * glm::mat4_cast(glm::quat()) * glm::scale(glm::mat4(1.0), glm::vec3(.5f, .5f, .5f));
+
+
+			//RENDERING
+
+
+
+
+			//Order of Operations:
+
+
+			//COMPOSE BASE TRANSLATIONS!!!!!-------------------------------------------------------
+			base_translation = glm::translate(glm::mat4(1.0), base_pos);
+			glm::mat4 base_matrix = base_translation * glm::mat4_cast(base_orientation);
+			//DRAW BASE
+			transf = base_matrix * base_scale;
 			world_mat = glGetUniformLocation(program, "world_mat");
 			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
-
-			//Draw Torus
 			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
 
 
+			//COMPOSE STAND TRANSLATIONS!!!!!-------------------------------------------------------
+			stand_translation = glm::translate(glm::mat4(1.0), stand_pos);
+			//glm::mat4 stand_matrix = base_matrix * stand_translation * glm::mat4_cast(stand_orientation);
+			glm::mat4 stand_matrix = base_matrix * stand_translation;
+			transf = stand_matrix * stand_scale;
+			//DRAW STAND
+			world_mat = glGetUniformLocation(program, "world_mat");
+			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
+
+
+			//COMPOSE OUTER TRANSLATIONS!!!!!-------------------------------------------------------
+			outer_translation = glm::translate(glm::mat4(1.0), outer_pos);
+			//glm::mat4 outer_matrix = outer_translation * outer_orbit * glm::mat4_cast(outer_orientation);
+			glm::mat4 outer_matrix = outer_translation * outer_orbit;
+			transf = base_matrix * outer_matrix * outer_scale * glm::mat4(1);
+			//DRAW OUTER
+			world_mat = glGetUniformLocation(program, "world_mat");
+			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
+
+
+			//COMPOSE INNER TRANSLATIONS!!!!!-------------------------------------------------------
+			inner_translation = glm::translate(glm::mat4(1.0), inner_pos);
+			//glm::mat4 inner_matrix = inner_translation * inner_orbit * glm::mat4_cast(inner_orientation);
+			glm::mat4 inner_matrix = inner_translation;
+			transf = base_matrix * outer_matrix * inner_matrix * inner_scale * glm::mat4(1);
+			//DRAW INNER
+			world_mat = glGetUniformLocation(program, "world_mat");
+			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
+
+
+			//COMPOSE ARM_0 TRANSLATIONS!!!!!-------------------------------------------------------
+			arm_0_translation = glm::translate(glm::mat4(1.0), arm_0_pos);
+			glm::mat4 arm_0_matrix = arm_0_translation * arm_0_orbit;
+			transf = base_matrix * arm_0_matrix * arm_0_scale * glm::mat4(1);
+			//DRAW ARM_0
+			world_mat = glGetUniformLocation(program, "world_mat");
+			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
+
+
+			//COMPOSE ARM_1 TRANSLATIONS!!!!!-------------------------------------------------------
+			arm_1_translation = glm::translate(glm::mat4(1.0), arm_1_pos);
+			glm::mat4 arm_1_matrix = arm_1_translation * arm_1_orbit;
+			transf = base_matrix * arm_0_matrix * arm_1_matrix * arm_1_scale * glm::mat4(1);
+			//DRAW ARM_1
+			world_mat = glGetUniformLocation(program, "world_mat");
+			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
+
+
+
+			//COMPOSE ARM_2 TRANSLATIONS!!!!!-------------------------------------------------------
+			arm_2_translation = glm::translate(glm::mat4(1.0), arm_2_pos);
+			glm::mat4 arm_2_matrix = arm_2_translation * arm_2_orbit;
+			transf = base_matrix * arm_0_matrix * arm_1_matrix * arm_2_matrix * arm_2_scale * glm::mat4(1);
+			//DRAW ARM_2
+			world_mat = glGetUniformLocation(program, "world_mat");
+			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
+
+
+
+			//COMPOSE CLAW_0 TRANSLATIONS!!!!!-------------------------------------------------------
+			claw_0_translation = glm::translate(glm::mat4(1.0), claw_0_pos);
+			glm::mat4 claw_0_matrix = claw_0_translation * claw_0_orbit;
+			transf = base_matrix * arm_0_matrix * arm_1_matrix * arm_2_matrix * claw_0_matrix * claw_0_scale * glm::mat4(1);
+			//DRAW CLAW_0
+			world_mat = glGetUniformLocation(program, "world_mat");
+			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
+
+			//COMPOSE CLAW_1 TRANSLATIONS!!!!!-------------------------------------------------------
+			claw_1_translation = glm::translate(glm::mat4(1.0), claw_1_pos);
+			glm::mat4 claw_1_matrix = claw_1_translation * claw_1_orbit;
+			transf = base_matrix * arm_0_matrix * arm_1_matrix * arm_2_matrix * claw_1_matrix * claw_1_scale * glm::mat4(1);
+			//DRAW CLAW_1
+			world_mat = glGetUniformLocation(program, "world_mat");
+			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+			glDrawElements(GL_TRIANGLES, cylinder->size, GL_UNSIGNED_INT, 0);
+
+
+			//END RENDERING
 
             // Update other events like input handling
             glfwPollEvents();
@@ -503,3 +768,4 @@ int main(void){
 
     return 0;
 }
+
