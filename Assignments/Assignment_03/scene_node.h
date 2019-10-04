@@ -47,7 +47,7 @@ namespace game {
             virtual void Draw(Camera *camera);
 
             // Update the node
-            virtual void Update(void);
+            virtual void Update(float deltaTime);
 
             // OpenGL variables
             GLenum GetMode(void) const;
@@ -72,6 +72,17 @@ namespace game {
 
     }; // class SceneNode
 
+	class PlayerNode : public SceneNode 
+	{
+	public:
+		PlayerNode(const std::string name, const Resource *geometry, const Resource *material, Camera *cam);
+		//Handle physics in this subclass
+		// Destructor
+		~PlayerNode();
+
+		void Draw(Camera *camera);
+		void Update(float deltaTime);
+	};
 } // namespace game
 
 #endif // SCENE_NODE_H_

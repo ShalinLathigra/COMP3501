@@ -22,9 +22,9 @@ void Asteroid::SetAngM(glm::quat angm){
 }
 
 
-void Asteroid::Update(void){
+void Asteroid::Update(float deltaTime){
 
-    Rotate(angm_);
+    Rotate(angm_ * deltaTime);
 }
             
 } // namespace game

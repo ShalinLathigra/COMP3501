@@ -1,16 +1,32 @@
 cmake_minimum_required(VERSION 2.6)
 
 # Name of project
-set(PROJ_NAME "CameraDemo")
+set(PROJ_NAME "Assignment_03")
 project(${PROJ_NAME})
 
 # Specify project files: header files and source files
 set(HDRS
-    asteroid.h camera.h game.h resource.h resource_manager.h scene_graph.h scene_node.h
+    asteroid.h 
+	camera.h 
+	game.h 
+	resource.h 
+	resource_manager.h 
+	scene_graph.h 
+	scene_node.h
 )
  
 set(SRCS
-   asteroid.cpp camera.cpp game.cpp main.cpp resource.cpp resource_manager.cpp scene_graph.cpp scene_node.cpp material_vp.glsl material_fp.glsl 
+	asteroid.cpp 
+	camera.cpp 
+	game.cpp 
+	main.cpp 
+	resource.cpp 
+	resource_manager.cpp 
+	scene_graph.cpp 
+	scene_node.cpp 
+	material_vp.glsl 
+	material_fp.glsl 
+	CheckList.txt
 )
 
 # Add path name to configuration file

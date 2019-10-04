@@ -29,7 +29,7 @@ namespace game {
             void SetAngM(glm::quat angm);
 
             // Update geometry configuration
-            void Update(void);
+            void Update(float deltaTime);
             
         private:
             // Angular momentum of asteroid

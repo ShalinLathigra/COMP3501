@@ -113,6 +113,8 @@ void Game::SetupResources(void){
     // Create a simple sphere to represent the asteroids
     resman_.CreateSphere("SimpleSphereMesh", 1.0, 10, 10);
 
+	resman_.CreateTorus("SimpleTorusMesh", 1.0, .5, 3, 3);
+
     // Load material to be applied to asteroids
     std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/material");
     resman_.LoadResource(Material, "ObjectMaterial", filename.c_str());
@@ -124,6 +126,9 @@ void Game::SetupScene(void){
     // Set background color for the scene
     scene_.SetBackgroundColor(viewport_background_color_g);
 
+	// Create Player Node
+	PlayerNode *player = CreatePlayerInstance();
+	scene_.AddNode(player);
     // Create asteroid field
     CreateAsteroidField();
 }
@@ -138,7 +143,7 @@ void Game::MainLoop(void){
             static double last_time = 0;
             double current_time = glfwGetTime();
             if ((current_time - last_time) > 0.05){
-                scene_.Update();
+                scene_.Update(current_time - last_time);
                 last_time = current_time;
             }
         }
@@ -174,7 +179,6 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
     // View control
     float rot_factor(glm::pi<float>() / 180);
     float trans_factor = 1.0;
-	//implement key map like Eli Suggested
     if (key == GLFW_KEY_UP){
         game->camera_.Pitch(rot_factor);
     }
@@ -269,6 +273,26 @@ void Game::CreateAsteroidField(int num_asteroids){
         ast->SetOrientation(glm::normalize(glm::angleAxis(glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
         ast->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
     }
+}
+
+
+PlayerNode * Game::CreatePlayerInstance(std::string entity_name, std::string object_name, std::string material_name) 
+{
+
+	// Get resources
+	Resource *geom = resman_.GetResource(object_name);
+	if (!geom) {
+		throw(GameException(std::string("Could not find resource \"") + object_name + std::string("\"")));
+	}
+
+	Resource *mat = resman_.GetResource(material_name);
+	if (!mat) {
+		throw(GameException(std::string("Could not find resource \"") + material_name + std::string("\"")));
+	}
+
+	// Create asteroid instance
+	PlayerNode *play = new PlayerNode(entity_name, geom, mat, &camera_);
+	return play;
 }
 
 

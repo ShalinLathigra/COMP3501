@@ -16,16 +16,17 @@ set(HDRS
 )
  
 set(SRCS
-   asteroid.cpp 
-   camera.cpp 
-   game.cpp 
-   main.cpp 
-   resource.cpp 
-   resource_manager.cpp 
-   scene_graph.cpp 
-   scene_node.cpp 
-   material_vp.glsl 
-   material_fp.glsl 
+	asteroid.cpp 
+	camera.cpp 
+	game.cpp 
+	main.cpp 
+	resource.cpp 
+	resource_manager.cpp 
+	scene_graph.cpp 
+	scene_node.cpp 
+	material_vp.glsl 
+	material_fp.glsl 
+	CheckList.txt
 )
 
 # Add path name to configuration file

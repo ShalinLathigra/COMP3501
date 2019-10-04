@@ -1,9 +1,3 @@
-/*
- *
- * Used online reference to get outlines, I have an idea of how it works, though I am not an expert. Shader stuff I already knew from last year. 
- * Outline Reference: https://www.codeproject.com/Articles/8499/Generating-Outlines-in-OpenGL
- *
- */
 
 //Set cool = true for slightly increased coolness
 const bool cool = false;
@@ -93,7 +87,7 @@ Model *CreateCylinder(float cylinder_radius = .5, float cylinder_height = 1.0, i
 	const int num_circle_samples = 2;
 	// Number of vertices and faces to be created
 	const GLuint vertex_num = num_samples * num_circle_samples * 2;
-	const GLuint face_num = num_samples * num_circle_samples * 2 + (num_samples - 2) * 2;
+	const GLuint face_num = num_samples * num_circle_samples + (num_samples - 2) * 2;
 
 	// Number of attributes for vertices and faces
 	//const int vertex_att = 11;  // 11 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3), 2D texture coordinates (2)
@@ -427,9 +421,8 @@ int main(void){
 		//rotate
 		//translate joint to end pos for joint
 		//
-		float yOff = .5f;
 		//central structure
-		glm::vec3 base_pos(0, .2f - yOff, 0);
+		glm::vec3 base_pos(0, -.375f, 0);
 		glm::vec3 base_joint(0, 0, 0);
 		glm::vec3 base_axis(0, 1, 0);
 		float base_rot_speed = glm::pi<float>() / 180.0f;
@@ -437,19 +430,19 @@ int main(void){
 		glm::mat4 base_translation;
 		glm::quat base_orientation;
 		glm::mat4 base_orbit;
-		glm::mat4 base_scale = glm::scale(glm::mat4(1.0), glm::vec3(.6f, .4f, .6f));
+		glm::mat4 base_scale = glm::scale(glm::mat4(1.0), glm::vec3(.3f, .75f, .3f));
 
 
 
-		glm::vec3 stand_pos(0, -.375f, 0);
+		glm::vec3 stand_pos(0, .375f, 0);
 		//glm::vec3 stand_joint(0, 0, 0);
-		//glm::vec3 stand_axis(0, 1, 0);
-		//float stand_rot_speed = 0.0f;	//No rotation with respect to base
+		glm::vec3 stand_axis(0, 1, 0);
+		float stand_rot_speed = glm::pi<float>() / 180.0f;	//No rotation with respect to base
 
 		glm::mat4 stand_translation;
-		//glm::quat stand_orientation;
+		glm::quat stand_orientation;
 		//glm::mat4 stand_orbit;
-		glm::mat4 stand_scale = glm::scale(glm::mat4(1.0), glm::vec3(.3f, .75f, .3f));
+		glm::mat4 stand_scale = glm::scale(glm::mat4(1.0), glm::vec3(.6f, .4f, .6f));
 
 
 
@@ -572,9 +565,9 @@ int main(void){
 				base_orientation = glm::normalize(base_orientation);
 
 				//Animate Stand (Nothing actually needs to happen here, it is just gonna mimic the Base)
-				//glm::quat stand_rotation = glm::angleAxis(stand_rot_speed, stand_axis);
-				//stand_orientation *= stand_rotation;
-				//stand_orientation = glm::normalize(stand_orientation);
+				glm::quat stand_rotation = glm::angleAxis(stand_rot_speed, stand_axis);
+				stand_orientation *= stand_rotation;
+				stand_orientation = glm::normalize(stand_orientation);
 
 				//Animate Arm
 				//glm::quat outer_rotation = glm::angleAxis(outer_rot_speed, outer_rot_axis);
@@ -671,8 +664,8 @@ int main(void){
 
 			//COMPOSE STAND TRANSLATIONS!!!!!-------------------------------------------------------
 			stand_translation = glm::translate(glm::mat4(1.0), stand_pos);
-			//glm::mat4 stand_matrix = base_matrix * stand_translation * glm::mat4_cast(stand_orientation);
-			glm::mat4 stand_matrix = base_matrix * stand_translation;
+			glm::mat4 stand_matrix = base_matrix * stand_translation * glm::mat4_cast(stand_orientation);
+			//glm::mat4 stand_matrix = base_matrix * stand_translation;
 			transf = stand_matrix * stand_scale;
 			//DRAW STAND
 			world_mat = glGetUniformLocation(program, "world_mat");
@@ -683,8 +676,8 @@ int main(void){
 			//COMPOSE OUTER TRANSLATIONS!!!!!-------------------------------------------------------
 			outer_translation = glm::translate(glm::mat4(1.0), outer_pos);
 			//glm::mat4 outer_matrix = outer_translation * outer_orbit * glm::mat4_cast(outer_orientation);
-			glm::mat4 outer_matrix = outer_translation * outer_orbit;
-			transf = base_matrix * outer_matrix * outer_scale * glm::mat4(1);
+			glm::mat4 outer_matrix = stand_matrix * outer_translation * outer_orbit;
+			transf = outer_matrix * outer_scale * glm::mat4(1);
 			//DRAW OUTER
 			world_mat = glGetUniformLocation(program, "world_mat");
 			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
@@ -694,8 +687,8 @@ int main(void){
 			//COMPOSE INNER TRANSLATIONS!!!!!-------------------------------------------------------
 			inner_translation = glm::translate(glm::mat4(1.0), inner_pos);
 			//glm::mat4 inner_matrix = inner_translation * inner_orbit * glm::mat4_cast(inner_orientation);
-			glm::mat4 inner_matrix = inner_translation;
-			transf = base_matrix * outer_matrix * inner_matrix * inner_scale * glm::mat4(1);
+			glm::mat4 inner_matrix = outer_matrix * inner_translation;
+			transf = inner_matrix * inner_scale * glm::mat4(1);
 			//DRAW INNER
 			world_mat = glGetUniformLocation(program, "world_mat");
 			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
@@ -704,8 +697,8 @@ int main(void){
 
 			//COMPOSE ARM_0 TRANSLATIONS!!!!!-------------------------------------------------------
 			arm_0_translation = glm::translate(glm::mat4(1.0), arm_0_pos);
-			glm::mat4 arm_0_matrix = arm_0_translation * arm_0_orbit;
-			transf = base_matrix * arm_0_matrix * arm_0_scale * glm::mat4(1);
+			glm::mat4 arm_0_matrix = stand_matrix * arm_0_translation * arm_0_orbit;
+			transf = arm_0_matrix * arm_0_scale * glm::mat4(1);
 			//DRAW ARM_0
 			world_mat = glGetUniformLocation(program, "world_mat");
 			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
@@ -714,8 +707,8 @@ int main(void){
 
 			//COMPOSE ARM_1 TRANSLATIONS!!!!!-------------------------------------------------------
 			arm_1_translation = glm::translate(glm::mat4(1.0), arm_1_pos);
-			glm::mat4 arm_1_matrix = arm_1_translation * arm_1_orbit;
-			transf = base_matrix * arm_0_matrix * arm_1_matrix * arm_1_scale * glm::mat4(1);
+			glm::mat4 arm_1_matrix = arm_0_matrix * arm_1_translation * arm_1_orbit;
+			transf = arm_1_matrix * arm_1_scale * glm::mat4(1);
 			//DRAW ARM_1
 			world_mat = glGetUniformLocation(program, "world_mat");
 			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
@@ -725,8 +718,8 @@ int main(void){
 
 			//COMPOSE ARM_2 TRANSLATIONS!!!!!-------------------------------------------------------
 			arm_2_translation = glm::translate(glm::mat4(1.0), arm_2_pos);
-			glm::mat4 arm_2_matrix = arm_2_translation * arm_2_orbit;
-			transf = base_matrix * arm_0_matrix * arm_1_matrix * arm_2_matrix * arm_2_scale * glm::mat4(1);
+			glm::mat4 arm_2_matrix = arm_1_matrix * arm_2_translation * arm_2_orbit;
+			transf = arm_2_matrix * arm_2_scale * glm::mat4(1);
 			//DRAW ARM_2
 			world_mat = glGetUniformLocation(program, "world_mat");
 			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
@@ -736,8 +729,8 @@ int main(void){
 
 			//COMPOSE CLAW_0 TRANSLATIONS!!!!!-------------------------------------------------------
 			claw_0_translation = glm::translate(glm::mat4(1.0), claw_0_pos);
-			glm::mat4 claw_0_matrix = claw_0_translation * claw_0_orbit;
-			transf = base_matrix * arm_0_matrix * arm_1_matrix * arm_2_matrix * claw_0_matrix * claw_0_scale * glm::mat4(1);
+			glm::mat4 claw_0_matrix = arm_2_matrix * claw_0_translation * claw_0_orbit;
+			transf = claw_0_matrix * claw_0_scale * glm::mat4(1);
 			//DRAW CLAW_0
 			world_mat = glGetUniformLocation(program, "world_mat");
 			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
@@ -745,8 +738,8 @@ int main(void){
 
 			//COMPOSE CLAW_1 TRANSLATIONS!!!!!-------------------------------------------------------
 			claw_1_translation = glm::translate(glm::mat4(1.0), claw_1_pos);
-			glm::mat4 claw_1_matrix = claw_1_translation * claw_1_orbit;
-			transf = base_matrix * arm_0_matrix * arm_1_matrix * arm_2_matrix * claw_1_matrix * claw_1_scale * glm::mat4(1);
+			glm::mat4 claw_1_matrix = arm_2_matrix * claw_1_translation * claw_1_orbit;
+			transf = claw_1_matrix * claw_1_scale * glm::mat4(1);
 			//DRAW CLAW_1
 			world_mat = glGetUniformLocation(program, "world_mat");
 			glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
