@@ -9,6 +9,7 @@ set(HDRS
     asteroid.h 
 	camera.h 
 	game.h 
+	player_node.h
 	resource.h 
 	resource_manager.h 
 	scene_graph.h 
@@ -20,6 +21,7 @@ set(SRCS
 	camera.cpp 
 	game.cpp 
 	main.cpp 
+	player_node.cpp
 	resource.cpp 
 	resource_manager.cpp 
 	scene_graph.cpp 

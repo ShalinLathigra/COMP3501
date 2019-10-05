@@ -1,9 +1,13 @@
 1. Scene Graph
 	(0.5) Scene Nodes have pointers to their parents/children
+		//Completed. All Nodes now have a pointer to the parent and a collection of children. Not all nodes have parents or children though.
 	(1.0) Draw function applies based on above hierarchy	
 		Store vector of nodes, give each node recursive draw function
+			//Nodes recursively Draw
 		Also move the matrix multiplication to outside of the shader
+			//Moved Matrix Multiplication
 	(0.5) Camera implemented as node
+		
 
 2. Rotating Cannon
 	(1.0) Have a rotating cannon implemented as part of the scene hierarchy

@@ -126,18 +126,14 @@ void Camera::SetProjection(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GL
 }
 
 
-void Camera::SetupShader(GLuint program){
+void Camera::SetupShader(glm::mat4 world_matrix, GLuint program){
 
     // Update view matrix
     SetupViewMatrix();
 
-    // Set view matrix in shader
-    GLint view_mat = glGetUniformLocation(program, "view_mat");
-    glUniformMatrix4fv(view_mat, 1, GL_FALSE, glm::value_ptr(view_matrix_));
-    
-    // Set projection matrix in shader
-    GLint projection_mat = glGetUniformLocation(program, "projection_mat");
-    glUniformMatrix4fv(projection_mat, 1, GL_FALSE, glm::value_ptr(projection_matrix_));
+	//World Transformation
+	GLint total_mat = glGetUniformLocation(program, "total_mat");
+	glUniformMatrix4fv(total_mat, 1, GL_FALSE, glm::value_ptr(projection_matrix_ * view_matrix_ * world_matrix));
 }
 
 

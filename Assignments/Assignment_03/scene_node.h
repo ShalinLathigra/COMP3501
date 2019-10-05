@@ -2,6 +2,7 @@
 #define SCENE_NODE_H_
 
 #include <string>
+#include <vector>
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -44,10 +45,12 @@ namespace game {
 
             // Draw the node according to scene parameters in 'camera'
             // variable
-            virtual void Draw(Camera *camera);
+			virtual void Draw(glm::mat4 p, Camera *camera);
+			virtual void DrawChildren(Camera *camera);
 
             // Update the node
-            virtual void Update(float deltaTime);
+			virtual void Update(float deltaTime);
+			virtual void UpdateChildren(float deltaTime);
 
             // OpenGL variables
             GLenum GetMode(void) const;
@@ -55,6 +58,9 @@ namespace game {
             GLuint GetElementArrayBuffer(void) const;
             GLsizei GetSize(void) const;
             GLuint GetMaterial(void) const;
+
+			void AddChild(SceneNode *c);
+			glm::mat4 GetMatrix(void);
 
         private:
             std::string name_; // Name of the scene node
@@ -67,22 +73,18 @@ namespace game {
             glm::quat orientation_; // Orientation of node
             glm::vec3 scale_; // Scale of node
 
+			glm::mat4 matrix_;	//Current Matrix excluding Scale
+
             // Set matrices that transform the node in a shader program
             void SetupShader(GLuint program);
+			//Calculates and stores current transformation stack in matrix_. Return matrix_*scaling
+			glm::mat4 CalculateMatrix(glm::mat4 p);
+
+			SceneNode *parent_;
+			std::vector<SceneNode*> children_;
 
     }; // class SceneNode
 
-	class PlayerNode : public SceneNode 
-	{
-	public:
-		PlayerNode(const std::string name, const Resource *geometry, const Resource *material, Camera *cam);
-		//Handle physics in this subclass
-		// Destructor
-		~PlayerNode();
-
-		void Draw(Camera *camera);
-		void Update(float deltaTime);
-	};
 } // namespace game
 
 #endif // SCENE_NODE_H_

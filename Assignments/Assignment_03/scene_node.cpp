@@ -36,6 +36,9 @@ SceneNode::SceneNode(const std::string name, const Resource *geometry, const Res
 
     // Other attributes
     scale_ = glm::vec3(1.0, 1.0, 1.0);
+
+	//Initialize children_ vector
+	children_ = std::vector<SceneNode*>();
 }
 
 
@@ -133,8 +136,17 @@ GLuint SceneNode::GetMaterial(void) const {
     return material_;
 }
 
+glm::mat4 SceneNode::GetMatrix(void)
+{
+	return matrix_;
+}
 
-void SceneNode::Draw(Camera *camera){
+void SceneNode::AddChild(SceneNode *c)
+{
+	//Nothing
+}
+
+void SceneNode::Draw(glm::mat4 p, Camera *camera){
 
     // Select proper material (shader program)
     glUseProgram(material_);
@@ -144,7 +156,7 @@ void SceneNode::Draw(Camera *camera){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer_);
 
     // Set globals for camera
-    camera->SetupShader(material_);
+    camera->SetupShader(CalculateMatrix(p), material_);
 
     // Set world matrix and other shader input variables
     SetupShader(material_);
@@ -155,14 +167,44 @@ void SceneNode::Draw(Camera *camera){
     } else {
         glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
     }
+	DrawChildren(camera);
 }
 
 
-void SceneNode::Update(void){
 
-    // Do nothing for this generic type of scene node
+
+void SceneNode::DrawChildren(Camera *camera) {
+
+	for (std::vector<SceneNode*>::iterator iter = children_.begin(); iter != children_.end(); iter++)
+	{
+		(*iter)->Draw(matrix_, camera);
+	}
 }
 
+void SceneNode::Update(float deltaTime) {
+
+	// Do nothing for this generic type of scene node
+	UpdateChildren(deltaTime);
+}
+
+void SceneNode::UpdateChildren(float deltaTime) {
+
+	for (std::vector<SceneNode*>::iterator iter = children_.begin(); iter != children_.end(); iter++)
+	{
+		(*iter)->Update(deltaTime);
+	}
+}
+
+glm::mat4 SceneNode::CalculateMatrix(glm::mat4 p)
+{
+	glm::mat4 rotation = glm::mat4_cast(orientation_);
+	glm::mat4 translation = glm::translate(glm::mat4(1.0), position_);
+	glm::mat4 scaling = glm::scale(glm::mat4(1.0), scale_);
+
+	matrix_ = p * translation *rotation;
+
+	return matrix_ * scaling;
+}
 
 void SceneNode::SetupShader(GLuint program){
 
@@ -182,15 +224,6 @@ void SceneNode::SetupShader(GLuint program){
     GLint tex_att = glGetAttribLocation(program, "uv");
     glVertexAttribPointer(tex_att, 2, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), (void *) (9*sizeof(GLfloat)));
     glEnableVertexAttribArray(tex_att);
-
-    // World transformation
-    glm::mat4 scaling = glm::scale(glm::mat4(1.0), scale_);
-    glm::mat4 rotation = glm::mat4_cast(orientation_);
-    glm::mat4 translation = glm::translate(glm::mat4(1.0), position_);
-    glm::mat4 transf = translation * rotation * scaling;
-
-    GLint world_mat = glGetUniformLocation(program, "world_mat");
-    glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
 
     // Timer
     GLint timer_var = glGetUniformLocation(program, "timer");

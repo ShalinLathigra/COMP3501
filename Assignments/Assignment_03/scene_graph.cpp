@@ -85,7 +85,7 @@ void SceneGraph::Draw(Camera *camera){
 
     // Draw all scene nodes
     for (int i = 0; i < node_.size(); i++){
-        node_[i]->Draw(camera);
+        node_[i]->Draw(glm::mat4(1.0), camera);
     }
 }
 

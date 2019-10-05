@@ -125,10 +125,8 @@ void Game::SetupScene(void){
 
     // Set background color for the scene
     scene_.SetBackgroundColor(viewport_background_color_g);
-
-	// Create Player Node
-	PlayerNode *player = CreatePlayerInstance();
-	scene_.AddNode(player);
+	
+	//player_ = CreatePlayerInstance();
     // Create asteroid field
     CreateAsteroidField();
 }
@@ -275,10 +273,11 @@ void Game::CreateAsteroidField(int num_asteroids){
     }
 }
 
-
-PlayerNode * Game::CreatePlayerInstance(std::string entity_name, std::string object_name, std::string material_name) 
+PlayerNode *Game::CreatePlayerInstance()
 {
-
+	std::string entity_name = "PlayerInstance0";
+	std::string object_name = "";
+	std::string material_name;
 	// Get resources
 	Resource *geom = resman_.GetResource(object_name);
 	if (!geom) {
@@ -291,9 +290,9 @@ PlayerNode * Game::CreatePlayerInstance(std::string entity_name, std::string obj
 	}
 
 	// Create asteroid instance
-	PlayerNode *play = new PlayerNode(entity_name, geom, mat, &camera_);
-	return play;
+	PlayerNode *player = new PlayerNode(entity_name, geom, mat, &camera_);
+	scene_.AddNode(player);
+	return player;
 }
-
 
 } // namespace game

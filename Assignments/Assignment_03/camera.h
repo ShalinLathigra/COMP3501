@@ -46,18 +46,22 @@ namespace game {
             // near and far planes, and width and height of viewport
             void SetProjection(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GLfloat h);
             // Set all camera-related variables in shader program
-            void SetupShader(GLuint program);
+            void SetupShader(glm::mat4 world_matrix, GLuint program);
+
+
+			// Create view matrix from current camera parameters
+			//void SetupViewMatrix(glm::vec3 forward, glm::vec3 side_, glm::mat4 position, glm::quat orientation);
 
         private:
-            glm::vec3 position_; // Position of camera
-            glm::quat orientation_; // Orientation of camera
-            glm::vec3 forward_; // Initial forward vector
-            glm::vec3 side_; // Initial side vector
+            glm::vec3 position_; // Position of camera		 To be removed
+            glm::quat orientation_; // Orientation of camera To be removed
+            glm::vec3 forward_; // Initial forward vector	 Possibly to be removed
+            glm::vec3 side_; // Initial side vector			 Possibly to be removed
             glm::mat4 view_matrix_; // View matrix
             glm::mat4 projection_matrix_; // Projection matrix
 
             // Create view matrix from current camera parameters
-            void SetupViewMatrix(void);
+            void SetupViewMatrix(void);	// To be removed
 
     }; // class Camera
 
