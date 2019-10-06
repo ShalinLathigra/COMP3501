@@ -98,6 +98,9 @@ void SceneNode::Rotate(glm::quat rot){
 
     orientation_ *= rot;
     orientation_ = glm::normalize(orientation_);
+	//Basically, when one angle gets to Pi, make it negative Pi.
+
+
 }
 
 void SceneNode::Scale(glm::vec3 scale){

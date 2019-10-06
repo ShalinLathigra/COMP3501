@@ -113,7 +113,7 @@ void Game::SetupResources(void){
     // Create a simple sphere to represent the asteroids
     resman_.CreateSphere("SimpleSphereMesh", 1.0, 10, 10);
 
-	resman_.CreateTorus("SimpleTorusMesh", 1.0, .5, 3, 3);
+	resman_.CreateTorus("SimpleTorusMesh", 1.0, .5, 4, 4);
 
     // Load material to be applied to asteroids
     std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/material");
@@ -144,7 +144,8 @@ void Game::MainLoop(void){
             static double last_time = 0;
             double current_time = glfwGetTime();
             if ((current_time - last_time) > 0.05){
-                scene_.Update(current_time - last_time);
+				deltaTime = current_time - last_time;
+                scene_.Update(deltaTime);
                 last_time = current_time;
             }
         }
@@ -192,6 +193,7 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 	case(GLFW_KEY_I):
 	case(GLFW_KEY_K):
 	case(GLFW_KEY_LEFT_SHIFT):
+	case(GLFW_KEY_LEFT_CONTROL):
 		if (action == GLFW_PRESS)
 		{
 			game->key_map_[key] = true;
@@ -214,43 +216,39 @@ void Game::ProcessKeyInput(void)
 
 	// compose transformation matrix
 	glm::vec3 acc_vec(0);
-	// compose rotation quaternion
-	glm::quat player_quat;
+
+	float pitch = 0, yaw = 0, roll = 0;
+
+	float rot_factor = glm::pi<float>() / 90.0f;
 
 	if (key_map_[GLFW_KEY_UP]) {
 		//camera_.Pitch(rot_factor);
-		//player_->Pitch(rot_factor);
-		player_quat *= glm::angleAxis(player_->GetRotSpeed(), player_->GetSide());
+		pitch = 1.0;
 		std::cout << "up" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_DOWN]) {
 		//camera_.Pitch(-rot_factor);
-		//player_->Pitch(-rot_factor);
-		player_quat *= glm::angleAxis(-player_->GetRotSpeed(), player_->GetSide());
+		pitch = -1.0;
 		std::cout << "down" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_LEFT]) {
 		//camera_.Yaw(rot_factor);
-		//player_->Yaw(rot_factor);
-		player_quat *= glm::angleAxis(-player_->GetRotSpeed(), player_->GetUp());
+		yaw = -1;
 		std::cout << "left" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_RIGHT]) {
 		//camera_.Yaw(-rot_factor);
-		//player_->Yaw(-rot_factor);
-		player_quat *= glm::angleAxis(player_->GetRotSpeed(), player_->GetUp());
+		yaw = 1;
 		std::cout << "right" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_S]) {
 		//camera_.Roll(-rot_factor);
-		//player_->Roll(-rot_factor);
-		player_quat *= glm::angleAxis(player_->GetRotSpeed(), player_->GetForward());
+		roll = 1.0;
 		std::cout << "s" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_X]) {
 		//camera_.Roll(rot_factor);
-		//player_->Roll(rot_factor);
-		player_quat *= glm::angleAxis(-player_->GetRotSpeed(), player_->GetForward());
+		roll = -1;
 		std::cout << "x" << std::endl;
 	}
 
@@ -287,41 +285,25 @@ void Game::ProcessKeyInput(void)
 
 	if (acc_vec != glm::vec3(0.0))
 		acc_vec = glm::normalize(acc_vec);
-	
+
 
 	player_->SetAcceleration(acc_vec);
-	player_->SetAngular(player_quat);
+	player_->Pitch(pitch * deltaTime);
+	player_->Yaw(yaw * deltaTime);
+	player_->Roll(roll * deltaTime);
 
 
 
-	if (key_map_[GLFW_KEY_LEFT_SHIFT]) {
-		player_->SetVelocity(glm::vec3(0.0));
-	}
+	//if (key_map_[GLFW_KEY_LEFT_SHIFT]) {
+	//	player_->SetVelocity(glm::vec3(0.0));
+	//}
+	//
+	//if (key_map_[GLFW_KEY_LEFT_CONTROL]) {
+	//	player_->SetOrientation(glm::quat());
+	//}
 
-	//camera_.Translate(-camera_.GetUp()*trans_factor);
-	acc_vec += player_->GetUp();
 }
 
-/*
-void PlayerNode::Pitch(float angle) {
-
-	glm::quat rotation = glm::angleAxis(angle, GetSide());
-	Rotate(rotation);
-}
-
-
-void PlayerNode::Yaw(float angle) {
-
-	glm::quat rotation = glm::angleAxis(angle, GetUp());
-	Rotate(rotation);
-}
-
-
-void PlayerNode::Roll(float angle) {
-
-	glm::quat rotation = glm::angleAxis(angle, GetForward());
-	Rotate(rotation);
-}*/
 
 void Game::ResizeCallback(GLFWwindow* window, int width, int height){
 

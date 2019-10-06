@@ -63,6 +63,8 @@ namespace game {
 			// Map to handle Keyboard Input
 			std::map<int, bool> key_map_;
 
+			// deltaTime
+			float deltaTime;
             // Flag to turn animation on/off
             bool animating_;
 

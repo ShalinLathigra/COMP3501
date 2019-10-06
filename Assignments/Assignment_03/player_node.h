@@ -38,7 +38,6 @@ namespace game
 		//Manipulate Acceleration. 
 		void SetAcceleration(glm::vec3 acc);
 		void SetVelocity(glm::vec3 vel);
-		void SetAngular(glm::quat ang);
 		glm::vec3 GetForward(void) const;
 		glm::vec3 GetSide(void) const;
 		glm::vec3 GetUp(void) const;
@@ -52,7 +51,9 @@ namespace game
 		glm::vec3 acc_;
 		glm::vec3 vel_;
 
-		glm::quat ang_;
+		glm::quat pitch_;
+		glm::quat yaw_;
+		glm::quat roll_;
 
 		float acc_speed_;
 		float rot_speed_;

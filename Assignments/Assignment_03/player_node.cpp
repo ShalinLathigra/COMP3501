@@ -1,13 +1,14 @@
 #include "player_node.h"
 #include <iostream>
 #define GLM_FORCE_RADIANS
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace game
 {
 	PlayerNode::PlayerNode(const std::string name, const Resource *geometry, const Resource *material, Camera *camera) : SceneNode(name, geometry, material)
 	{
 		camera_ = camera;
-		SetPosition(camera_->GetPosition());
+		SetPosition(camera_->GetPosition() + camera_->GetForward() * 25.0f);
 		SetOrientation(camera_->GetOrientation());
 		first_person_ = true;
 
@@ -15,7 +16,7 @@ namespace game
 		side_ = camera_->GetSide();
 
 		acc_speed_ = 10.0f;
-		rot_speed_ = glm::pi<float>() / 180.0f;
+		rot_speed_ = glm::pi<float>() / 30.0f;
 	}
 	PlayerNode::~PlayerNode()
 	{
@@ -39,8 +40,6 @@ namespace game
 		vel_ += acc_ * acc_speed_ * deltaTime;
 
 		Translate(vel_ * deltaTime);
-		Rotate(ang_ * deltaTime);
-
 
 		if (first_person_)
 		{
@@ -86,13 +85,27 @@ namespace game
 	{
 		vel_ = vel;
 	}
-	void PlayerNode::SetAngular(glm::quat ang)
-	{
-		ang_ = ang;
-	}
 
 	float PlayerNode::GetRotSpeed(void) const
 	{
 		return rot_speed_;
 	}
+
+
+	void PlayerNode::Pitch(float angle)
+	{
+		glm::quat pitch = glm::angleAxis(angle * rot_speed_, GetSide());
+		SetOrientation(glm::normalize(pitch * GetOrientation()));
+	}
+	void PlayerNode::Yaw(float angle)
+	{
+		glm::quat yaw = glm::angleAxis(angle * rot_speed_, GetUp());
+		SetOrientation(glm::normalize(yaw * GetOrientation()));
+	}
+	void PlayerNode::Roll(float angle)
+	{
+		glm::quat roll = glm::angleAxis(angle * rot_speed_, GetForward());
+		SetOrientation(glm::normalize(roll * GetOrientation()));
+	}
+
 }
