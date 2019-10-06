@@ -100,7 +100,6 @@ void SceneNode::Rotate(glm::quat rot){
     orientation_ = glm::normalize(orientation_);
 }
 
-
 void SceneNode::Scale(glm::vec3 scale){
 
     scale_ *= scale;

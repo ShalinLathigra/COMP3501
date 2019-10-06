@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include "scene_node.h"
+#include "player_node.h"
 #include "resource.h"
 #include "camera.h"
 

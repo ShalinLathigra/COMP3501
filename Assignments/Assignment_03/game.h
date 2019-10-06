@@ -3,9 +3,11 @@
 
 #include <exception>
 #include <string>
+#include <map>
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "scene_graph.h"
 #include "resource_manager.h"
@@ -58,6 +60,9 @@ namespace game {
 			// Player Node Shit
 			PlayerNode* player_;
 
+			// Map to handle Keyboard Input
+			std::map<int, bool> key_map_;
+
             // Flag to turn animation on/off
             bool animating_;
 
@@ -69,6 +74,8 @@ namespace game {
             // Methods to handle events
             static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
             static void ResizeCallback(GLFWwindow* window, int width, int height);
+
+			void ProcessKeyInput(void);
 
             // Asteroid field
             // Create instance of one asteroid

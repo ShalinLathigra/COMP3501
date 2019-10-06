@@ -85,7 +85,14 @@ void SceneGraph::Draw(Camera *camera){
 
     // Draw all scene nodes
     for (int i = 0; i < node_.size(); i++){
-        node_[i]->Draw(glm::mat4(1.0), camera);
+		if (node_[i]->GetName() == "Player")
+		{
+			((PlayerNode *)node_[i])->PlayerNode::Draw(glm::mat4(1.0));
+		}
+		else
+		{
+			node_[i]->Draw(glm::mat4(1.0), camera);
+		}
     }
 }
 
@@ -93,7 +100,14 @@ void SceneGraph::Draw(Camera *camera){
 void SceneGraph::Update(float deltaTime){
 
     for (int i = 0; i < node_.size(); i++){
-        node_[i]->Update(deltaTime);
+		if (node_[i]->GetName() == "Player")
+		{
+			((PlayerNode *)node_[i])->PlayerNode::Update(deltaTime);
+		}
+		else
+		{
+			node_[i]->Update(deltaTime);
+		}
     }
 }
 

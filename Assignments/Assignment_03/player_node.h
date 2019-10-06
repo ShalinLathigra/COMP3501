@@ -26,14 +26,24 @@ namespace game
 		~PlayerNode();
 
 		//Update from Physics
-		//void Update(float deltaTime);
+		void Update(float deltaTime);
 
+		void Draw(glm::mat4 p);
 
 		// Perform relative transformations of camera
 		void Pitch(float angle);
 		void Yaw(float angle);
 		void Roll(float angle);
 
+		//Manipulate Acceleration. 
+		void SetAcceleration(glm::vec3 acc);
+		void SetVelocity(glm::vec3 vel);
+		void SetAngular(glm::quat ang);
+		glm::vec3 GetForward(void) const;
+		glm::vec3 GetSide(void) const;
+		glm::vec3 GetUp(void) const;
+
+		float GetRotSpeed(void) const;
 
 	private:
 		Camera *camera_;
@@ -42,11 +52,16 @@ namespace game
 		glm::vec3 acc_;
 		glm::vec3 vel_;
 
+		glm::quat ang_;
+
+		float acc_speed_;
+		float rot_speed_;
+
 		glm::vec3 forward_;	//initial side/forward To be used for ACC/Vel calcs & Camera View shit
 		glm::vec3 side_;	//initial side
 
 		//3rd Person Attributes		
-
+		bool first_person_;
 
 		//Functions to set Camera Attributes
 		void SetCameraAttributes();
