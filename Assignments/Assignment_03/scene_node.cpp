@@ -145,6 +145,7 @@ glm::mat4 SceneNode::GetMatrix(void)
 
 void SceneNode::AddChild(SceneNode *c)
 {
+	children_.push_back(c);
 	//Nothing
 }
 
@@ -231,6 +232,11 @@ void SceneNode::SetupShader(GLuint program){
     GLint timer_var = glGetUniformLocation(program, "timer");
     double current_time = glfwGetTime();
     glUniform1f(timer_var, (float) current_time);
+}
+
+std::vector<SceneNode *> SceneNode::GetChildren(void)
+{
+	return children_;
 }
 
 } // namespace game;

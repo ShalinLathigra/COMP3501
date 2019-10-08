@@ -1,5 +1,6 @@
 #pragma once
 #include "scene_node.h"
+#include "asteroid.h"
 
 
 /*
@@ -35,9 +36,14 @@ namespace game
 		void Yaw(float angle);
 		void Roll(float angle);
 
+		//Toggle First/Third Person
+		void ToggleView(void);
+
 		//Manipulate Acceleration. 
 		void SetAcceleration(glm::vec3 acc);
 		void SetVelocity(glm::vec3 vel);
+
+		glm::vec3 GetVelocity(void) const;
 		glm::vec3 GetForward(void) const;
 		glm::vec3 GetSide(void) const;
 		glm::vec3 GetUp(void) const;
@@ -51,18 +57,18 @@ namespace game
 		glm::vec3 acc_;
 		glm::vec3 vel_;
 
-		glm::quat pitch_;
-		glm::quat yaw_;
-		glm::quat roll_;
-
 		float acc_speed_;
-		float rot_speed_;
+		float max_vel_;
 
 		glm::vec3 forward_;	//initial side/forward To be used for ACC/Vel calcs & Camera View shit
 		glm::vec3 side_;	//initial side
 
 		//3rd Person Attributes		
 		bool first_person_;
+		float f_rot_speed_;
+		float t_rot_speed_;
+		float camera_y;
+		float camera_z;
 
 		//Functions to set Camera Attributes
 		void SetCameraAttributes();

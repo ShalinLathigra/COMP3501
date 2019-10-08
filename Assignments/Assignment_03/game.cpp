@@ -19,7 +19,7 @@ const bool window_full_screen_g = false;
 // Viewport and camera settings
 float camera_near_clip_distance_g = 0.01;
 float camera_far_clip_distance_g = 1000.0;
-float camera_fov_g = 20.0; // Field-of-view of camera
+float camera_fov_g = 60.0; // Field-of-view of camera
 const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
 glm::vec3 camera_position_g(0.0, 0.0, 800.0);
 glm::vec3 camera_look_at_g(0.0, 0.0, 0.0);
@@ -115,6 +115,8 @@ void Game::SetupResources(void){
 
 	resman_.CreateTorus("SimpleTorusMesh", 1.0, .5, 4, 4);
 
+	resman_.CreateCylinder("SimpleCylinderMesh", .5, 5);
+
     // Load material to be applied to asteroids
     std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/material");
     resman_.LoadResource(Material, "ObjectMaterial", filename.c_str());
@@ -193,7 +195,6 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 	case(GLFW_KEY_I):
 	case(GLFW_KEY_K):
 	case(GLFW_KEY_LEFT_SHIFT):
-	case(GLFW_KEY_LEFT_CONTROL):
 		if (action == GLFW_PRESS)
 		{
 			game->key_map_[key] = true;
@@ -202,6 +203,11 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 		{
 			game->key_map_[key] = false;
 		}
+		break;
+	case(GLFW_KEY_LEFT_CONTROL):
+		if (action == GLFW_RELEASE)
+			game->player_->ToggleView();
+		break;
 	default:
 		break;
 	}
@@ -215,6 +221,8 @@ void Game::ProcessKeyInput(void)
 	// View control
 
 	// compose transformation matrix
+	if (animating_)
+	{
 	glm::vec3 acc_vec(0);
 
 	float pitch = 0, yaw = 0, roll = 0;
@@ -224,63 +232,74 @@ void Game::ProcessKeyInput(void)
 	if (key_map_[GLFW_KEY_UP]) {
 		//camera_.Pitch(rot_factor);
 		pitch = 1.0;
-		std::cout << "up" << std::endl;
+		// std::cout << "up" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_DOWN]) {
 		//camera_.Pitch(-rot_factor);
 		pitch = -1.0;
-		std::cout << "down" << std::endl;
+		// std::cout << "down" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_LEFT]) {
 		//camera_.Yaw(rot_factor);
 		yaw = -1;
-		std::cout << "left" << std::endl;
+		// std::cout << "left" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_RIGHT]) {
 		//camera_.Yaw(-rot_factor);
 		yaw = 1;
-		std::cout << "right" << std::endl;
+		// std::cout << "right" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_S]) {
 		//camera_.Roll(-rot_factor);
 		roll = 1.0;
-		std::cout << "s" << std::endl;
+		// std::cout << "s" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_X]) {
 		//camera_.Roll(rot_factor);
 		roll = -1;
-		std::cout << "x" << std::endl;
+		// std::cout << "x" << std::endl;
 	}
 
 	if (key_map_[GLFW_KEY_A]) {
 		//camera_.Translate(camera_.GetForward()*trans_factor);
 		acc_vec += -player_->GetForward();
-		std::cout << "a" << std::endl;
+		// std::cout << "a" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_Z]) {
 		//camera_.Translate(-camera_.GetForward()*trans_factor);
 		acc_vec += player_->GetForward();
-		std::cout << "z" << std::endl;
+		// std::cout << "z" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_J]) {
 		//camera_.Translate(-camera_.GetSide()*trans_factor);
 		acc_vec += -player_->GetSide();
-		std::cout << "j" << std::endl;
+		// std::cout << "j" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_L]) {
 		//camera_.Translate(camera_.GetSide()*trans_factor);
 		acc_vec += player_->GetSide();
-		std::cout << "l" << std::endl;
+		// std::cout << "l" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_I]) {
 		//camera_.Translate(camera_.GetUp()*trans_factor);
 		acc_vec += -player_->GetUp();
-		std::cout << "i" << std::endl;
+		// std::cout << "i" << std::endl;
 	}
 	if (key_map_[GLFW_KEY_K]) {
 		//camera_.Translate(-camera_.GetUp()*trans_factor);
 		acc_vec += player_->GetUp();
-		std::cout << "k" << std::endl;
+		// std::cout << "k" << std::endl;
+	}
+	if (key_map_[GLFW_KEY_LEFT_SHIFT]) {
+		//camera_.Translate(-camera_.GetUp()*trans_factor);
+		if (glm::length(player_->GetVelocity()) > 0)
+		{
+			acc_vec += -glm::normalize(player_->GetVelocity());
+		}
+		// std::cout << "LShift" << std::endl;
+	}
+	if (key_map_[GLFW_KEY_LEFT_CONTROL]) {
+		player_->ToggleView();
 	}
 
 	if (acc_vec != glm::vec3(0.0))
@@ -294,6 +313,7 @@ void Game::ProcessKeyInput(void)
 
 
 
+
 	//if (key_map_[GLFW_KEY_LEFT_SHIFT]) {
 	//	player_->SetVelocity(glm::vec3(0.0));
 	//}
@@ -301,6 +321,7 @@ void Game::ProcessKeyInput(void)
 	//if (key_map_[GLFW_KEY_LEFT_CONTROL]) {
 	//	player_->SetOrientation(glm::quat());
 	//}
+	}
 
 }
 
@@ -358,19 +379,28 @@ void Game::CreateAsteroidField(int num_asteroids){
         // angular momentum
         ast->SetPosition(glm::vec3(-300.0 + 600.0*((float) rand() / RAND_MAX), -300.0 + 600.0*((float) rand() / RAND_MAX), 600.0*((float) rand() / RAND_MAX)));
         ast->SetOrientation(glm::normalize(glm::angleAxis(glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
-        ast->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
+		ast->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float)rand() / RAND_MAX), glm::vec3(((float)rand() / RAND_MAX), ((float)rand() / RAND_MAX), ((float)rand() / RAND_MAX)))));
+
+		//randomize scales
+		int min_size = 15;
+		int max_size = 40;
+		float scale = (min_size + (float)(rand() % (max_size - min_size))) / 10.0f;
+		ast->SetScale(glm::vec3(scale));
     }
 }
 
 PlayerNode *Game::CreatePlayerInstance()
 {
-	std::string entity_name = "Player";
-	std::string object_name = "SimpleTorusMesh";
 	std::string material_name = "ObjectMaterial";
 	// Get resources
-	Resource *geom = resman_.GetResource(object_name);
-	if (!geom) {
-		throw(GameException(std::string("Could not find resource \"") + object_name + std::string("\"")));
+	Resource *torus_geom = resman_.GetResource("SimpleTorusMesh");
+	if (!torus_geom) {
+		throw(GameException(std::string("Could not find resource \"") + "SimpleTorusMesh" + std::string("\"")));
+	}
+
+	Resource *cylinder_geom = resman_.GetResource("SimpleCylinderMesh");
+	if (!torus_geom) {
+		throw(GameException(std::string("Could not find resource \"") + "SimpleCylinderMesh" + std::string("\"")));
 	}
 
 	Resource *mat = resman_.GetResource(material_name);
@@ -379,7 +409,22 @@ PlayerNode *Game::CreatePlayerInstance()
 	}
 
 	// Create asteroid instance
-	PlayerNode *player = new PlayerNode(entity_name, geom, mat, &camera_);
+	PlayerNode *player = new PlayerNode("Player", torus_geom, mat, &camera_);
+
+	Asteroid *player_engine_L = new Asteroid("PlayerEngineL", torus_geom, mat);
+	Asteroid *player_engine_R = new Asteroid("PlayerEngineR", torus_geom, mat);
+
+	player->AddChild(player_engine_L);
+	player->AddChild(player_engine_R);
+
+	player_engine_L->SetScale(glm::vec3(.5f));
+	player_engine_L->SetPosition(glm::vec3(-2.0f, 0.0, 2.0f));
+	player_engine_L->SetAngM(glm::angleAxis(glm::pi<float>() / 8.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+
+	player_engine_R->SetScale(glm::vec3(.5f));
+	player_engine_R->SetPosition(glm::vec3(2.0f, 0.0, 2.0f));
+	player_engine_R->SetAngM(glm::angleAxis(-glm::pi<float>() / 8.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+
 	scene_.AddNode(player);
 	return player;
 }

@@ -22,22 +22,14 @@ namespace game {
 
             // Set global camera attributes
             void SetPosition(glm::vec3 position);
-            void SetOrientation(glm::quat orientation);
+			void SetOrientation(glm::quat orientation);
+			void SetOrbit(glm::mat4 orbit);
             
-            // Perform global transformations of camera
-            void Translate(glm::vec3 trans);
-            void Rotate(glm::quat rot);
-
             // Get relative attributes of camera
             glm::vec3 GetForward(void) const;
             glm::vec3 GetSide(void) const;
             glm::vec3 GetUp(void) const;
-
-            // Perform relative transformations of camera
-            void Pitch(float angle);
-            void Yaw(float angle);
-            void Roll(float angle);
-
+			
             // Set the view from camera parameters: initial position of camera,
             // point looking at, and up vector
             // Resets the current orientation and position of the camera
@@ -53,10 +45,11 @@ namespace game {
 			//void SetupViewMatrix(glm::vec3 forward, glm::vec3 side_, glm::mat4 position, glm::quat orientation);
 
         private:
-            glm::vec3 position_; // Position of camera		 To be removed
-            glm::quat orientation_; // Orientation of camera To be removed
-            glm::vec3 forward_; // Initial forward vector	 Possibly to be removed
-            glm::vec3 side_; // Initial side vector			 Possibly to be removed
+            glm::vec3 position_; // Position of camera		 
+            glm::quat orientation_; // Orientation of camera 
+			glm::mat4 orbit_;	//Orbit of camera. For Third Person primarily
+            glm::vec3 forward_; // Initial forward vector	 
+            glm::vec3 side_; // Initial side vector			 
             glm::mat4 view_matrix_; // View matrix
             glm::mat4 projection_matrix_; // Projection matrix
 

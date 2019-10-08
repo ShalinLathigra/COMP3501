@@ -62,7 +62,8 @@ namespace game {
 			void AddChild(SceneNode *c);
 			glm::mat4 GetMatrix(void);
 
-        private:
+			std::vector<SceneNode*> GetChildren(void);
+        protected:
             std::string name_; // Name of the scene node
             GLuint array_buffer_; // References to geometry: vertex and array buffers
             GLuint element_array_buffer_;

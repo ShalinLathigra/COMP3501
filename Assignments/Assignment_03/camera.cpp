@@ -35,23 +35,16 @@ void Camera::SetPosition(glm::vec3 position){
 }
 
 
-void Camera::SetOrientation(glm::quat orientation){
+void Camera::SetOrientation(glm::quat orientation) {
 
-    orientation_ = orientation;
+	orientation_ = orientation;
 }
 
+void Camera::SetOrbit(glm::mat4 orbit) {
 
-void Camera::Translate(glm::vec3 trans){
-
-    position_ += trans;
+	orbit_ = orbit;
 }
 
-
-void Camera::Rotate(glm::quat rot){
-
-    orientation_ = rot * orientation_;
-    orientation_ = glm::normalize(orientation_);
-}
 
 
 glm::vec3 Camera::GetForward(void) const {
@@ -76,31 +69,6 @@ glm::vec3 Camera::GetUp(void) const {
     current_up = glm::normalize(current_up);
     return current_up;
 }
-
-
-void Camera::Pitch(float angle){
-
-    glm::quat rotation = glm::angleAxis(angle, GetSide());
-    orientation_ = rotation * orientation_;
-    orientation_ = glm::normalize(orientation_);
-}
-
-
-void Camera::Yaw(float angle){
-
-    glm::quat rotation = glm::angleAxis(angle, GetUp());
-    orientation_ = rotation * orientation_;
-    orientation_ = glm::normalize(orientation_);
-}
-
-
-void Camera::Roll(float angle){
-
-    glm::quat rotation = glm::angleAxis(angle, GetForward());
-    orientation_ = rotation * orientation_;
-    orientation_ = glm::normalize(orientation_);
-}
-
 
 void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
 
