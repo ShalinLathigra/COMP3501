@@ -6,7 +6,7 @@
  * A program that demonstrates how to create and render a torus mesh
  *
  * Copyright (c) 2018 Oliver van Kaick <Oliver.vanKaick@carleton.ca>, David Mould <mould@scs.carleton.ca>
- *
+ */
  
 
 #include <iostream>
@@ -403,5 +403,5 @@ int main(void) {
 	return 0;
 }
 
-*/
+/**/
 

@@ -599,8 +599,14 @@ int main(void){
 				glm::quat arm_1_flex = glm::angleAxis(glm::pi<float>() * amount, arm_1_flex_axis);
 				arm_1_orbit = glm::mat4_cast(arm_1_flex) * glm::translate(glm::mat4(1), -arm_1_joint);
 
+
+
+
 				glm::quat arm_2_flex = glm::angleAxis(glm::pi<float>() * amount, arm_2_flex_axis);
 				arm_2_orbit = glm::mat4_cast(arm_2_flex) * glm::translate(glm::mat4(1), -arm_2_joint);
+
+
+
 
 				amount = .05f + .20f * abs(sin(glm::pi<float>() * (float)current_time));
 				glm::quat claw_0_flex = glm::angleAxis(glm::pi<float>() * amount, claw_0_flex_axis);
@@ -707,6 +713,7 @@ int main(void){
 
 			//COMPOSE ARM_1 TRANSLATIONS!!!!!-------------------------------------------------------
 			arm_1_translation = glm::translate(glm::mat4(1.0), arm_1_pos);
+			//						P * T * O
 			glm::mat4 arm_1_matrix = arm_0_matrix * arm_1_translation * arm_1_orbit;
 			transf = arm_1_matrix * arm_1_scale * glm::mat4(1);
 			//DRAW ARM_1

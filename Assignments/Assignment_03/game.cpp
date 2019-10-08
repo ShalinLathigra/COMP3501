@@ -175,14 +175,14 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
         glfwSetWindowShouldClose(window, true);
     }
 
-    // Stop animation if space bar is pressed
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS){
-        game->animating_ = (game->animating_ == true) ? false : true;
-    }
+    //// Stop animation if space bar is pressed
+    //if (key == GLFW_KEY_SPACE && action == GLFW_PRESS){
+    //    game->animating_ = (game->animating_ == true) ? false : true;
+    //}
 
 	switch (key)
 	{
-	case(GLFW_KEY_UP):
+	case(GLFW_KEY_UP):	//All these can be held down
 	case(GLFW_KEY_DOWN):
 	case(GLFW_KEY_LEFT):
 	case(GLFW_KEY_RIGHT):
@@ -204,10 +204,19 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 			game->key_map_[key] = false;
 		}
 		break;
-	case(GLFW_KEY_LEFT_CONTROL):
+	case(GLFW_KEY_LEFT_CONTROL):	//Only trigger on release
 		if (action == GLFW_RELEASE)
 			game->player_->ToggleView();
 		break;
+	case(GLFW_KEY_SPACE):	//Must press space to fire
+		if (action == GLFW_PRESS)
+		{
+			game->key_map_[key] = true;
+		}
+		else
+		{
+			game->key_map_[key] = false;
+		}
 	default:
 		break;
 	}
@@ -302,6 +311,11 @@ void Game::ProcessKeyInput(void)
 		player_->ToggleView();
 	}
 
+
+	if (key_map_[GLFW_KEY_SPACE]) {
+		player_->SetFiring(true);
+	}
+
 	if (acc_vec != glm::vec3(0.0))
 		acc_vec = glm::normalize(acc_vec);
 
@@ -391,7 +405,6 @@ void Game::CreateAsteroidField(int num_asteroids){
 
 PlayerNode *Game::CreatePlayerInstance()
 {
-	std::string material_name = "ObjectMaterial";
 	// Get resources
 	Resource *torus_geom = resman_.GetResource("SimpleTorusMesh");
 	if (!torus_geom) {
@@ -403,19 +416,31 @@ PlayerNode *Game::CreatePlayerInstance()
 		throw(GameException(std::string("Could not find resource \"") + "SimpleCylinderMesh" + std::string("\"")));
 	}
 
-	Resource *mat = resman_.GetResource(material_name);
-	if (!mat) {
+	std::string material_name = "ObjectMaterial";
+	Resource *obj_mat = resman_.GetResource(material_name);
+	if (!obj_mat) {
+		throw(GameException(std::string("Could not find resource \"") + material_name + std::string("\"")));
+	}
+	Resource *laser_mat = resman_.GetResource(material_name);
+	if (!laser_mat) {
 		throw(GameException(std::string("Could not find resource \"") + material_name + std::string("\"")));
 	}
 
 	// Create asteroid instance
-	PlayerNode *player = new PlayerNode("Player", torus_geom, mat, &camera_);
+	PlayerNode *player = new PlayerNode("Player", torus_geom, obj_mat, &camera_);
 
-	Asteroid *player_engine_L = new Asteroid("PlayerEngineL", torus_geom, mat);
-	Asteroid *player_engine_R = new Asteroid("PlayerEngineR", torus_geom, mat);
+	SceneNode *player_laser = new PlayerNode("PlayerLaser", cylinder_geom, laser_mat, &camera_);
+
+	Asteroid *player_engine_L = new Asteroid("PlayerEngineL", torus_geom, obj_mat);
+	Asteroid *player_engine_R = new Asteroid("PlayerEngineR", torus_geom, obj_mat);
+
+	player->SetLaser(player_laser);
 
 	player->AddChild(player_engine_L);
 	player->AddChild(player_engine_R);
+
+	player_laser->SetScale(glm::vec3(.5f, 10.0f, .5f));
+	player_laser->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	player_engine_L->SetScale(glm::vec3(.5f));
 	player_engine_L->SetPosition(glm::vec3(-2.0f, 0.0, 2.0f));

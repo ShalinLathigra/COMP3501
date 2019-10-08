@@ -25,10 +25,14 @@ namespace game
 
 		max_vel_ = 75.0f;
 
-		camera_y = 4.0f;
-		camera_z = 30.0f;
-		//camera_y = 0.0f;
-		//camera_z = 50.0f;
+		camera_y_ = 4.0f;
+		camera_z_ = 30.0f;
+		//camera_y_ = 0.0f;
+		//camera_z_ = 50.0f;
+
+		firing_ = false;
+		max_laser_timer_ = .1f;
+		laser_timer_ = 0.0f;
 	}
 	PlayerNode::~PlayerNode()
 	{
@@ -45,10 +49,27 @@ namespace game
 		{
 			SceneNode::Draw(p, camera_);
 		}
+
+		if (firing_)
+		{
+			std::cout << "Draw Laser!" << std::endl;
+			laser_->Draw(p * matrix_ * laser_mat_, camera_);
+		}
 	}
 
 	void PlayerNode::Update(float deltaTime)
 	{
+		// Increment Timer
+		if (firing_)
+		{
+			laser_timer_ = glm::max(laser_timer_ - deltaTime, 0.0f);
+			if (laser_timer_ == 0)
+			{
+				firing_ = false;
+			}
+		}
+
+		// Physics
 		vel_ += acc_ * acc_speed_ * deltaTime;
 
 		if (glm::length(vel_) > max_vel_)
@@ -60,12 +81,15 @@ namespace game
 
 		Translate(vel_ * deltaTime);
 
-		SetCameraAttributes();
-
+		// Update Children
 		for (std::vector<SceneNode*>::iterator iter = children_.begin(); iter != children_.end(); iter++)
 		{
 			((Asteroid *)(*iter))->Asteroid::Update(glm::length(vel_) * deltaTime);
 		}
+
+		// Update Camera
+		SetCameraAttributes();
+
 	}
 
 
@@ -162,7 +186,7 @@ namespace game
 		}
 		else
 		{
-			camera_->SetPosition(GetPosition() + GetForward() * camera_z - GetUp()* camera_y);
+			camera_->SetPosition(GetPosition() + GetForward() * camera_z_ - GetUp()* camera_y_);
 			camera_->SetOrientation(GetOrientation());
 		}
 	}
@@ -170,6 +194,18 @@ namespace game
 	void PlayerNode::ToggleView(void)
 	{
 		first_person_ = !first_person_;
+	}
+
+
+	void PlayerNode::SetLaser(SceneNode* laser)
+	{
+		laser_ = laser;
+	}
+	void PlayerNode::SetFiring(bool firing)
+	{
+		firing_ = firing;
+		laser_timer_ = max_laser_timer_;
+		laser_mat_ = glm::mat4_cast(glm::angleAxis(- glm::pi<float>() / (2.0f), glm::vec3(1.0f, 0.0f, 0.0f))) * glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 5.0f, 0.0f)) * glm::mat4_cast(glm::angleAxis(glm::pi<float>()/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
 	}
 
 }

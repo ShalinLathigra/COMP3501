@@ -39,6 +39,10 @@ namespace game
 		//Toggle First/Third Person
 		void ToggleView(void);
 
+		//Laser information
+		void SetFiring(bool firing);
+		void SetLaser(SceneNode* laser);
+
 		//Manipulate Acceleration. 
 		void SetAcceleration(glm::vec3 acc);
 		void SetVelocity(glm::vec3 vel);
@@ -67,15 +71,18 @@ namespace game
 		bool first_person_;
 		float f_rot_speed_;
 		float t_rot_speed_;
-		float camera_y;
-		float camera_z;
+		float camera_y_;
+		float camera_z_;
+
+		//Laser Attributes
+		bool firing_;
+		float max_laser_timer_;
+		float laser_timer_;
+		SceneNode* laser_;
+		glm::mat4 laser_mat_;
 
 		//Functions to set Camera Attributes
 		void SetCameraAttributes();
-		//Functions to Update Transform Attributes
-
-		//Functions to Update 3rd Person Attributes
-
 
 	};
 }
