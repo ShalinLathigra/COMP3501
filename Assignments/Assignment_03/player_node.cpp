@@ -29,10 +29,6 @@ namespace game
 		camera_z_ = 30.0f;
 		//camera_y_ = 0.0f;
 		//camera_z_ = 50.0f;
-
-		firing_ = false;
-		max_laser_timer_ = .1f;
-		laser_timer_ = 0.0f;
 	}
 	PlayerNode::~PlayerNode()
 	{
@@ -49,25 +45,10 @@ namespace game
 		{
 			SceneNode::Draw(p, camera_);
 		}
-
-		if (firing_)
-		{
-			std::cout << "Draw Laser!" << std::endl;
-			laser_->Draw(p * matrix_ * laser_mat_, camera_);
-		}
 	}
 
 	void PlayerNode::Update(float deltaTime)
 	{
-		// Increment Timer
-		if (firing_)
-		{
-			laser_timer_ = glm::max(laser_timer_ - deltaTime, 0.0f);
-			if (laser_timer_ == 0)
-			{
-				firing_ = false;
-			}
-		}
 
 		// Physics
 		vel_ += acc_ * acc_speed_ * deltaTime;
@@ -77,14 +58,20 @@ namespace game
 			vel_ = glm::normalize(vel_) * max_vel_;
 		}
 
-		std::cout << glm::length(vel_) << std::endl;
-
 		Translate(vel_ * deltaTime);
 
 		// Update Children
 		for (std::vector<SceneNode*>::iterator iter = children_.begin(); iter != children_.end(); iter++)
 		{
-			((Asteroid *)(*iter))->Asteroid::Update(glm::length(vel_) * deltaTime);
+			std::string current = (*iter)->GetName();
+			if (current.find("Engine") >= 0)
+			{
+				((Asteroid *)(*iter))->Asteroid::Update(glm::length(vel_) * deltaTime);
+			}
+			else if (current.find("Cannon") >= 0)
+			{
+				std::cout << "a" << std::endl;
+			}
 		}
 
 		// Update Camera
@@ -195,17 +182,4 @@ namespace game
 	{
 		first_person_ = !first_person_;
 	}
-
-
-	void PlayerNode::SetLaser(SceneNode* laser)
-	{
-		laser_ = laser;
-	}
-	void PlayerNode::SetFiring(bool firing)
-	{
-		firing_ = firing;
-		laser_timer_ = max_laser_timer_;
-		laser_mat_ = glm::mat4_cast(glm::angleAxis(- glm::pi<float>() / (2.0f), glm::vec3(1.0f, 0.0f, 0.0f))) * glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 5.0f, 0.0f)) * glm::mat4_cast(glm::angleAxis(glm::pi<float>()/2.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
-	}
-
 }

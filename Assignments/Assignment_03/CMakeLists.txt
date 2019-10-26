@@ -9,6 +9,7 @@ set(HDRS
     asteroid.h 
 	camera.h 
 	game.h 
+	orbit_node.h
 	player_node.h
 	resource.h 
 	resource_manager.h 
@@ -21,14 +22,20 @@ set(SRCS
 	camera.cpp 
 	game.cpp 
 	main.cpp 
+	orbit_node.cpp
 	player_node.cpp
 	resource.cpp 
 	resource_manager.cpp 
 	scene_graph.cpp 
 	scene_node.cpp 
-	material_vp.glsl 
-	material_fp.glsl 
+	ship_material_vp.glsl 
+	ship_material_fp.glsl 
+	asteroid_material_vp.glsl 
+	asteroid_material_fp.glsl 
+	laser_material_vp.glsl 
+	laser_material_fp.glsl 
 	CheckList.txt
+	CMakeLists.txt
 )
 
 # Add path name to configuration file

@@ -145,8 +145,9 @@ glm::mat4 SceneNode::GetMatrix(void)
 
 void SceneNode::AddChild(SceneNode *c)
 {
+	std::cout << c->GetName() <<  " ABC" << std::endl;
 	children_.push_back(c);
-	//Nothing
+	std::cout << c->GetName() << " DEF" << std::endl;
 }
 
 void SceneNode::Draw(glm::mat4 p, Camera *camera){
