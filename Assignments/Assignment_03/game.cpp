@@ -243,126 +243,102 @@ void Game::ProcessKeyInput(void)
 	// compose transformation matrix
 	if (animating_)
 	{
-	float pitch = 0, yaw = 0, roll = 0;
+		float pitch = 0, yaw = 0, roll = 0;
 
-	float rot_factor = glm::pi<float>() / 90.0f;
+		float rot_factor = glm::pi<float>() / 90.0f;
 
 
-	//Camera Keys
-	if (key_map_[GLFW_KEY_UP]) {
-		//camera_.Pitch(rot_factor);
-		pitch = 1.0;
-		// std::cout << "up" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_DOWN]) {
-		//camera_.Pitch(-rot_factor);
-		pitch = -1.0;
-		// std::cout << "down" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_LEFT]) {
-		//camera_.Yaw(rot_factor);
-		yaw = -1;
-		// std::cout << "left" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_RIGHT]) {
-		//camera_.Yaw(-rot_factor);
-		yaw = 1;
-		// std::cout << "right" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_S]) {
-		//camera_.Roll(-rot_factor);
-		roll = 1.0;
-		// std::cout << "s" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_X]) {
-		//camera_.Roll(rot_factor);
-		roll = -1;
-		// std::cout << "x" << std::endl;
-	}
-
-	//Movement Keys
-
-	glm::vec3 acc_vec(0);
-
-	if (key_map_[GLFW_KEY_A]) {
-		//camera_.Translate(camera_.GetForward()*trans_factor);
-		acc_vec += -player_->GetForward();
-		// std::cout << "a" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_Z]) {
-		//camera_.Translate(-camera_.GetForward()*trans_factor);
-		acc_vec += player_->GetForward();
-		// std::cout << "z" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_J]) {
-		//camera_.Translate(-camera_.GetSide()*trans_factor);
-		acc_vec += -player_->GetSide();
-		// std::cout << "j" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_L]) {
-		//camera_.Translate(camera_.GetSide()*trans_factor);
-		acc_vec += player_->GetSide();
-		// std::cout << "l" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_I]) {
-		//camera_.Translate(camera_.GetUp()*trans_factor);
-		acc_vec += -player_->GetUp();
-		// std::cout << "i" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_K]) {
-		//camera_.Translate(-camera_.GetUp()*trans_factor);
-		acc_vec += player_->GetUp();
-		// std::cout << "k" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_LEFT_SHIFT]) {
-		//camera_.Translate(-camera_.GetUp()*trans_factor);
-		if (glm::length(player_->GetVelocity()) > 0)
-		{
-			acc_vec += -glm::normalize(player_->GetVelocity());
+		//Camera Keys
+		if (key_map_[GLFW_KEY_UP]) {
+			pitch = 1.0;
+			// std::cout << "up" << std::endl;
 		}
-		// std::cout << "LShift" << std::endl;
+		if (key_map_[GLFW_KEY_DOWN]) {
+			pitch = -1.0;
+			// std::cout << "down" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_LEFT]) {
+			yaw = -1;
+			// std::cout << "left" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_RIGHT]) {
+			yaw = 1;
+			// std::cout << "right" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_S]) {
+			roll = 1.0;
+			// std::cout << "s" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_X]) {
+			roll = -1;
+			// std::cout << "x" << std::endl;
+		}
+
+		//Movement Keys
+
+		glm::vec3 acc_vec(0);
+
+		if (key_map_[GLFW_KEY_A]) {
+			acc_vec += -player_->GetForward();
+			// std::cout << "a" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_Z]) {
+			acc_vec += player_->GetForward();
+			// std::cout << "z" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_J]) {
+			acc_vec += -player_->GetSide();
+			// std::cout << "j" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_L]) {
+			acc_vec += player_->GetSide();
+			// std::cout << "l" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_I]) {
+			acc_vec += -player_->GetUp();
+			// std::cout << "i" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_K]) {
+			acc_vec += player_->GetUp();
+			// std::cout << "k" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_LEFT_SHIFT]) {
+			if (glm::length(player_->GetVelocity()) > 0)
+			{
+				acc_vec += -glm::normalize(player_->GetVelocity());
+			}
+			// std::cout << "LShift" << std::endl;
+		}
+
+		//Laser Keys
+		glm::vec2 laser_delta(0);
+		if (key_map_[GLFW_KEY_R]) {
+			laser_delta.y += 1;
+			// std::cout << "r" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_D]) {
+			laser_delta.y -= 1;
+			// std::cout << "d" << std::endl;
+		}
+		if (key_map_[GLFW_KEY_F]) {
+			// std::cout << "f" << std::endl;
+			laser_delta.y -= 1;
+		}
+		if (key_map_[GLFW_KEY_G]) {
+			laser_delta.y += 1;
+			// std::cout << "g" << std::endl;
+		}
+
+
+		if (acc_vec != glm::vec3(0.0))
+			acc_vec = glm::normalize(acc_vec);
+
+
+		player_->SetAcceleration(acc_vec);
+		player_->SetPitch(pitch);
+		player_->SetYaw(yaw);
+		player_->SetRoll(roll);
 	}
-
-	//Laser Keys
-	glm::vec2 laser_delta(0);
-	if (key_map_[GLFW_KEY_R]) {
-		laser_delta.y += 1;
-		// std::cout << "r" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_D]) {
-		laser_delta.y -= 1;
-		// std::cout << "d" << std::endl;
-	}
-	if (key_map_[GLFW_KEY_F]) {
-		// std::cout << "f" << std::endl;
-		laser_delta.y -= 1;
-	}
-	if (key_map_[GLFW_KEY_G]) {
-		laser_delta.y += 1;
-		// std::cout << "g" << std::endl;
-	}
-
-
-	if (acc_vec != glm::vec3(0.0))
-		acc_vec = glm::normalize(acc_vec);
-
-
-	player_->SetAcceleration(acc_vec);
-	player_->Pitch(pitch * deltaTime);
-	player_->Yaw(yaw * deltaTime);
-	player_->Roll(roll * deltaTime);
-
-
-
-	//if (key_map_[GLFW_KEY_LEFT_SHIFT]) {
-	//	player_->SetVelocity(glm::vec3(0.0));
-	//}
-	//
-	//if (key_map_[GLFW_KEY_LEFT_CONTROL]) {
-	//	player_->SetOrientation(glm::quat());
-	//}
-	}
-
 }
 
 
@@ -471,19 +447,16 @@ PlayerNode *Game::CreatePlayerInstance()
 		throw(GameException(std::string("Could not find resource \"") + "SimpleCylinderMesh" + std::string("\"")));
 	}
 
-	// What exactly am I doing here? I am taking mt shape, creating a cylinder to sit insude it, 
-	SceneNode *player_cannon_in = new SceneNode("Cannon_P", cylinder_geom, obj_mat);
-	SceneNode *player_cannon_out = new SceneNode("Cannon_P", cylinder_geom, obj_mat);
 
-	player_cannon_in->AddChild(player_cannon_out);
-	player->AddChild(player_cannon_in);
+	Resource *sphere_geom = resman_.GetResource("SimpleSphereMesh");
+	if (!sphere_geom) {
+		throw(GameException(std::string("Could not find resource \"") + "SimpleSphereMesh" + std::string("\"")));
+	}
+	SceneNode *player_cannon_base = new SceneNode("Cannon_Base", sphere_geom, obj_mat);
 
-	player_cannon_out->SetScale(glm::vec3(.75f, 2.5f, .75f));
-	player_cannon_out->SetPosition(glm::vec3(0.0f, 1.25f, -0.5f));
-
-	player_cannon_in->SetScale(glm::vec3(2.0f, 0.5f, 2.0f));
-	player_cannon_in->SetPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-
+	player_cannon_base->SetScale(glm::vec3(1.0f));
+	player_cannon_base->SetPosition(glm::vec3(0.0f, 0.5f, 0.0f));
+	player->AddChild(player_cannon_base);
 	//Create Laser
 
 	std::string laser_material_name = "LaserMaterial";

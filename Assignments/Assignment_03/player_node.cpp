@@ -17,7 +17,7 @@ namespace game
 		side_ = camera_->GetSide();
 
 		acc_speed_ = 37.5f;
-		float rot_speed = 8.0f;
+		float rot_speed = 2.0f;
 		f_rot_speed_ = glm::pi<float>() / (2 * rot_speed);
 		t_rot_speed_ = glm::pi<float>() / (3 * rot_speed);
 		acc_ = glm::vec3();
@@ -27,6 +27,10 @@ namespace game
 
 		camera_y_ = 4.0f;
 		camera_z_ = 30.0f;
+
+		pitch_dir_ = 0.0f;
+		yaw_dir_ = 0.0f;
+		roll_dir_ = 0.0f;
 		//camera_y_ = 0.0f;
 		//camera_z_ = 50.0f;
 	}
@@ -59,6 +63,11 @@ namespace game
 		}
 
 		Translate(vel_ * deltaTime);
+		// Rotate about each axis
+		float rot_speed = GetRotSpeed();
+		Pitch(rot_speed * pitch_dir_ * deltaTime);
+		Yaw(rot_speed * yaw_dir_ * deltaTime);
+		Roll(rot_speed * roll_dir_ * deltaTime);
 
 		// Update Children
 		for (std::vector<SceneNode*>::iterator iter = children_.begin(); iter != children_.end(); iter++)
@@ -118,7 +127,7 @@ namespace game
 
 	float PlayerNode::GetRotSpeed(void) const
 	{
-		return f_rot_speed_;
+		return (first_person_) ? f_rot_speed_ : t_rot_speed_;
 	}
 
 
@@ -160,6 +169,19 @@ namespace game
 			roll = glm::angleAxis(angle * t_rot_speed_, GetForward());
 		}
 		SetOrientation(glm::normalize(roll * GetOrientation()));
+	}
+
+	void PlayerNode::SetPitch(float dir)
+	{
+		pitch_dir_ = dir;
+	}
+	void PlayerNode::SetYaw(float dir)
+	{
+		yaw_dir_ = dir;
+	}
+	void PlayerNode::SetRoll(float dir)
+	{
+		roll_dir_ = dir;
 	}
 
 

@@ -32,6 +32,10 @@ namespace game
 		void Draw(glm::mat4 p);
 
 		// Perform relative transformations of camera
+		void SetPitch(float dir);
+		void SetYaw(float dir);
+		void SetRoll(float dir);
+
 		void Pitch(float angle);
 		void Yaw(float angle);
 		void Roll(float angle);
@@ -59,6 +63,10 @@ namespace game
 
 		float acc_speed_;
 		float max_vel_;
+
+		float pitch_dir_;
+		float yaw_dir_;
+		float roll_dir_;
 
 		glm::vec3 forward_;	//initial side/forward To be used for ACC/Vel calcs & Camera View shit
 		glm::vec3 side_;	//initial side
