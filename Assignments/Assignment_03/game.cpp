@@ -117,9 +117,11 @@ void Game::SetupResources(void){
 
 	resman_.CreateCylinder("SimpleCylinderMesh", .5, 5);
 
+	resman_.CreatePlane("SimplePlaneMesh");
+
     // Load material to be applied to asteroids
 	std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/ship_material");
-	resman_.LoadResource(Material, "Asteroid_Material", filename.c_str());
+	resman_.LoadResource(Material, "AsteroidMaterial", filename.c_str());
 
 	filename = std::string(MATERIAL_DIRECTORY) + std::string("/ship_material");
 	resman_.LoadResource(Material, "ShipMaterial", filename.c_str());
@@ -137,6 +139,10 @@ void Game::SetupScene(void){
 	player_ = CreatePlayerInstance();
     // Create asteroid field
     CreateAsteroidField();
+
+	//Create Ground
+	CreateGroundInstance("SceneGround", "SimplePlaneMesh", "AsteroidMaterial");
+	//Create Cannon
 }
 
 
@@ -389,7 +395,7 @@ void Game::CreateAsteroidField(int num_asteroids){
         std::string name = "AsteroidInstance" + index;
 
         // Create asteroid instance
-        Asteroid *ast = CreateAsteroidInstance(name, "SimpleSphereMesh", "Asteroid_Material");
+        Asteroid *ast = CreateAsteroidInstance(name, "SimpleSphereMesh", "AsteroidMaterial");
 
         // Set attributes of asteroid: random position, orientation, and
         // angular momentum
@@ -435,40 +441,54 @@ PlayerNode *Game::CreatePlayerInstance()
 	player_engine_R->SetPosition(glm::vec3(2.0f, 0.0, 2.0f));
 	player_engine_R->SetAngM(glm::angleAxis(-glm::pi<float>() / 8.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
 
-	//Create Cannon
-	//	Composed of what?
-	//	At least one scene node, shape of a cylinder.
-	//	Must be given a hierarchical transformation with respect to the Player.
-	//	Don't really want to include a whole nother class for just the cannon, but maybe not a bad idea.
-	//	Otherwise, I will be 
 
 	Resource *cylinder_geom = resman_.GetResource("SimpleCylinderMesh");
 	if (!torus_geom) {
 		throw(GameException(std::string("Could not find resource \"") + "SimpleCylinderMesh" + std::string("\"")));
 	}
 
-
-	Resource *sphere_geom = resman_.GetResource("SimpleSphereMesh");
-	if (!sphere_geom) {
-		throw(GameException(std::string("Could not find resource \"") + "SimpleSphereMesh" + std::string("\"")));
-	}
-	SceneNode *player_cannon_base = new SceneNode("Cannon_Base", sphere_geom, obj_mat);
-
-	player_cannon_base->SetScale(glm::vec3(1.0f));
-	player_cannon_base->SetPosition(glm::vec3(0.0f, 0.5f, 0.0f));
-	player->AddChild(player_cannon_base);
-	//Create Laser
-
 	std::string laser_material_name = "LaserMaterial";
 	Resource *laser_mat = resman_.GetResource(laser_material_name);
 	if (!laser_mat) {
 		throw(GameException(std::string("Could not find resource \"") + laser_material_name + std::string("\"")));
 	}
+	LaserNode *player_laser = new LaserNode("Player_Laser", cylinder_geom, laser_mat);
 
+	player_laser->SetOrientation(glm::quat());
+	player_laser->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	player_laser->SetScale(glm::vec3(1.0f, 10.0f, 1.0f));
+
+	player_laser->SetJoint(glm::vec3(0.0f, -5.0f, 0.0f));
+
+	player->AddChild(player_laser);
 
 	scene_.AddNode(player);
 
 	return player;
 }
 
+
+SceneNode *Game::CreateGroundInstance(std::string entity_name, std::string object_name, std::string material_name)
+{
+	// Get resources
+	Resource *geom = resman_.GetResource(object_name);
+	if (!geom) {
+		throw(GameException(std::string("Could not find resource \"") + object_name + std::string("\"")));
+	}
+
+	Resource *mat = resman_.GetResource(material_name);
+	if (!mat) {
+		throw(GameException(std::string("Could not find resource \"") + material_name + std::string("\"")));
+	}
+
+	// Create asteroid instance
+	SceneNode *ground = new SceneNode(entity_name, geom, mat);
+	scene_.AddNode(ground);
+
+	ground->SetPosition(glm::vec3(0.0f, -350.0f, 300.0f));
+	ground->SetScale(glm::vec3(900.0f));
+	return ground;
+}
+
+// Handle creating the rotating cannon
 } // namespace game

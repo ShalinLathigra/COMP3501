@@ -33,9 +33,12 @@ namespace game {
             // Methods to create specific resources
             // Create the geometry for a torus and add it to the list of resources
 			void CreateTorus(std::string object_name, float loop_radius = 0.6, float circle_radius = 0.2, int num_loop_samples = 90, int num_circle_samples = 30);
-			void CreateCylinder(std::string object_name, float circle_radius = 0.5, int num_circle_samples = 5);
-            // Create the geometry for a sphere
-            void CreateSphere(std::string object_name, float radius = 0.6, int num_samples_theta = 90, int num_samples_phi = 45);
+			void CreateCylinder(std::string object_name, float circle_radius = 0.5, int num_circle_samples = 8);
+			// Create the geometry for a sphere
+			void CreateSphere(std::string object_name, float radius = 0.6, int num_samples_theta = 90, int num_samples_phi = 45);
+			// Create the geometry for a Square Plane
+			void CreatePlane(std::string object_name);
+
 
         private:
             // List storing all resources

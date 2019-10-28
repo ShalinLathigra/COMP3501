@@ -79,7 +79,7 @@ namespace game {
             // Set matrices that transform the node in a shader program
             void SetupShader(GLuint program);
 			//Calculates and stores current transformation stack in matrix_. Return matrix_*scaling
-			glm::mat4 CalculateMatrix(glm::mat4 p);
+			virtual glm::mat4 CalculateMatrix(glm::mat4 p);
 
 			SceneNode *parent_;
 			std::vector<SceneNode*> children_;

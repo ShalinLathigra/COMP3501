@@ -88,10 +88,12 @@ void SceneGraph::Draw(Camera *camera){
 		if (node_[i]->GetName() == "Player")
 		{
 			((PlayerNode *)node_[i])->PlayerNode::Draw(glm::mat4(1.0));
+			((PlayerNode *)node_[i])->PlayerNode::DrawChildren();
 		}
 		else
 		{
 			node_[i]->Draw(glm::mat4(1.0), camera);
+			node_[i]->DrawChildren(camera);
 		}
     }
 }

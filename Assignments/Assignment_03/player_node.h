@@ -1,6 +1,7 @@
 #pragma once
 #include "scene_node.h"
 #include "asteroid.h"
+#include "laser_node.h"
 
 
 /*
@@ -30,6 +31,7 @@ namespace game
 		void Update(float deltaTime);
 
 		void Draw(glm::mat4 p);
+		void DrawChildren();
 
 		// Perform relative transformations of camera
 		void SetPitch(float dir);

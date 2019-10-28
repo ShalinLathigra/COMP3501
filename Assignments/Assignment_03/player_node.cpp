@@ -17,13 +17,13 @@ namespace game
 		side_ = camera_->GetSide();
 
 		acc_speed_ = 37.5f;
-		float rot_speed = 2.0f;
-		f_rot_speed_ = glm::pi<float>() / (2 * rot_speed);
-		t_rot_speed_ = glm::pi<float>() / (3 * rot_speed);
+		float seconds_per_rot = 4.0f;
+		f_rot_speed_ = glm::pi<float>() / seconds_per_rot;
+		t_rot_speed_ = glm::pi<float>() / seconds_per_rot;
 		acc_ = glm::vec3();
 		vel_ = glm::vec3();
 
-		max_vel_ = 75.0f;
+		max_vel_ = 100.0f;
 
 		camera_y_ = 4.0f;
 		camera_z_ = 30.0f;
@@ -31,8 +31,6 @@ namespace game
 		pitch_dir_ = 0.0f;
 		yaw_dir_ = 0.0f;
 		roll_dir_ = 0.0f;
-		//camera_y_ = 0.0f;
-		//camera_z_ = 50.0f;
 	}
 	PlayerNode::~PlayerNode()
 	{
@@ -41,13 +39,45 @@ namespace game
 
 	void PlayerNode::Draw(glm::mat4 p)
 	{
-		if (first_person_)
+		if (!first_person_)
 		{
-			//Do Nothing
+			// Select proper material (shader program)
+			glUseProgram(material_);
+
+			// Set geometry to draw
+			glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer_);
+
+			// Set globals for camera
+			camera_->SetupShader(CalculateMatrix(p), material_);
+
+			// Set world matrix and other shader input variables
+			SetupShader(material_);
+
+			// Draw geometry
+			if (mode_ == GL_POINTS) {
+				glDrawArrays(mode_, 0, size_);
+			}
+			else {
+				glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
+			}
 		}
-		else
+	}
+
+	void PlayerNode::DrawChildren()
+	{
+		for (std::vector<SceneNode*>::iterator iter = children_.begin(); iter != children_.end(); iter++)
 		{
-			SceneNode::Draw(p, camera_);
+			std::string current = (*iter)->GetName();
+			if (current.find("Laser") != std::string::npos)
+			{
+				((LaserNode *)(*iter))->LaserNode::Draw(matrix_, camera_);
+			}
+			else
+			{
+				(*iter)->Draw(matrix_, camera_);
+				(*iter)->DrawChildren(camera_);
+			}
 		}
 	}
 
@@ -73,13 +103,13 @@ namespace game
 		for (std::vector<SceneNode*>::iterator iter = children_.begin(); iter != children_.end(); iter++)
 		{
 			std::string current = (*iter)->GetName();
-			if (current.find("Engine") >= 0)
+			if (current.find("Engine") != std::string::npos)
 			{
 				((Asteroid *)(*iter))->Asteroid::Update(glm::length(vel_) * deltaTime);
 			}
-			else if (current.find("Cannon") >= 0)
+			else if (current.find("Laser") != std::string::npos)
 			{
-				std::cout << "a" << std::endl;
+				((LaserNode *)(*iter))->LaserNode::Update(glm::length(vel_) * deltaTime);
 			}
 		}
 

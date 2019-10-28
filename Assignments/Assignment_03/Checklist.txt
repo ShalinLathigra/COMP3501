@@ -55,3 +55,9 @@
 	(2.0) Smooth acceleration, deceleration, rotation, etc.
 		//Done! Physics based acceleration/deceleration implemented. Smoother, though not perfectly smooth camera rotations implemented.
 
+
+
+
+NOTES FOR NEXT TIME:
+	Give PLAYER a reference to LASER
+		use the reference to toggle laser on and off

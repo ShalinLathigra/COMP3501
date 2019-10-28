@@ -145,9 +145,8 @@ glm::mat4 SceneNode::GetMatrix(void)
 
 void SceneNode::AddChild(SceneNode *c)
 {
-	std::cout << c->GetName() <<  " ABC" << std::endl;
+	std::cout << c->GetName() << std::endl;
 	children_.push_back(c);
-	std::cout << c->GetName() << " DEF" << std::endl;
 }
 
 void SceneNode::Draw(glm::mat4 p, Camera *camera){
@@ -171,7 +170,6 @@ void SceneNode::Draw(glm::mat4 p, Camera *camera){
     } else {
         glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
     }
-	DrawChildren(camera);
 }
 
 
@@ -201,9 +199,9 @@ void SceneNode::UpdateChildren(float deltaTime) {
 
 glm::mat4 SceneNode::CalculateMatrix(glm::mat4 p)
 {
+	glm::mat4 scaling = glm::scale(glm::mat4(1.0), scale_);
 	glm::mat4 rotation = glm::mat4_cast(orientation_);
 	glm::mat4 translation = glm::translate(glm::mat4(1.0), position_);
-	glm::mat4 scaling = glm::scale(glm::mat4(1.0), scale_);
 
 	matrix_ = p * translation *rotation;
 

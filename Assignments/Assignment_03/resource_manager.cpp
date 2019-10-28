@@ -301,9 +301,9 @@ void ResourceManager::CreateCylinder(std::string object_name, float circle_radiu
 			// Define position, normal and color of vertex
 			vertex_normal = glm::vec3(cos(phi), 0, sin(phi));
 			vertex_position = loop_center + vertex_normal * circle_radius;
-			vertex_color = glm::vec3(1.0 - ((float)i / (float)num_loop_samples),
-				(float)i / (float)num_loop_samples,
-				(float)j / (float)num_circle_samples);
+			vertex_color = glm::vec3(1.0f,
+				(float)(num_loop_samples - i) / (float)num_loop_samples,
+				0.0f);
 			vertex_coord = glm::vec2(theta / (2.0*glm::pi<GLfloat>()),
 				phi / (2.0*glm::pi<GLfloat>()));
 
@@ -457,6 +457,90 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
 
     // Create resource
     AddResource(Mesh, object_name, vbo, ebo, face_num * face_att);
+}
+
+
+void ResourceManager::CreatePlane(std::string object_name)
+{
+	// Create a sphere using a well-known parameterization
+
+	// Number of vertices and faces to be created
+	const GLuint vertex_num = 4;
+	const GLuint face_num = 2;
+
+	// Number of attributes for vertices and faces
+	const int vertex_att = 11;
+	const int face_att = 3;
+
+	// Data buffers 
+	GLfloat *vertex = NULL;
+	GLuint *face = NULL;
+
+	// Allocate memory for buffers
+	try {
+		vertex = new GLfloat[vertex_num * vertex_att]; // 11 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3), 2D texture coordinates (2)
+		face = new GLuint[face_num * face_att]; // 3 indices per face
+	}
+	catch (std::exception &e) {
+		throw e;
+	}
+
+	// Create vertices 
+	glm::vec3 vertex_position;
+	glm::vec3 vertex_normal(0.0f, 1.0f, 0.0f);
+	glm::vec3 vertex_color(.1f, .1f, .25f);
+	glm::vec2 vertex_coord;
+	int count = 0;
+	for (int i = -1; i < 2; i += 2)
+	{
+		for (int j = -1; j < 2; j += 2,count++) 
+		{
+			vertex_position = 0.5f * glm::vec3(i, 0.0f, j);
+			vertex_coord = glm::vec2(i, j);
+
+			//0 = -1, -1, 
+			//1 = -1,  1, 
+			//2 =  1, -1, 
+			//3 =  1,  1, 
+
+			for (int k = 0; k < 3; k++) {
+				vertex[count*vertex_att + k] = vertex_position[k];
+				vertex[count*vertex_att + k + 3] = vertex_normal[k];
+				vertex[count*vertex_att + k + 6] = vertex_color[k];
+			}
+			vertex[count*vertex_att + 9] = vertex_coord[0];
+			vertex[count*vertex_att + 10] = vertex_coord[1];
+		}
+	}
+
+	glm::vec3 t1(1,0,2);
+	glm::vec3 t2(2,3,1);
+	// Add two triangles to the data buffer
+	for (int k = 0; k < 3; k++) {
+		face[k] = (GLuint)t1[k];
+		face[k + face_att] = (GLuint)t2[k];
+	}
+
+	// Create OpenGL buffers and copy data
+	//GLuint vao;
+	//glGenVertexArrays(1, &vao);
+	//glBindVertexArray(vao);
+
+	GLuint vbo, ebo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
+
+	// Free data buffers
+	delete[] vertex;
+	delete[] face;
+
+	// Create resource
+	AddResource(Mesh, object_name, vbo, ebo, face_num * face_att);
 }
 
 } // namespace game;
