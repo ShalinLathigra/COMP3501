@@ -6,15 +6,15 @@ namespace game
 {
 	LaserNode::LaserNode(const std::string name, const Resource *geometry, const Resource *material) : SceneNode(name, geometry, material)
 	{
-		active_ = true;
+		active_ = false;
 
 		forward_ = glm::vec3(0.0f, 0.0f, 1.0f);	//initial forward
 
-		max_duration_timer_;
-		max_cd_timer_;
+		max_duration_timer_ = .25f;
+		max_cd_timer_ = .25f;
 
-		duration_timer_;
-		cd_timer_;
+		duration_timer_ = 0.0f;
+		cd_timer_ = 0.0f;
 
 		joint_ = glm::vec3(0.0f);
 		orbit_amount_ = glm::angleAxis(glm::pi<float>() / 2.0f, glm::vec3(-1.0f, 0.0f, 0.0f));
@@ -27,30 +27,25 @@ namespace game
 
 	void LaserNode::Draw(glm::mat4 p, Camera *camera)
 	{
-		// if active_ do draw stuff
+		// Select proper material (shader program)
+		glUseProgram(material_);
 
-		if (active_)
-		{
-			// Select proper material (shader program)
-			glUseProgram(material_);
+		// Set geometry to draw
+		glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer_);
 
-			// Set geometry to draw
-			glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer_);
+		// Set globals for camera
+		camera->SetupShader(CalculateMatrix(p), material_);
 
-			// Set globals for camera
-			camera->SetupShader(CalculateMatrix(p), material_);
+		// Set world matrix and other shader input variables
+		SetupShader(material_);
 
-			// Set world matrix and other shader input variables
-			SetupShader(material_);
-
-			// Draw geometry
-			if (mode_ == GL_POINTS) {
-				glDrawArrays(mode_, 0, size_);
-			}
-			else {
-				glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
-			}
+		// Draw geometry
+		if (mode_ == GL_POINTS) {
+			glDrawArrays(mode_, 0, size_);
+		}
+		else {
+			glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
 		}
 	}
 	void LaserNode::Update(float deltaTime)
@@ -62,26 +57,37 @@ namespace game
 	void LaserNode::AdvanceTimers(float deltaTime)
 	{
 		if (duration_timer_ > 0.0f)
+		{
 			duration_timer_ = std::max(0.0f, duration_timer_ - deltaTime);
-
-		if (cd_timer_ > 0.0f)
+		}
+		else if (cd_timer_ > 0.0f && duration_timer_ == 0.0f)
+		{
 			cd_timer_ = std::max(0.0f, cd_timer_ - deltaTime);
+		}
+
+		if (duration_timer_ == 0.0f)
+			active_ = false;
 	}
-	void LaserNode::FireLaser(void)
+	void LaserNode::Fire(void)
 	{
-		duration_timer_ = max_duration_timer_;
-		active_ = true;
+		if (cd_timer_ == 0.0f && active_ == false)
+		{
+			duration_timer_ = max_duration_timer_;
+			cd_timer_ = max_cd_timer_;
+			active_ = true;
+
+			GetForward();
+		}
 	}
-	void LaserNode::StartCooldown(void)
+	bool LaserNode::IsActive(void)
 	{
-		cd_timer_ = max_cd_timer_;
-		active_ = false;
+		return active_;
 	}
 
-	//glm::vec3 LaserNode::GetForward(void) const
-	//{
-	//
-	//}
+	glm::vec3 LaserNode::GetForward(void) const
+	{
+		return forward_; // Return -forward since the camera coordinate system points in the opposite direction
+	}
 	void LaserNode::SetJoint(glm::vec3 joint) 
 	{
 		joint_ = joint;

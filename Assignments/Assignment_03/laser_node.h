@@ -15,10 +15,11 @@ namespace game
 		void Update(float deltaTime);
 		void AdvanceTimers(float deltaTime);
 
-		void FireLaser();
-		void StartCooldown();
+		void Fire(void);
+		void StartCooldown(void);
+		bool IsActive(void);
 
-		//glm::vec3 GetForward(void) const;
+		glm::vec3 GetForward(void) const;
 		void SetJoint(glm::vec3);
 
 		glm::mat4 CalculateMatrix(glm::mat4 p);

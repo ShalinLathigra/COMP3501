@@ -16,14 +16,14 @@ namespace game
 		forward_ = camera_->GetForward();
 		side_ = camera_->GetSide();
 
-		acc_speed_ = 37.5f;
+		acc_speed_ = 50.0f;
 		float seconds_per_rot = 4.0f;
 		f_rot_speed_ = glm::pi<float>() / seconds_per_rot;
 		t_rot_speed_ = glm::pi<float>() / seconds_per_rot;
 		acc_ = glm::vec3();
 		vel_ = glm::vec3();
 
-		max_vel_ = 100.0f;
+		max_vel_ = 75.0f;
 
 		camera_y_ = 4.0f;
 		camera_z_ = 30.0f;
@@ -79,11 +79,15 @@ namespace game
 				(*iter)->DrawChildren(camera_);
 			}
 		}
+
+		if (laser_->IsActive())
+		{
+			laser_->Draw(matrix_, camera_);
+		}
 	}
 
 	void PlayerNode::Update(float deltaTime)
 	{
-
 		// Physics
 		vel_ += acc_ * acc_speed_ * deltaTime;
 
@@ -107,11 +111,10 @@ namespace game
 			{
 				((Asteroid *)(*iter))->Asteroid::Update(glm::length(vel_) * deltaTime);
 			}
-			else if (current.find("Laser") != std::string::npos)
-			{
-				((LaserNode *)(*iter))->LaserNode::Update(glm::length(vel_) * deltaTime);
-			}
 		}
+
+		//Update Laser
+		laser_->Update(deltaTime);
 
 		// Update Camera
 		SetCameraAttributes();
@@ -233,5 +236,28 @@ namespace game
 	void PlayerNode::ToggleView(void)
 	{
 		first_person_ = !first_person_;
+	}
+
+	//LASER FUNCTIONS---------------------------------------------
+	void PlayerNode::SetLaser(LaserNode *laser)
+	{
+		laser_ = laser;
+	}
+
+	void PlayerNode::FireLaser(void)
+	{
+		laser_->Fire();
+	}
+	glm::vec3 PlayerNode::GetLaserOrigin(void) const
+	{	//Return laser position in relation to player, but in worldspace
+		return position_ + laser_->GetPosition();
+	}
+	glm::vec3 PlayerNode::GetLaserForward(void) const
+	{
+		glm::vec3 laser_local = laser_->GetForward();
+
+		glm::vec3 current_forward = orientation_ * laser_local;
+		return current_forward; // Return -forward since the camera coordinate system points in the opposite direction
+
 	}
 }

@@ -45,6 +45,10 @@ namespace game
 		//Toggle First/Third Person
 		void ToggleView(void);
 
+		//Functions to interact with Laser Object
+		void SetLaser(LaserNode *laser);
+		void FireLaser(void);
+
 		//Manipulate Acceleration. 
 		void SetAcceleration(glm::vec3 acc);
 		void SetVelocity(glm::vec3 vel);
@@ -55,6 +59,9 @@ namespace game
 		glm::vec3 GetUp(void) const;
 
 		float GetRotSpeed(void) const;
+
+		glm::vec3 GetLaserOrigin(void) const;
+		glm::vec3 GetLaserForward(void) const;
 
 	private:
 		Camera *camera_;
@@ -73,6 +80,9 @@ namespace game
 		glm::vec3 forward_;	//initial side/forward To be used for ACC/Vel calcs & Camera View shit
 		glm::vec3 side_;	//initial side
 
+		//Laser Reference
+		LaserNode *laser_;
+
 		//3rd Person Attributes		
 		bool first_person_;
 		float f_rot_speed_;
@@ -82,6 +92,8 @@ namespace game
 
 		//Functions to set Camera Attributes
 		void SetCameraAttributes();
+
+
 
 	};
 }

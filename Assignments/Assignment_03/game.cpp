@@ -160,6 +160,7 @@ void Game::MainLoop(void){
             if ((current_time - last_time) > 0.05){
 				deltaTime = current_time - last_time;
                 scene_.Update(deltaTime);
+				//Call scene_.RaySphereCollisions(player_->GetLaserOrigin(), player_->GetLaserDirection());
                 last_time = current_time;
             }
         }
@@ -316,25 +317,6 @@ void Game::ProcessKeyInput(void)
 			// std::cout << "LShift" << std::endl;
 		}
 
-		//Laser Keys
-		glm::vec2 laser_delta(0);
-		if (key_map_[GLFW_KEY_R]) {
-			laser_delta.y += 1;
-			// std::cout << "r" << std::endl;
-		}
-		if (key_map_[GLFW_KEY_D]) {
-			laser_delta.y -= 1;
-			// std::cout << "d" << std::endl;
-		}
-		if (key_map_[GLFW_KEY_F]) {
-			// std::cout << "f" << std::endl;
-			laser_delta.y -= 1;
-		}
-		if (key_map_[GLFW_KEY_G]) {
-			laser_delta.y += 1;
-			// std::cout << "g" << std::endl;
-		}
-
 
 		if (acc_vec != glm::vec3(0.0))
 			acc_vec = glm::normalize(acc_vec);
@@ -344,6 +326,11 @@ void Game::ProcessKeyInput(void)
 		player_->SetPitch(pitch);
 		player_->SetYaw(yaw);
 		player_->SetRoll(roll);
+
+
+		if (key_map_[GLFW_KEY_SPACE]) {
+			player_->FireLaser();
+		}
 	}
 }
 
@@ -460,7 +447,7 @@ PlayerNode *Game::CreatePlayerInstance()
 
 	player_laser->SetJoint(glm::vec3(0.0f, -5.0f, 0.0f));
 
-	player->AddChild(player_laser);
+	player->SetLaser(player_laser);
 
 	scene_.AddNode(player);
 
