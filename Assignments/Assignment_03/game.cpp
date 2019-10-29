@@ -160,7 +160,7 @@ void Game::MainLoop(void){
             if ((current_time - last_time) > 0.05){
 				deltaTime = current_time - last_time;
                 scene_.Update(deltaTime);
-				//Call scene_.RaySphereCollisions(player_->GetLaserOrigin(), player_->GetLaserDirection());
+				scene_.CalculateRayCollisions(player_->GetLaserOrigin(), player_->GetLaserDirection());
                 last_time = current_time;
             }
         }
@@ -374,7 +374,8 @@ Asteroid *Game::CreateAsteroidInstance(std::string entity_name, std::string obje
 void Game::CreateAsteroidField(int num_asteroids){
 
     // Create a number of asteroid instances
-    for (int i = 0; i < num_asteroids; i++){
+	//for (int i = 0; i < num_asteroids; i++) {
+	for (int i = 0; i < 1; i++) {
         // Create instance name
         std::stringstream ss;
         ss << i;
@@ -395,6 +396,7 @@ void Game::CreateAsteroidField(int num_asteroids){
 		int max_size = 40;
 		float scale = (min_size + (float)(rand() % (max_size - min_size))) / 10.0f;
 		ast->SetScale(glm::vec3(scale));
+		ast->SetScale(glm::vec3(min_size + 4));
     }
 }
 
@@ -443,9 +445,9 @@ PlayerNode *Game::CreatePlayerInstance()
 
 	player_laser->SetOrientation(glm::quat());
 	player_laser->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	player_laser->SetScale(glm::vec3(1.0f, 10.0f, 1.0f));
+	player_laser->SetScale(glm::vec3(1.0f, 150.0f, 1.0f));
 
-	player_laser->SetJoint(glm::vec3(0.0f, -5.0f, 0.0f));
+	player_laser->SetJoint(glm::vec3(0.0f, -80.0f, 0.0f));
 
 	player->SetLaser(player_laser);
 

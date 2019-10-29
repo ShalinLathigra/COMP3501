@@ -19,6 +19,7 @@ namespace game
 		void StartCooldown(void);
 		bool IsActive(void);
 
+		float GetWidth(void) const;
 		glm::vec3 GetForward(void) const;
 		void SetJoint(glm::vec3);
 
@@ -26,6 +27,7 @@ namespace game
 	private:
 		bool active_;
 
+		float width_;
 		glm::vec3 forward_;	//initial up
 
 		glm::vec3 joint_;

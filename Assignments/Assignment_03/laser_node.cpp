@@ -8,6 +8,7 @@ namespace game
 	{
 		active_ = false;
 
+		width_ = .5f;
 		forward_ = glm::vec3(0.0f, 0.0f, 1.0f);	//initial forward
 
 		max_duration_timer_ = .25f;
@@ -84,10 +85,16 @@ namespace game
 		return active_;
 	}
 
+	float LaserNode::GetWidth(void) const
+	{
+		return width_;
+	}
+
 	glm::vec3 LaserNode::GetForward(void) const
 	{
 		return forward_; // Return -forward since the camera coordinate system points in the opposite direction
 	}
+	
 	void LaserNode::SetJoint(glm::vec3 joint) 
 	{
 		joint_ = joint;

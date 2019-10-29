@@ -252,12 +252,16 @@ namespace game
 	{	//Return laser position in relation to player, but in worldspace
 		return position_ + laser_->GetPosition();
 	}
-	glm::vec3 PlayerNode::GetLaserForward(void) const
+	glm::vec3 PlayerNode::GetLaserDirection(void) const
 	{
 		glm::vec3 laser_local = laser_->GetForward();
 
 		glm::vec3 current_forward = orientation_ * laser_local;
 		return current_forward; // Return -forward since the camera coordinate system points in the opposite direction
 
+	}
+	float PlayerNode::GetLaserWidth(void) const
+	{	//Return laser position in relation to player, but in worldspace
+		return laser_->GetWidth();
 	}
 }

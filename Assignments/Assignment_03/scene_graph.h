@@ -46,8 +46,12 @@ namespace game {
             // Draw the entire scene
             void Draw(Camera *camera);
 
-            // Update entire scene
-            void Update(float deltaTime);
+			// Update entire scene
+			void Update(float deltaTime);
+
+
+			// Update entire scene
+			void CalculateRayCollisions(glm::vec3 ray_origin, glm::vec3 ray_dir);
 
     }; // class SceneGraph
 

@@ -61,7 +61,8 @@ namespace game
 		float GetRotSpeed(void) const;
 
 		glm::vec3 GetLaserOrigin(void) const;
-		glm::vec3 GetLaserForward(void) const;
+		glm::vec3 GetLaserDirection(void) const;
+		float GetLaserWidth(void) const;
 
 	private:
 		Camera *camera_;

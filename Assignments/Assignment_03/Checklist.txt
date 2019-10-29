@@ -7,18 +7,10 @@
 		Each section of cannon is a node in hierarchy
 			[base]->[outerTube]->[innerTube], etc.
 
-4. Laser Beam
-	(1.5) Laser visible, fires in direction of cannon. 
-		Need to take ship and cannon rotation into account, as well as camera position
-	(0.5) Laser handled abstractly
-		//Don't think this necessarily needs to be a physical object, rather a line drawn from cannon exit to target direction
-		FireLaser+UpdateLaser
-			Store vector of lasers, update it, draw function etc. Be good with this shit
-			Basically just have a Laser Beam class
 
 6. Ray-Sphere Collision(?)
 	(1.0) Collisions work properly
-	(2.0) Implement Collisions with Ray-Sphere Collision
+	(1.0) Implement Collisions with Ray-Sphere Collision
 
 7. Missile Fire
 	(0.5) Physical Projectile, 3D Model (Possibly Cylinder, Add a better front-facing face)
@@ -54,10 +46,12 @@
 5. 3D Controls
 	(2.0) Smooth acceleration, deceleration, rotation, etc.
 		//Done! Physics based acceleration/deceleration implemented. Smoother, though not perfectly smooth camera rotations implemented.
-
-
-
-
-NOTES FOR NEXT TIME:
-	Give PLAYER a reference to LASER
-		use the reference to toggle laser on and off
+		
+4. Laser Beam
+	(1.5) Laser visible, fires in direction of cannon. 
+		Need to take ship and cannon rotation into account, as well as camera position
+	(0.5) Laser handled abstractly
+		//Don't think this necessarily needs to be a physical object, rather a line drawn from cannon exit to target direction
+		FireLaser+UpdateLaser
+			Store vector of lasers, update it, draw function etc. Be good with this shit
+			Basically just have a Laser Beam class
