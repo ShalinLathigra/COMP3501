@@ -38,7 +38,8 @@ namespace game {
 		SceneNode *scn = new SceneNode(node_name, geometry, material);
 
 		// Add node to the scene
-		node_.push_back(scn);
+		//node_.push_back(scn);
+		root_->AddChild(scn);
 
 		return scn;
 	}
@@ -46,16 +47,23 @@ namespace game {
 
 	void SceneGraph::AddNode(SceneNode *node) {
 
-		node_.push_back(node);
+		//node_.push_back(node);
+		root_->AddChild(node);
 	}
+	void SceneGraph::AddRoot(RootNode *node)
+	{
+		root_ = node;
+	}
+
 
 
 	SceneNode *SceneGraph::GetNode(std::string node_name) const {
 
+		std::vector<SceneNode *> nodes = root_->GetChildren();
 		// Find node with the specified name
-		for (int i = 0; i < node_.size(); i++) {
-			if (node_[i]->GetName() == node_name) {
-				return node_[i];
+		for (int i = 0; i < nodes.size(); i++) {
+			if (nodes[i]->GetName() == node_name) {
+				return nodes[i];
 			}
 		}
 		return NULL;
@@ -64,14 +72,13 @@ namespace game {
 
 
 	std::vector<SceneNode *>::const_iterator SceneGraph::begin() const {
-
-		return node_.begin();
+		return root_->GetChildren().begin();
 	}
 
 
 	std::vector<SceneNode *>::const_iterator SceneGraph::end() const {
 
-		return node_.end();
+		return root_->GetChildren().end();
 	}
 
 
@@ -82,58 +89,65 @@ namespace game {
 			background_color_[1],
 			background_color_[2], 0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// Draw all scene nodes
-		for (int i = 0; i < node_.size(); i++) {
-			if (node_[i]->GetName() == "Player")
-			{
-				((PlayerNode *)node_[i])->PlayerNode::Draw(glm::mat4(1.0));
-				((PlayerNode *)node_[i])->PlayerNode::DrawChildren();
-			}
-			else
-			{
-				node_[i]->Draw(glm::mat4(1.0), camera);
-				node_[i]->DrawChildren(camera);
-			}
-		}
+		root_->Draw(camera);
 	}
 
 
-	void SceneGraph::Update(float deltaTime) {
+	void SceneGraph::Update(float deltaTime, bool checkCollisions, glm::vec3 origin, glm::vec3 dir) 
+	{
+		root_->Update(deltaTime);
 
-		for (int i = 0; i < node_.size(); i++) {
-			if (node_[i]->GetName() == "Player")
-			{
-				((PlayerNode *)node_[i])->PlayerNode::Update(deltaTime);
-			}
-			else
-			{
-				node_[i]->Update(deltaTime);
-			}
-		}
+		if (checkCollisions)
+			CalculateRayCollisions(origin, dir);
 	}
 
 	void SceneGraph::CalculateRayCollisions(glm::vec3 ray_origin, glm::vec3 ray_dir)
 	{
-		for (int i = 0; i < node_.size(); i++) {
-			if (node_[i]->GetName().find("Asteroid") != std::string::npos)
+		std::vector<std::string> names = std::vector<std::string>();
+		std::vector<SceneNode *> nodes = root_->GetChildren();
+		for (int i = 0; i < nodes.size(); i++) {
+			if (nodes[i]->GetName().find("Asteroid") != std::string::npos)
 			{
-				glm::vec3 node_pos = node_[i]->GetPosition();
-				glm::vec3 dir_to_node = glm::normalize(ray_origin - node_pos);
+				glm::vec3 node_dir = ray_origin - nodes[i]->GetPosition();
 
-				//Assume you take in 2 normalized vectors here. Cut out unecessary calcs.
-				float angle = acos(glm::dot(ray_dir, dir_to_node));
-				float dist = glm::length(node_pos - ray_origin);
-
-				//ignore as many as possible
-				if (angle < .2f || dist < 150.0f)
+				if (CheckRayCollision(ray_dir, node_dir, nodes[i]->GetScale().x))
 				{
-					std::cout << "HIT!" << std::endl;
+					names.push_back(nodes[i]->GetName());
 				}
+
 			}
 		}
-		//Iterate over all asteroids
-			//Do Ray-Sphere Calculations
+
+		for (std::vector<std::string>::iterator iter = names.begin(); iter != names.end(); iter++)
+		{
+			root_->DeleteChild((*iter));
+		}
+	}
+	bool SceneGraph::CheckRayCollision(glm::vec3 ray_dir, glm::vec3 node_dir, float rad)
+	{
+
+		double det, b;
+		b = glm::dot(node_dir, ray_dir);
+		det = b * b - glm::dot(node_dir, node_dir) + std::pow(rad, 2);
+		if (det < 0)
+		{
+			//std::cout << "No HIT A!" << std::endl;
+			return false;
+		}
+		else
+		{
+			double ans = b - det;
+			if (ans < 0)
+			{
+				//std::cout << "No HIT B!" << std::endl;
+				return false;
+			}
+			else
+			{
+				std::cout << "HIT!!!" << std::endl;
+				return true;
+			}
+		}
 	}
 
 } // namespace game

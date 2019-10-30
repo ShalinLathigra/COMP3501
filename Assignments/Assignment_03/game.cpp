@@ -135,13 +135,14 @@ void Game::SetupScene(void){
 
     // Set background color for the scene
     scene_.SetBackgroundColor(viewport_background_color_g);
-	
+
+	//Create Ground
+	CreateGroundInstance("SceneGround", "SimplePlaneMesh", "AsteroidMaterial");
+	//Create Player
 	player_ = CreatePlayerInstance();
     // Create asteroid field
     CreateAsteroidField();
 
-	//Create Ground
-	CreateGroundInstance("SceneGround", "SimplePlaneMesh", "AsteroidMaterial");
 	//Create Cannon
 }
 
@@ -159,8 +160,7 @@ void Game::MainLoop(void){
             double current_time = glfwGetTime();
             if ((current_time - last_time) > 0.05){
 				deltaTime = current_time - last_time;
-                scene_.Update(deltaTime);
-				scene_.CalculateRayCollisions(player_->GetLaserOrigin(), player_->GetLaserDirection());
+                scene_.Update(deltaTime, player_->IsFiring(), player_->GetLaserOrigin(), player_->GetLaserDirection());
                 last_time = current_time;
             }
         }
@@ -374,8 +374,8 @@ Asteroid *Game::CreateAsteroidInstance(std::string entity_name, std::string obje
 void Game::CreateAsteroidField(int num_asteroids){
 
     // Create a number of asteroid instances
-	//for (int i = 0; i < num_asteroids; i++) {
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < num_asteroids; i++) {
+	//for (int i = 0; i < 1; i++) {
         // Create instance name
         std::stringstream ss;
         ss << i;
@@ -392,11 +392,11 @@ void Game::CreateAsteroidField(int num_asteroids){
 		ast->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float)rand() / RAND_MAX), glm::vec3(((float)rand() / RAND_MAX), ((float)rand() / RAND_MAX), ((float)rand() / RAND_MAX)))));
 
 		//randomize scales
-		int min_size = 15;
-		int max_size = 40;
+		int min_size = 80;
+		int max_size = 140;
 		float scale = (min_size + (float)(rand() % (max_size - min_size))) / 10.0f;
 		ast->SetScale(glm::vec3(scale));
-		ast->SetScale(glm::vec3(min_size + 4));
+		//ast->SetScale(glm::vec3(min_size + 4));
     }
 }
 
@@ -471,8 +471,8 @@ SceneNode *Game::CreateGroundInstance(std::string entity_name, std::string objec
 	}
 
 	// Create asteroid instance
-	SceneNode *ground = new SceneNode(entity_name, geom, mat);
-	scene_.AddNode(ground);
+	RootNode *ground = new RootNode(entity_name, geom, mat);
+	scene_.AddRoot(ground);
 
 	ground->SetPosition(glm::vec3(0.0f, -350.0f, 300.0f));
 	ground->SetScale(glm::vec3(900.0f));

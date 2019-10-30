@@ -248,6 +248,11 @@ namespace game
 	{
 		laser_->Fire();
 	}
+	bool PlayerNode::IsFiring(void)
+	{
+		return laser_->IsActive();
+	}
+
 	glm::vec3 PlayerNode::GetLaserOrigin(void) const
 	{	//Return laser position in relation to player, but in worldspace
 		return position_ + laser_->GetPosition();

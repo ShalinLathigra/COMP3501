@@ -8,9 +8,6 @@
 			[base]->[outerTube]->[innerTube], etc.
 
 
-6. Ray-Sphere Collision(?)
-	(1.0) Collisions work properly
-	(1.0) Implement Collisions with Ray-Sphere Collision
 
 7. Missile Fire
 	(0.5) Physical Projectile, 3D Model (Possibly Cylinder, Add a better front-facing face)
@@ -43,9 +40,6 @@
 		if 3rd, render ship, else, don't
 		//Done! simple if statement stops rendering.
 		
-5. 3D Controls
-	(2.0) Smooth acceleration, deceleration, rotation, etc.
-		//Done! Physics based acceleration/deceleration implemented. Smoother, though not perfectly smooth camera rotations implemented.
 		
 4. Laser Beam
 	(1.5) Laser visible, fires in direction of cannon. 
@@ -55,3 +49,12 @@
 		FireLaser+UpdateLaser
 			Store vector of lasers, update it, draw function etc. Be good with this shit
 			Basically just have a Laser Beam class
+
+5. 3D Controls
+	(2.0) Smooth acceleration, deceleration, rotation, etc.
+		//Done! Physics based acceleration/deceleration implemented. Smoother, though not perfectly smooth camera rotations implemented.
+
+
+6. Ray-Sphere Collision(?)
+	(1.0) Collisions work properly
+	(1.0) Implement Collisions with Ray-Sphere Collision

@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "scene_node.h"
+#include "root_node.h"
 #include "player_node.h"
 #include "resource.h"
 #include "camera.h"
@@ -22,7 +22,8 @@ namespace game {
             glm::vec3 background_color_;
 
             // Scene nodes to render
-            std::vector<SceneNode *> node_;
+            //std::vector<SceneNode *> node_;
+			RootNode *root_;
 
         public:
             // Constructor and destructor
@@ -36,7 +37,8 @@ namespace game {
             // Create a scene node from the specified resources
             SceneNode *CreateNode(std::string node_name, Resource *geometry, Resource *material);
             // Add an already-created node
-            void AddNode(SceneNode *node);
+			void AddNode(SceneNode *node);
+			void AddRoot(RootNode *node);
             // Find a scene node with a specific name
             SceneNode *GetNode(std::string node_name) const;
             // Get node const iterator
@@ -47,11 +49,12 @@ namespace game {
             void Draw(Camera *camera);
 
 			// Update entire scene
-			void Update(float deltaTime);
+			void Update(float deltaTime, bool checkCollisions, glm::vec3 origin, glm::vec3 dir);
 
 
 			// Update entire scene
 			void CalculateRayCollisions(glm::vec3 ray_origin, glm::vec3 ray_dir);
+			bool CheckRayCollision(glm::vec3 ray_dir, glm::vec3 node_dir, float rad);
 
     }; // class SceneGraph
 

@@ -48,6 +48,7 @@ namespace game
 		//Functions to interact with Laser Object
 		void SetLaser(LaserNode *laser);
 		void FireLaser(void);
+		bool IsFiring(void);
 
 		//Manipulate Acceleration. 
 		void SetAcceleration(glm::vec3 acc);
