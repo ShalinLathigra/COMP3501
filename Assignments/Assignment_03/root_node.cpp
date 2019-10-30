@@ -1,5 +1,5 @@
 #include "root_node.h"
-
+#include <iostream>
 namespace game
 {
 	RootNode::RootNode(const std::string name, const Resource *geometry, const Resource *material) : SceneNode(name, geometry, material) {

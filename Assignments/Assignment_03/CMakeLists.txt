@@ -10,10 +10,10 @@ set(HDRS
 	camera.h 
 	game.h 
 	laser_node.h
-	orbit_node.h
 	player_node.h
 	resource.h 
 	resource_manager.h 
+	root_node.h 
 	scene_graph.h 
 	scene_node.h
 )
@@ -24,10 +24,10 @@ set(SRCS
 	game.cpp 
 	main.cpp 
 	laser_node.cpp
-	orbit_node.cpp
 	player_node.cpp
 	resource.cpp 
 	resource_manager.cpp 
+	root_node.cpp 
 	scene_graph.cpp 
 	scene_node.cpp 
 	ship_material_vp.glsl 

@@ -144,6 +144,7 @@ void Game::SetupScene(void){
     CreateAsteroidField();
 
 	//Create Cannon
+	CreateCannonInstance("Cannon", "SimpleCylinderMesh", "ShipMaterial");
 }
 
 
@@ -477,6 +478,55 @@ SceneNode *Game::CreateGroundInstance(std::string entity_name, std::string objec
 	ground->SetPosition(glm::vec3(0.0f, -350.0f, 300.0f));
 	ground->SetScale(glm::vec3(900.0f));
 	return ground;
+}
+
+SceneNode *Game::CreateCannonInstance(std::string entity_name, std::string object_name, std::string material_name)
+{
+	// Get resources
+	Resource *geom = resman_.GetResource(object_name);
+	if (!geom) {
+		throw(GameException(std::string("Could not find resource \"") + object_name + std::string("\"")));
+	}
+
+	Resource *mat = resman_.GetResource(material_name);
+	if (!mat) {
+		throw(GameException(std::string("Could not find resource \"") + material_name + std::string("\"")));
+	}
+
+	// Create asteroid instance
+	SceneNode *cannon_base = new SceneNode(entity_name.append("_0"), geom, mat);
+	Asteroid *cannon_top = new Asteroid(entity_name.append("_1"), geom, mat);
+	Asteroid *cannon_arm_1 = new Asteroid(entity_name.append("_2"), geom, mat);
+	Asteroid *cannon_arm_2 = new Asteroid(entity_name.append("_3"), geom, mat);
+	//OrbitNode *cannon_arm_1 = new OrbitNode(entity_name.append("_2"), geom, mat);
+	//TranslateNode *cannon_arm_2 = new TranslateNode(entity_name.append("_3"), geom, mat);
+
+	cannon_base->SetPosition(glm::vec3(0.0f, -340.0f, 300.0f));
+	cannon_base->SetScale(glm::vec3(15.0f, 20.0f, 15.0f));
+
+	cannon_top->SetPosition(glm::vec3(0.0f, 15.0f, 0.0f));
+	cannon_top->SetScale(glm::vec3(20.0f, 15.0f, 20.0f));
+	cannon_top->SetAngM(glm::angleAxis(glm::pi<float>() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+
+
+	cannon_arm_1->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
+	cannon_arm_1->SetScale(glm::vec3(5.0f, 40.0f, 5.0f));
+	cannon_arm_1->SetAngM(glm::angleAxis(glm::pi<float>() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+
+
+	cannon_arm_2->SetPosition(glm::vec3(0.0f, 25.0f, 0.0f));
+	cannon_arm_2->SetScale(glm::vec3(2.5f, 40.0f, 2.5f));
+	cannon_arm_2->SetAngM(glm::angleAxis(glm::pi<float>() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+
+
+
+	cannon_arm_1->AddChild(cannon_arm_2);
+	cannon_top->AddChild(cannon_arm_1);
+	cannon_base->AddChild(cannon_top);
+
+	scene_.AddNode(cannon_base);
+
+	return cannon_base;
 }
 
 // Handle creating the rotating cannon

@@ -85,12 +85,12 @@ namespace game {
             Asteroid *CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name);
             // Create entire random asteroid field
             void CreateAsteroidField(int num_asteroids = 1500);
-
 			//Create and Add Player
 			PlayerNode *CreatePlayerInstance();
-
 			//Create and add Ground
 			SceneNode *CreateGroundInstance(std::string entity_name, std::string object_name, std::string material_name);
+			//Create Cannon
+			SceneNode *CreateCannonInstance(std::string entity_name, std::string object_name, std::string material_name);
 
 
     }; // class Game

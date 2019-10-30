@@ -145,7 +145,7 @@ glm::mat4 SceneNode::GetMatrix(void)
 
 void SceneNode::AddChild(SceneNode *c)
 {
-	std::cout << c->GetName() << std::endl;
+	//std::cout << c->GetName() << std::endl;
 	children_.push_back(c);
 }
 
@@ -170,6 +170,7 @@ void SceneNode::Draw(glm::mat4 p, Camera *camera){
     } else {
         glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
     }
+
 }
 
 
@@ -177,9 +178,13 @@ void SceneNode::Draw(glm::mat4 p, Camera *camera){
 
 void SceneNode::DrawChildren(Camera *camera) {
 
+	//if (GetName().find("Cannon") != std::string::npos)
+	//	std::cout << GetName() << std::endl;
+
 	for (std::vector<SceneNode*>::iterator iter = children_.begin(); iter != children_.end(); iter++)
 	{
 		(*iter)->Draw(matrix_, camera);
+		(*iter)->DrawChildren(camera);
 	}
 }
 
