@@ -36,7 +36,7 @@ set(SRCS
 	asteroid_material_fp.glsl 
 	laser_material_vp.glsl 
 	laser_material_fp.glsl 
-	CheckList.txt
+	ReadMe.txt
 	CMakeLists.txt
 )
 
