@@ -6,7 +6,6 @@ project(${PROJ_NAME})
 
 # Specify project files: header files and source files
 set(HDRS
-    asteroid.h 
 	camera.h 
 	complex_node.h
 	game.h 
@@ -20,7 +19,6 @@ set(HDRS
 )
  
 set(SRCS
-	asteroid.cpp 
 	camera.cpp 
 	complex_node.cpp
 	game.cpp 
