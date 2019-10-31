@@ -1,6 +1,6 @@
 #pragma once
 #include "scene_node.h"
-#include "asteroid.h"
+#include "complex_node.h"
 #include "laser_node.h"
 
 

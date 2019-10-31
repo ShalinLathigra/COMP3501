@@ -115,7 +115,7 @@ void Game::SetupResources(void){
 
 	resman_.CreateTorus("SimpleTorusMesh", 1.0, .5, 7, 7);
 
-	resman_.CreateCylinder("SimpleCylinderMesh", .5, 5);
+	resman_.CreateCylinder("SimpleCylinderMesh", .5, 10);
 
 	resman_.CreatePlane("SimplePlaneMesh");
 
@@ -352,7 +352,7 @@ Game::~Game(){
 }
 
 
-Asteroid *Game::CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name){
+ComplexNode *Game::CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name){
 
     // Get resources
     Resource *geom = resman_.GetResource(object_name);
@@ -366,7 +366,7 @@ Asteroid *Game::CreateAsteroidInstance(std::string entity_name, std::string obje
     }
 
     // Create asteroid instance
-    Asteroid *ast = new Asteroid(entity_name, geom, mat);
+	ComplexNode *ast = new ComplexNode(entity_name, geom, mat);
     scene_.AddNode(ast);
     return ast;
 }
@@ -384,7 +384,7 @@ void Game::CreateAsteroidField(int num_asteroids){
         std::string name = "AsteroidInstance" + index;
 
         // Create asteroid instance
-        Asteroid *ast = CreateAsteroidInstance(name, "SimpleSphereMesh", "AsteroidMaterial");
+		ComplexNode *ast = CreateAsteroidInstance(name, "SimpleSphereMesh", "AsteroidMaterial");
 
         // Set attributes of asteroid: random position, orientation, and
         // angular momentum
@@ -417,8 +417,8 @@ PlayerNode *Game::CreatePlayerInstance()
 	// Create Ship
 	PlayerNode *player = new PlayerNode("Player", torus_geom, obj_mat, &camera_);
 
-	Asteroid *player_engine_L = new Asteroid("EngineL_P", torus_geom, obj_mat);
-	Asteroid *player_engine_R = new Asteroid("EngineR_P", torus_geom, obj_mat);
+	ComplexNode *player_engine_L = new ComplexNode("EngineL_P", torus_geom, obj_mat);
+	ComplexNode *player_engine_R = new ComplexNode("EngineR_P", torus_geom, obj_mat);
 
 	player->AddChild(player_engine_L);
 	player->AddChild(player_engine_R);
@@ -494,12 +494,10 @@ SceneNode *Game::CreateCannonInstance(std::string entity_name, std::string objec
 	}
 
 	// Create asteroid instance
-	SceneNode *cannon_base = new SceneNode(entity_name.append("_0"), geom, mat);
-	Asteroid *cannon_top = new Asteroid(entity_name.append("_1"), geom, mat);
-	Asteroid *cannon_arm_1 = new Asteroid(entity_name.append("_2"), geom, mat);
-	Asteroid *cannon_arm_2 = new Asteroid(entity_name.append("_3"), geom, mat);
-	//OrbitNode *cannon_arm_1 = new OrbitNode(entity_name.append("_2"), geom, mat);
-	//TranslateNode *cannon_arm_2 = new TranslateNode(entity_name.append("_3"), geom, mat);
+	ComplexNode *cannon_base = new ComplexNode(entity_name.append("_0"), geom, mat);
+	ComplexNode *cannon_top = new ComplexNode(entity_name.append("_1"), geom, mat);
+	ComplexNode *cannon_arm_1 = new ComplexNode(entity_name.append("_2"), geom, mat);
+	ComplexNode *cannon_arm_2 = new ComplexNode(entity_name.append("_3"), geom, mat);
 
 	cannon_base->SetPosition(glm::vec3(0.0f, -340.0f, 300.0f));
 	cannon_base->SetScale(glm::vec3(15.0f, 20.0f, 15.0f));
@@ -510,15 +508,20 @@ SceneNode *Game::CreateCannonInstance(std::string entity_name, std::string objec
 
 
 	cannon_arm_1->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
-	cannon_arm_1->SetScale(glm::vec3(5.0f, 40.0f, 5.0f));
-	cannon_arm_1->SetAngM(glm::angleAxis(glm::pi<float>() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+	cannon_arm_1->SetScale(glm::vec3(5.0f, 20.0f, 5.0f));
+	cannon_arm_1->SetOrbJ(glm::vec3(0.0f, -10.0f, 0.0f));
+	cannon_arm_1->SetOrbM(1.0f);
+	cannon_arm_1->SetOrbAx(glm::vec3(1.0f, 0.0, 0.0f));
 
 
-	cannon_arm_2->SetPosition(glm::vec3(0.0f, 25.0f, 0.0f));
-	cannon_arm_2->SetScale(glm::vec3(2.5f, 40.0f, 2.5f));
-	cannon_arm_2->SetAngM(glm::angleAxis(glm::pi<float>() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
 
+	cannon_arm_2->SetPosition(glm::vec3(0.0f, 15.0f, 0.0f));
+	cannon_arm_2->SetScale(glm::vec3(2.5f, 20.0f, 2.5f));
+	cannon_arm_2->SetTransD(glm::vec3(0.0f, 1.0f, 0.0f));
+	cannon_arm_2->SetTransS(12.50f);
 
+	//cannon_arm_2->SetAngM(glm::angleAxis(glm::pi<float>() / 90.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+	
 
 	cannon_arm_1->AddChild(cannon_arm_2);
 	cannon_top->AddChild(cannon_arm_1);

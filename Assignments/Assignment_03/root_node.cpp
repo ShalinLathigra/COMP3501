@@ -16,6 +16,10 @@ namespace game
 			{
 				((PlayerNode *)children_[i])->PlayerNode::Update(deltaTime);
 			}
+			else if (children_[i]->GetName().find("Cannon"))
+			{
+				((ComplexNode *)children_[i])->ComplexNode::Update(deltaTime);
+			}
 			else
 			{
 				children_[i]->Update(deltaTime);
@@ -32,6 +36,11 @@ namespace game
 			{
 				((PlayerNode *)children_[i])->PlayerNode::Draw(glm::mat4(1.0));
 				((PlayerNode *)children_[i])->PlayerNode::DrawChildren();
+			}
+			else if (children_[i]->GetName() == "Cannon")
+			{
+				((ComplexNode *)children_[i])->ComplexNode::Draw(glm::mat4(1.0), camera);
+				((ComplexNode *)children_[i])->ComplexNode::DrawChildren(camera);
 			}
 			else
 			{

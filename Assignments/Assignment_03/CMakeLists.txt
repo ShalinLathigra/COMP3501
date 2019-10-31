@@ -8,6 +8,7 @@ project(${PROJ_NAME})
 set(HDRS
     asteroid.h 
 	camera.h 
+	complex_node.h
 	game.h 
 	laser_node.h
 	player_node.h
@@ -21,6 +22,7 @@ set(HDRS
 set(SRCS
 	asteroid.cpp 
 	camera.cpp 
+	complex_node.cpp
 	game.cpp 
 	main.cpp 
 	laser_node.cpp

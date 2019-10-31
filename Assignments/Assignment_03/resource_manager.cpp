@@ -261,9 +261,9 @@ void ResourceManager::CreateCylinder(std::string object_name, float circle_radiu
 	// Check the construction algorithm below to understand the numbers
 	// specified below2
 	const int num_loop_samples = 2;
-	const GLuint vertex_num = num_loop_samples * num_circle_samples;
-	const GLuint face_num = num_loop_samples * num_circle_samples * 2;
-
+	const GLuint vertex_num = num_loop_samples * num_circle_samples * 2;
+	const GLuint face_num = num_loop_samples * num_circle_samples * 2 + (num_circle_samples - 2) * 2;
+	
 	// Number of attributes for vertices and faces
 	const int vertex_att = 11;
 	const int face_att = 3;
@@ -289,6 +289,9 @@ void ResourceManager::CreateCylinder(std::string object_name, float circle_radiu
 	glm::vec3 vertex_color;
 	glm::vec2 vertex_coord;
 
+	glm::vec3 alt_normal;
+	int alt_start = num_circle_samples * num_loop_samples;
+
 	for (int i = 0; i < num_loop_samples; i++) { // large loop
 
 		theta = 2.0*glm::pi<GLfloat>()*i / num_loop_samples; // loop sample (angle theta)
@@ -307,14 +310,24 @@ void ResourceManager::CreateCylinder(std::string object_name, float circle_radiu
 			vertex_coord = glm::vec2(theta / (2.0*glm::pi<GLfloat>()),
 				phi / (2.0*glm::pi<GLfloat>()));
 
+			alt_normal = cos((float)j * glm::pi<GLfloat>()) * glm::vec3(0.0f, 1.0f, 0.0f);
+
 			// Add vectors to the data buffer
 			for (int k = 0; k < 3; k++) {
 				vertex[(i*num_circle_samples + j)*vertex_att + k] = vertex_position[k];
 				vertex[(i*num_circle_samples + j)*vertex_att + k + 3] = vertex_normal[k];
 				vertex[(i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
+
+				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k] = vertex_position[k];
+				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k + 3] = alt_normal[k];
+				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
+
 			}
 			vertex[(i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
 			vertex[(i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
+
+			vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
+			vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
 		}
 	}
 
@@ -333,6 +346,28 @@ void ResourceManager::CreateCylinder(std::string object_name, float circle_radiu
 				face[(i*num_circle_samples + j)*face_att * 2 + k] = (GLuint)t1[k];
 				face[(i*num_circle_samples + j)*face_att * 2 + k + face_att] = (GLuint)t2[k];
 			}
+		}
+	}
+
+	int alt_face_start = num_circle_samples * face_att * 2;
+	for (int i = 0; i < num_circle_samples - 2; i++)
+	{
+		glm::vec3 t1(
+			alt_start + i + 1,
+			alt_start,	 
+			alt_start + i + 2
+		);
+
+		glm::vec3 t2(
+			alt_start + num_circle_samples * face_att,
+			alt_start + num_circle_samples * face_att + i + 1,
+			alt_start + num_circle_samples * face_att + i + 2
+		);
+
+		for (int k = 0; k < 3; k++)
+		{
+			face[alt_face_start + i * face_att * 2 + k] = (GLuint)t1[k];
+			face[alt_face_start + i * face_att * 2 + face_att + k] = (GLuint)t2[k];
 		}
 	}
 

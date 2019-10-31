@@ -12,7 +12,7 @@
 #include "scene_graph.h"
 #include "resource_manager.h"
 #include "camera.h"
-#include "asteroid.h"
+#include "complex_node.h"
 #include "laser_node.h"
 #include "player_node.h"
 
@@ -82,7 +82,7 @@ namespace game {
 
             // Asteroid field
             // Create instance of one asteroid
-            Asteroid *CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name);
+            ComplexNode *CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name);
             // Create entire random asteroid field
             void CreateAsteroidField(int num_asteroids = 1500);
 			//Create and Add Player

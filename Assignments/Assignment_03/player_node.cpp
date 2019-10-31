@@ -109,7 +109,7 @@ namespace game
 			std::string current = (*iter)->GetName();
 			if (current.find("Engine") != std::string::npos)
 			{
-				((Asteroid *)(*iter))->Asteroid::Update(glm::length(vel_) * deltaTime);
+				((ComplexNode *)(*iter))->ComplexNode::Update(glm::length(vel_) * deltaTime);
 			}
 		}
 

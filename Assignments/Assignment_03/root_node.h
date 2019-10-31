@@ -1,6 +1,6 @@
 #pragma once
-#include "scene_node.h"
 #include "player_node.h"
+#include "complex_node.h"
 
 namespace game
 {
