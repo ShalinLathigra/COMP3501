@@ -108,10 +108,13 @@ void Game::InitEventHandlers(void){
 }
 
 
-void Game::SetupResources(void){
+void Game::SetupResources(void){	
 
-    // Create a torus
-    resman_.CreateTorus("TorusMesh");
+	// Create a torus
+	resman_.CreateTorus("TorusMesh");
+
+	// Create a Sphere
+	resman_.CreateSphere("SphereMesh");
 
     // Load material to be applied to torus
     std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/three-term_shiny_blue");
@@ -143,6 +146,7 @@ void Game::SetupScene(void){
     // Create an instance of the torus mesh
     //game::SceneNode *torus = CreateInstance("TorusInstance1", "TorusMesh", "ShinyBlueMaterial");
 	game::SceneNode *torus = CreateInstance("TorusInstance1", "TorusMesh", "ToonMaterial");
+	//game::SceneNode *torus = CreateInstance("TorusInstance1", "SphereMesh", "ToonMaterial");
     // Scale the instance
     torus->Scale(glm::vec3(1.5, 1.5, 1.5));
     torus->Translate(glm::vec3(-1.4, 0.0, 0.0));
