@@ -16,7 +16,13 @@ float Ia = 0.2; // Ambient light amount
 
 vec4 directional_color = vec4(1.0, 0.7, 0.0, 1.0);
 vec3 L_dir = normalize(vec3(1.0, -1.0, 1.0));
-float directional_intensity = .5f; //Added this value because I wanted control over how bright the light was, without having to mess with the colour vec4 too much
+float directional_intensity = .25f; //Added this value because I wanted control over how bright the light was, without having to mess with the colour vec4 too much
+
+float Ds = 4.0;
+float Ss = 2.0;
+
+vec4 outline_color = vec4(1.0, 1.0, 1.0, 1.0);
+float outline_strength = 0.2;
 
 void main() 
 {
@@ -32,7 +38,7 @@ void main()
     L = normalize(L);
 
     float Id = max(dot(N, L), 0.0);
-    
+
     // Compute specular term Is for Blinn-Phong shading
     // V = (eye_position - position_interp);
     V = - position_interp; // Eye position is (0, 0, 0) in view coordinates
@@ -46,11 +52,25 @@ void main()
     float Is = pow(spec_angle_cos, phong_exponent);
         
     // Assign illumination to the fragment
-    gl_FragColor = Ia*ambient_color + Id*diffuse_color + Is*specular_color;
-
 	float Idir = max(dot(N, L_dir), 0.0);
-    gl_FragColor += Idir * directional_color * directional_intensity;
-                    
+
+	//so, what is the step between each color?
+	//What is the darkest it can go, what is the brightest?
+	//How does specular work in to this?
+	
+	//Apply Toon Shading Effects to Diffuse and Specular Light
+	Id = int(Ds*Id) / Ds;
+	Is = int(Ss*Is) / Ss;
+
+	//Apply Outline
+	//0, .1, 1.0
+
+    float O = -outline_strength + max(dot(V, N), 0.0);
+	O = int(max(2-int(O+1.0), 0.0) / 2.0);
+
+    gl_FragColor = Ia*ambient_color + Id*diffuse_color + Is*specular_color;
+    gl_FragColor += O*outline_color                 ;
+
     // For debug, we can display the different values
     //gl_FragColor = ambient_color;
     //gl_FragColor = diffuse_color;

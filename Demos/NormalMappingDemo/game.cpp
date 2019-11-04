@@ -19,8 +19,8 @@ const bool window_full_screen_g = false;
 // Viewport and camera settings
 float camera_near_clip_distance_g = 0.01;
 float camera_far_clip_distance_g = 1000.0;
-float camera_fov_g = 25.0; // Field-of-view of camera
-const glm::vec3 viewport_background_color_g(0.0, 0.25, 0.0);
+float camera_fov_g = 20.0; // Field-of-view of camera
+const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
 glm::vec3 camera_position_g(0.5, 0.5, 10.0);
 glm::vec3 camera_look_at_g(0.0, 0.0, 0.0);
 glm::vec3 camera_up_g(0.0, 1.0, 0.0);
@@ -110,28 +110,16 @@ void Game::InitEventHandlers(void){
 
 void Game::SetupResources(void){
 
-    // Create a torus
-    resman_.CreateTorus("TorusMesh");
+    // Create geometry of the "wall"
+    resman_.CreateWall("WallMesh");
 
-    // Load material to be applied to torus
-    std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/three-term_shiny_blue");
-    resman_.LoadResource(Material, "ShinyBlueMaterial", filename.c_str());
+    // Load material to be used for normal mapping
+    std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/normal_map");
+    resman_.LoadResource(Material, "NormalMapMaterial", filename.c_str());
 
-    // Load a cube from an obj file
-    filename = std::string(MATERIAL_DIRECTORY) + std::string("/cube.obj");
-    resman_.LoadResource(Mesh, "CubeMesh", filename.c_str());
-
-    // Load texture to be applied to the cube
-    filename = std::string(MATERIAL_DIRECTORY) + std::string("/checker.png");
-    resman_.LoadResource(Texture, "Checker", filename.c_str());
-
-	// Load material to be applied to the cube
-	filename = std::string(MATERIAL_DIRECTORY) + std::string("/textured_material");
-	resman_.LoadResource(Material, "TexturedMaterial", filename.c_str());
-
-	// Load material to be applied to the Toon Objects
-	filename = std::string(MATERIAL_DIRECTORY) + std::string("/toon_material");
-	resman_.LoadResource(Material, "ToonMaterial", filename.c_str());
+    // Load texture to be used in normal mapping
+    filename = std::string(MATERIAL_DIRECTORY) + std::string("/normal_map2.png");
+    resman_.LoadResource(Texture, "NormalMap", filename.c_str());
 }
 
 
@@ -140,22 +128,8 @@ void Game::SetupScene(void){
     // Set background color for the scene
     scene_.SetBackgroundColor(viewport_background_color_g);
 
-    // Create an instance of the torus mesh
-    //game::SceneNode *torus = CreateInstance("TorusInstance1", "TorusMesh", "ShinyBlueMaterial");
-	game::SceneNode *torus = CreateInstance("TorusInstance1", "TorusMesh", "ToonMaterial");
-    // Scale the instance
-    torus->Scale(glm::vec3(1.5, 1.5, 1.5));
-    torus->Translate(glm::vec3(-1.4, 0.0, 0.0));
-
-    // Create an instance of the textured cube
-    game::SceneNode *cube = CreateInstance("CubeInstance1", "CubeMesh", "TexturedMaterial", "Checker");
-    // Adjust the instance
-    cube->Scale(glm::vec3(0.7, 0.7, 0.7));
-    glm::quat rotation = glm::angleAxis(-45.0f * -glm::pi<float>()/180.0f, glm::vec3(1.0, 0.0, 0.0));
-    cube->Rotate(rotation);
-    rotation = glm::angleAxis(-45.0f * -glm::pi<float>()/180.0f, glm::vec3(0.0, 1.0, 0.0));
-    cube->Rotate(rotation);
-    cube->Translate(glm::vec3(1.4, 0.0, 0.0));
+    // Create an instance of the wall
+    game::SceneNode *wall = CreateInstance("WallInstance1", "WallMesh", "NormalMapMaterial", "NormalMap");
 }
 
 
@@ -170,16 +144,9 @@ void Game::MainLoop(void){
             if ((current_time - last_time) > 0.01){
                 //scene_.Update();
 
-                // Animate the torus
-                SceneNode *node = scene_.GetNode("TorusInstance1");
+                // Animate the wall
+                SceneNode *node = scene_.GetNode("WallInstance1");
                 glm::quat rotation = glm::angleAxis(glm::pi<float>()/180.0f, glm::vec3(0.0, 1.0, 0.0));
-                node->Rotate(rotation);
-
-                // Animate the cube
-                node = scene_.GetNode("CubeInstance1");
-                rotation = glm::angleAxis(glm::pi<float>()/180.0f, glm::vec3(0.0, 0.0, 1.0));
-                node->Rotate(rotation);
-                rotation = glm::angleAxis(2.0f * glm::pi<float>()/180.0f, glm::vec3(1.0, 0.0, 0.0));
                 node->Rotate(rotation);
 
                 last_time = current_time;
