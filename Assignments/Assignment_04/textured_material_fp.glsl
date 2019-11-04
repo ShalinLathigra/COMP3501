@@ -18,4 +18,5 @@ void main()
 
     // Use texture in determining fragment colour
     gl_FragColor = pixel;
+    gl_FragColor = vec4(uv_interp, 0.0, 1.0);
 }

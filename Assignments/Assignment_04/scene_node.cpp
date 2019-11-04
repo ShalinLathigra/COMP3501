@@ -97,6 +97,15 @@ void SceneNode::SetScale(glm::vec3 scale){
     scale_ = scale;
 }
 
+void SceneNode::SetJoint(glm::vec3 joint) {
+
+	joint_ = joint;
+}
+void SceneNode::SetOrbit(glm::quat orbit)
+{
+	orbit_ = orbit;
+}
+
 
 void SceneNode::Translate(glm::vec3 trans){
 
