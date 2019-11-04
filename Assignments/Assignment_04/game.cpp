@@ -20,7 +20,7 @@ const bool window_full_screen_g = false;
 float camera_near_clip_distance_g = 0.01;
 float camera_far_clip_distance_g = 1000.0;
 float camera_fov_g = 20.0; // Field-of-view of camera
-const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
+const glm::vec3 viewport_background_color_g(0.0, 0.25, 0.0);
 glm::vec3 camera_position_g(0.5, 0.5, 10.0);
 glm::vec3 camera_look_at_g(0.0, 0.0, 0.0);
 glm::vec3 camera_up_g(0.0, 1.0, 0.0);
@@ -119,6 +119,9 @@ void Game::SetupResources(void){
 	// Create geometry of the "wall"
 	resman_.CreateWall("WallMesh");
 
+	// Create geometry of the "Cylinder"
+	resman_.CreateCylinder("CylinderMesh");
+
 	// Load a cube from an obj file
 	std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/cube.obj");
 	resman_.LoadResource(Mesh, "CubeMesh", filename.c_str());
@@ -170,12 +173,13 @@ void Game::SetupScene(void){
 	torus2->Translate(glm::vec3(-1.1, -0.5, 0.0));
 
 	// Create an instance of the textured cube
-	game::SceneNode *cube = CreateInstance("CubeInstance1", "CubeMesh", "TexturedMaterial", "Checker");
+	game::SceneNode *cube = CreateInstance("CubeInstance1", "CylinderMesh", "TexturedMaterial", "Checker");
 	// Adjust the instance
 	cube->Scale(glm::vec3(0.35, 0.35, 0.35));
-	glm::quat rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(1.0, 0.0, 0.0));
-	cube->Rotate(rotation);
-	rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
+	//glm::quat rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(1.0, 0.0, 0.0));
+	glm::quat rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
+	//cube->Rotate(rotation);
+	//rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
 	cube->Rotate(rotation);
 	cube->Translate(glm::vec3(1.4, 0.0, 0.0));
 
@@ -208,10 +212,10 @@ void Game::MainLoop(void){
 
 				// Animate the cube
 				node = scene_.GetNode("CubeInstance1");
-				rotation = glm::angleAxis(glm::pi<float>() / 180.0f, glm::vec3(0.0, 0.0, 1.0));
+				rotation = glm::angleAxis(glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
 				node->Rotate(rotation);
-				rotation = glm::angleAxis(2.0f * glm::pi<float>() / 180.0f, glm::vec3(1.0, 0.0, 0.0));
-				node->Rotate(rotation);
+				//rotation = glm::angleAxis(2.0f * glm::pi<float>() / 180.0f, glm::vec3(1.0, 0.0, 0.0));
+				//node->Rotate(rotation);
 
                 last_time = current_time;
             }

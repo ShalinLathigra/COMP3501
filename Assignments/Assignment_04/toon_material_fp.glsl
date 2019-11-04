@@ -47,16 +47,17 @@ void main()
     float spec_angle_cos = max(dot(N, R), 0.0);
     float Is = pow(spec_angle_cos, phong_exponent);
         
+
 	//Apply Toon Shading Effects to Diffuse and Specular Light
-	Id = int(Ds*Id) / Ds;
-	Is = int(Ss*Is) / Ss;
+	Id = int(Ds*Id + 0.5) / Ds;
+	Is = int(Ss*Is + 0.5) / Ss;
+
 
 	//Apply Outline
 	//Need to pass in the actual direction of the eye.
     float O = int(1-max(dot(V, N), 0.0)+outline_strength);
 	
-	gl_FragColor = Ia*ambient_color + Id*diffuse_color + Is*specular_color;
-    gl_FragColor += O*outline_color;
+	gl_FragColor = (O*outline_color) + (1.0 - O) * (Ia*ambient_color + Id*diffuse_color + Is*specular_color);
 
     // For debug, we can display the different values
     //gl_FragColor = ambient_color;

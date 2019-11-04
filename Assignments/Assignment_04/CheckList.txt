@@ -1,0 +1,34 @@
+
+3. Texturing of the cannon.
+3.1 [ 1.5 ] The code defines texture coordinates during the creation of the
+meshes, and the textures are parametrized onto the shapes in a reasonable
+manner.
+3.2 [ 0.5 ] Texturing uses at least two different images. The two images can be
+combined into a single image file, if selected with appropriate texture coordinates.
+
+4. Combine an illumination model with textures.
+4.1 [ 1.0 ] The pixel retrieved from the texture is combined with the illumination
+model in a reasonable manner, i.e., at least the diffuse term uses the pixel value.
+
+6. Bonus: checkerboard pattern.
+6.1 [ 0.75 ] A shader draws a checkerboard pattern around a cylinder.
+6.2 [ 0.25 ] The pattern is combined with the illumination model.
+
+
+//DONE-----------------------------------------------
+1. Implement Phong shading in the pixel shader.
+1.1 [ 1.0 ] The reflection vector is computed in the correct manner.
+1.2 [ 1.0 ] The specular component is implemented according to the Phong
+(dot(V, R)) model.
+
+2. Add a second light to the scene.
+2.1 [ 1.0 ] The light is directional.
+2.2 [ 1.0 ] The calculations for the second light are correct, and the new light is
+added to the existing light.
+
+5. Implement toon shading.
+5.1 [ 2.0 ] Toon shading implemented according to a ramp or discrete set of colors
+and chosen according to both diffuse and specular lighting components.
+5.2 [ 1.0 ] An outline is added to the toon shading and a background other than
+black is used in the demo.
+

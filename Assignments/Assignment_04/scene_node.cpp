@@ -74,6 +74,12 @@ glm::vec3 SceneNode::GetScale(void) const {
 }
 
 
+glm::mat4 SceneNode::GetTransf(void) const {
+
+	return transf_;
+}
+
+
 void SceneNode::SetPosition(glm::vec3 position){
 
     position_ = position;
@@ -89,6 +95,15 @@ void SceneNode::SetOrientation(glm::quat orientation){
 void SceneNode::SetScale(glm::vec3 scale){
 
     scale_ = scale;
+}
+
+void SceneNode::SetJoint(glm::vec3 joint) {
+
+	joint_ = joint;
+}
+void SceneNode::SetOrbit(glm::quat orbit)
+{
+	orbit_ = orbit;
 }
 
 
@@ -142,7 +157,7 @@ GLuint SceneNode::GetMaterial(void) const {
 
 
 void SceneNode::Draw(Camera *camera){
-
+	 
     // Select proper material (shader program)
     glUseProgram(material_);
 
@@ -193,11 +208,13 @@ void SceneNode::SetupShader(GLuint program){
     // World transformation
     glm::mat4 scaling = glm::scale(glm::mat4(1.0), scale_);
     glm::mat4 rotation = glm::mat4_cast(orientation_);
-    glm::mat4 translation = glm::translate(glm::mat4(1.0), position_);
-    glm::mat4 transf = translation * rotation * scaling;
+	glm::mat4 translation = glm::translate(glm::mat4(1.0), position_);
+	glm::mat4 orbit = glm::mat4_cast(orbit_);
+	glm::mat4 joint = glm::translate(glm::mat4(1.0), -joint_);
+    glm::mat4 transf = translation * orbit * joint * rotation;
 
     GLint world_mat = glGetUniformLocation(program, "world_mat");
-    glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+    glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf * scaling));
 
     // Normal matrix
     glm::mat4 normal_matrix = glm::transpose(glm::inverse(transf));
