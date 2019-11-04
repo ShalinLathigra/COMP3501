@@ -31,11 +31,14 @@ namespace game {
             glm::vec3 GetPosition(void) const;
             glm::quat GetOrientation(void) const;
             glm::vec3 GetScale(void) const;
+			glm::mat4 GetTransf(void) const;
 
             // Set node attributes
             void SetPosition(glm::vec3 position);
             void SetOrientation(glm::quat orientation);
-            void SetScale(glm::vec3 scale);
+			void SetScale(glm::vec3 scale);
+			void SetJoint(glm::vec3 joint);
+			void SetOrbit(glm::quat orbit);
             
             // Perform transformations on node
             void Translate(glm::vec3 trans);
@@ -54,7 +57,8 @@ namespace game {
             GLuint GetArrayBuffer(void) const;
             GLuint GetElementArrayBuffer(void) const;
             GLsizei GetSize(void) const;
-            GLuint GetMaterial(void) const;
+			GLuint GetMaterial(void) const;
+
 
         private:
             std::string name_; // Name of the scene node
@@ -65,8 +69,11 @@ namespace game {
             GLuint material_; // Reference to shader program
             GLuint texture_; // Reference to texture resource
             glm::vec3 position_; // Position of node
-            glm::quat orientation_; // Orientation of node
-            glm::vec3 scale_; // Scale of node
+			glm::quat orientation_; // Orientation of node
+			glm::vec3 scale_; // Scale of node
+			glm::quat orbit_; // Orbit of node
+			glm::vec3 joint_; // Joint of node
+			glm::mat4 transf_; // Joint of node
 
             // Set matrices that transform the node in a shader program
             void SetupShader(GLuint program);

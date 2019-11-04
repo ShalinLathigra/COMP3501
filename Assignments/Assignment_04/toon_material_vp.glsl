@@ -34,7 +34,7 @@ void main()
     position_interp = vec3(view_mat * world_mat * vec4(vertex, 1.0));
 
     // Transform normal
-    normal_interp = vec3(normal_mat * vec4(normal, 0.0));
+    normal_interp = vec3(normal_mat * view_mat * vec4(normal, 0.0));
 
     // Transform light position to align with view
     light_pos = vec3(view_mat * vec4(light_position, 1.0));

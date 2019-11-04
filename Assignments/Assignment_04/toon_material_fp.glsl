@@ -47,9 +47,11 @@ void main()
     float spec_angle_cos = max(dot(N, R), 0.0);
     float Is = pow(spec_angle_cos, phong_exponent);
         
+
 	//Apply Toon Shading Effects to Diffuse and Specular Light
 	Id = int(Ds*Id) / Ds;
 	Is = int(Ss*Is) / Ss;
+
 
 	//Apply Outline
 	//Need to pass in the actual direction of the eye.
