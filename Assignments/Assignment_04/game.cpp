@@ -135,6 +135,10 @@ void Game::SetupResources(void){
 	filename = std::string(MATERIAL_DIRECTORY) + std::string("/checker.png");
 	resman_.LoadResource(Texture, "Checker", filename.c_str());
 
+	// Load texture to be applied to the cube
+	filename = std::string(MATERIAL_DIRECTORY) + std::string("/Argyle.png");
+	resman_.LoadResource(Texture, "Argyle", filename.c_str());
+
 	// Load material to be applied to the cube
 	filename = std::string(MATERIAL_DIRECTORY) + std::string("/textured_material");
 	resman_.LoadResource(Material, "TexturedMaterial", filename.c_str());
@@ -161,7 +165,7 @@ void Game::SetupScene(void){
     // Create an instance of the wall
     game::SceneNode *wall = CreateInstance("WallInstance1", "WallMesh", "NormalMapMaterial", "NormalMap");
 	wall->Scale(glm::vec3(.4f, .4f, .4f));
-	wall->Translate(glm::vec3(0.0f, 0.5f, 0.0f));
+	wall->Translate(glm::vec3(0.0f, -0.5f, 0.0f));
 
 	// Create an instance of the torus mesh
 	game::SceneNode *torus1 = CreateInstance("TorusInstance1", "TorusMesh", "ShinyBlueMaterial");
@@ -173,15 +177,31 @@ void Game::SetupScene(void){
 	torus2->Translate(glm::vec3(-1.1, -0.5, 0.0));
 
 	// Create an instance of the textured cube
-	game::SceneNode *cube = CreateInstance("CubeInstance1", "CylinderMesh", "TexturedMaterial", "Checker");
+	game::SceneNode *checker = CreateInstance("CylinderInstance1", "CylinderMesh", "TexturedMaterial", "Checker");
 	// Adjust the instance
-	cube->Scale(glm::vec3(0.35, 0.35, 0.35));
-	//glm::quat rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(1.0, 0.0, 0.0));
+	checker->Scale(glm::vec3(0.75, 0.75, 0.75));
 	glm::quat rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
-	//cube->Rotate(rotation);
-	//rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
-	cube->Rotate(rotation);
-	cube->Translate(glm::vec3(1.4, 0.0, 0.0));
+	checker->Rotate(rotation);
+	checker->Translate(glm::vec3(1.4, 0.0, 0.0));
+
+
+
+	game::SceneNode *cannon_0 = CreateInstance("CannonInstance0", "CylinderMesh", "TexturedMaterial", "Checker");
+	cannon_0->Scale(glm::vec3(0.3, .75, 0.3));
+	cannon_0->Translate(glm::vec3(0.0, 0.5, 0.0));
+
+	game::SceneNode *cannon_1 = CreateInstance("CannonInstance1", "CylinderMesh", "TexturedMaterial", "Argyle");
+	cannon_1->Scale(glm::vec3(0.6, 0.4, 0.6));
+	cannon_1->Translate(glm::vec3(0.0, 0.975, 0.0));
+	cannon_1->Rotate(rotation);
+
+	game::SceneNode *cannon_2 = CreateInstance("CannonInstance2", "CylinderMesh", "TexturedMaterial", "Argyle");
+	cannon_2->Scale(glm::vec3(0.1, 0.75, 0.1));
+	cannon_2->SetJoint(glm::vec3(0.0, -0.375, 0.0));
+
+	game::SceneNode *cannon_3 = CreateInstance("CannonInstance3", "CylinderMesh", "TexturedMaterial", "Checker");
+	cannon_3->Scale(glm::vec3(0.05, 0.5, 0.05));
+	cannon_3->Translate(glm::vec3(0.0, 0.5, 0.0));
 
 }
 
@@ -191,16 +211,41 @@ void Game::MainLoop(void){
     // Loop while the user did not close the window
     while (!glfwWindowShouldClose(window_)){
         // Animate the scene
-        if (animating_){
-            static double last_time = 0;
-            double current_time = glfwGetTime();
-            if ((current_time - last_time) > 0.01){
-                //scene_.Update();
+		static double last_time = 0;
+		double current_time = glfwGetTime();
+		if ((current_time - last_time) > 0.01) {
+			float deltaTime = current_time - last_time;
+			//scene_.Update();
+			if (front)
+			{
+				camera_.Translate(camera_.GetForward() * 5.0f * deltaTime);
+			}
+			if (back)
+			{
+				camera_.Translate(-camera_.GetForward() * 5.0f  * deltaTime);
+			}
+			if (left)
+			{
+				camera_.Translate(camera_.GetSide() * 5.0f  * deltaTime);
+			}
+			if (right)
+			{
+				camera_.Translate(-camera_.GetSide() * 5.0f  * deltaTime);
+			}
+			if (up)
+			{
+				camera_.Translate(camera_.GetUp() * 5.0f  * deltaTime);
+			}
+			if (down)
+			{
+				camera_.Translate(-camera_.GetUp() * 5.0f  * deltaTime);
+			}
 
-                // Animate the wall
-                SceneNode *node = scene_.GetNode("WallInstance1");
-                glm::quat rotation = glm::angleAxis(glm::pi<float>()/180.0f, glm::vec3(0.0, 1.0, 0.0));
-                node->Rotate(rotation);
+			if (animating_) {
+				// Animate the wall
+				SceneNode *node = scene_.GetNode("WallInstance1");
+				glm::quat rotation = glm::angleAxis(glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
+				node->Rotate(rotation);
 
 				node = scene_.GetNode("TorusInstance1");
 				rotation = glm::angleAxis(glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
@@ -211,15 +256,31 @@ void Game::MainLoop(void){
 				node->Rotate(rotation);
 
 				// Animate the cube
-				node = scene_.GetNode("CubeInstance1");
+				node = scene_.GetNode("CylinderInstance1");
 				rotation = glm::angleAxis(glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
 				node->Rotate(rotation);
-				//rotation = glm::angleAxis(2.0f * glm::pi<float>() / 180.0f, glm::vec3(1.0, 0.0, 0.0));
-				//node->Rotate(rotation);
 
-                last_time = current_time;
-            }
-        }
+				node = scene_.GetNode("CannonInstance1");
+				rotation = glm::angleAxis(glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
+				node->Rotate(rotation);
+				glm::mat4 mat = node->ComposeMatrix();
+
+				//// Animate the Cannon
+				node = scene_.GetNode("CannonInstance2");
+				float amount = sin(current_time) / 8.0f;
+				rotation = glm::angleAxis(amount * glm::pi<float>() + glm::pi<float>() / 2.0f, glm::vec3(0.0, 0.0, 1.0));
+				node->SetOrbit(rotation);
+				node->SetP(mat);
+				mat = node->ComposeMatrix();
+
+				node = scene_.GetNode("CannonInstance3");
+				amount = sin(current_time * 2.0f) * 0.25f + 0.25f;
+				node->SetPosition(glm::vec3(0.0, 1.0, 0.0) * amount);
+				node->SetP(mat);
+
+			}
+			last_time = current_time;
+		}
 
         // Draw the scene
         scene_.Draw(&camera_);
@@ -270,24 +331,37 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
     if (key == GLFW_KEY_X){
         game->camera_.Roll(rot_factor);
     }
-    if (key == GLFW_KEY_A){
-        game->camera_.Translate(game->camera_.GetForward()*trans_factor);
-    }
-    if (key == GLFW_KEY_Z){
-        game->camera_.Translate(-game->camera_.GetForward()*trans_factor);
-    }
-    if (key == GLFW_KEY_J){
-        game->camera_.Translate(-game->camera_.GetSide()*trans_factor);
-    }
-    if (key == GLFW_KEY_L){
-        game->camera_.Translate(game->camera_.GetSide()*trans_factor);
-    }
-    if (key == GLFW_KEY_I){
-        game->camera_.Translate(game->camera_.GetUp()*trans_factor);
-    }
-    if (key == GLFW_KEY_K){
-        game->camera_.Translate(-game->camera_.GetUp()*trans_factor);
-    }
+
+	if (action == GLFW_PRESS)
+	{
+		if (key == GLFW_KEY_A) {
+			game->front = true;
+		}
+		if (key == GLFW_KEY_Z) {
+			game->back = true;
+		}
+		if (key == GLFW_KEY_J) {
+			game->right = true;
+		}
+		if (key == GLFW_KEY_L) {
+			game->left = true;
+		}
+		if (key == GLFW_KEY_I) {
+			game->up = true;
+		}
+		if (key == GLFW_KEY_K) {
+			game->down = true;
+		}
+	}
+	if (action == GLFW_RELEASE)
+	{
+		game->front = false;
+		game->back = false;
+		game->right = false;
+		game->left = false;
+		game->up = false;
+		game->down = false;
+	}
 }
 
 

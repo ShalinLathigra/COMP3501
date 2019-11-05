@@ -8,13 +8,13 @@ in vec3 normal_interp;
 in vec3 light_pos;
 
 // Material attributes (constants)
-vec4 ambient_color = vec4(0.0, 0.0, 1.0, 1.0);
-vec4 diffuse_color = vec4(0.0, 0.0, 0.7, 1.0);
-vec4 specular_color = vec4(0.8, 0.5, 0.9, 1.0);
+vec4 ambient_color = vec4(1.0, 0.6, 0.4, 1.0);
+vec4 diffuse_color = vec4(0.4, 0.2, 0.0, 1.0);
+vec4 specular_color = vec4(1.0, 1.0, 0.0, 1.0);
 float phong_exponent = 64.0;
 float Ia = 0.2; // Ambient light amount
 
-float Ds = 4.0;
+float Ds = 2.0;
 float Ss = 2.0;
 
 vec4 outline_color = vec4(1.0, 1.0, 1.0, 1.0);

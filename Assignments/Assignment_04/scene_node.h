@@ -31,7 +31,7 @@ namespace game {
             glm::vec3 GetPosition(void) const;
             glm::quat GetOrientation(void) const;
             glm::vec3 GetScale(void) const;
-			glm::mat4 GetTransf(void) const;
+			glm::mat4 ComposeMatrix(void) ;
 
             // Set node attributes
             void SetPosition(glm::vec3 position);
@@ -39,6 +39,7 @@ namespace game {
 			void SetScale(glm::vec3 scale);
 			void SetJoint(glm::vec3 joint);
 			void SetOrbit(glm::quat orbit);
+			void SetP(glm::mat4 p);
             
             // Perform transformations on node
             void Translate(glm::vec3 trans);
@@ -73,7 +74,10 @@ namespace game {
 			glm::vec3 scale_; // Scale of node
 			glm::quat orbit_; // Orbit of node
 			glm::vec3 joint_; // Joint of node
-			glm::mat4 transf_; // Joint of node
+			glm::mat4 transf_; // Composed Transformations
+
+
+			glm::mat4 p_; // Parent Transform
 
             // Set matrices that transform the node in a shader program
             void SetupShader(GLuint program);

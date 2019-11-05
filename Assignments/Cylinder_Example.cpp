@@ -111,15 +111,15 @@ typedef struct model {
 
 
 // Create the geometry for a torus
-Model *CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int num_loop_samples = 2, int num_circle_samples = 5){
+Model *CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int 2 = 2, int num_circle_samples = 5){
 
     // Create a torus
     // The torus is built from a large loop with small circles around the loop
     // Vertices are sampled along the circles
 
     // Number of vertices and faces to be created
-    const GLuint vertex_num = 2*num_loop_samples*num_circle_samples+2;
-    const GLuint face_num = num_loop_samples*num_circle_samples+(2*num_circle_samples);
+    const GLuint vertex_num = 2*2*num_circle_samples+2;
+    const GLuint face_num = 2*num_circle_samples+(2*num_circle_samples);
 
     // Number of attributes for vertices and faces
     const int vertex_att = 11;  // 11 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3), 2D texture coordinates (2)
@@ -146,9 +146,9 @@ Model *CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int num_l
     glm::vec3 vertex_color;
     glm::vec2 vertex_coord;
 
-    for (int i = 0; i < num_loop_samples; i++){ // large loop
+    for (int i = 0; i < 2; i++){ // large loop
         
-        theta = 2.0*glm::pi<GLfloat>()*i/num_loop_samples; // loop sample (angle theta)
+        theta = 2.0*glm::pi<GLfloat>()*i/2; // loop sample (angle theta)
         //loop_center = glm::vec3(loop_radius*cos(theta), loop_radius*sin(theta), 0); // centre of a small circle
 		loop_center = glm::vec3(0, cos(theta), 0);
 
@@ -159,8 +159,8 @@ Model *CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int num_l
             // Define position, normal and color of vertex
             vertex_normal = glm::vec3(cos(phi), 0, sin(phi));
             vertex_position = loop_center + vertex_normal*circle_radius;
-            vertex_color = glm::vec3(1.0 - ((float) i / (float) num_loop_samples), 
-                                            (float) i / (float) num_loop_samples, 
+            vertex_color = glm::vec3(1.0 - ((float) i / (float) 2), 
+                                            (float) i / (float) 2, 
                                             (float) j / (float) num_circle_samples);
             vertex_coord = glm::vec2(theta / 2.0*glm::pi<GLfloat>(),
                                      phi / 2.0*glm::pi<GLfloat>());
@@ -171,49 +171,49 @@ Model *CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int num_l
                 vertex[(i*num_circle_samples+j)*vertex_att + k + 3] = vertex_normal[k];
                 vertex[(i*num_circle_samples+j)*vertex_att + k + 6] = vertex_color[k];
 
-				vertex[(num_loop_samples*num_circle_samples + i*num_circle_samples + j)*vertex_att + k] = vertex_position[k];
+				vertex[(2*num_circle_samples + i*num_circle_samples + j)*vertex_att + k] = vertex_position[k];
 				
-				if (i > num_loop_samples / 2) {
+				if (i > 2 / 2) {
 					vertex_normal = glm::vec3(0, 1, 0);
 				}
 				else {
 					vertex_normal = glm::vec3(0, -1, 0);
 				}
-				vertex[(num_loop_samples*num_circle_samples + i*num_circle_samples + j)*vertex_att + k + 3] = vertex_normal[k];
-				vertex[(num_loop_samples*num_circle_samples + i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
+				vertex[(2*num_circle_samples + i*num_circle_samples + j)*vertex_att + k + 3] = vertex_normal[k];
+				vertex[(2*num_circle_samples + i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
             }
             vertex[(i*num_circle_samples+j)*vertex_att + 9] = vertex_coord[0];
             vertex[(i*num_circle_samples+j)*vertex_att + 10] = vertex_coord[1];
 
-			vertex[(num_loop_samples*num_circle_samples + i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
-			vertex[(num_loop_samples*num_circle_samples + i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
+			vertex[(2*num_circle_samples + i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
+			vertex[(2*num_circle_samples + i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
         }
 
 		for (int k = 0; k < 3; k++) {
-			vertex[num_loop_samples*num_circle_samples*num_loop_samples*vertex_att + k] = vertex_position[k];
-			vertex[num_loop_samples*num_circle_samples*num_loop_samples*vertex_att + k + 3] = vertex_normal[k];
-			vertex[num_loop_samples*num_circle_samples*num_loop_samples*vertex_att + k + 6] = vertex_color[k];
+			vertex[2*num_circle_samples*2*vertex_att + k] = vertex_position[k];
+			vertex[2*num_circle_samples*2*vertex_att + k + 3] = vertex_normal[k];
+			vertex[2*num_circle_samples*2*vertex_att + k + 6] = vertex_color[k];
 
 
-			vertex[num_loop_samples*num_circle_samples*num_loop_samples*vertex_att + vertex_att + k] = vertex_position[k];
-			vertex[num_loop_samples*num_circle_samples*num_loop_samples*vertex_att + vertex_att + k + 3] = vertex_normal[k];
-			vertex[num_loop_samples*num_circle_samples*num_loop_samples*vertex_att + vertex_att + k + 6] = vertex_color[k];
+			vertex[2*num_circle_samples*2*vertex_att + vertex_att + k] = vertex_position[k];
+			vertex[2*num_circle_samples*2*vertex_att + vertex_att + k + 3] = vertex_normal[k];
+			vertex[2*num_circle_samples*2*vertex_att + vertex_att + k + 6] = vertex_color[k];
 		}
-		vertex[(num_loop_samples*num_circle_samples*num_loop_samples)*vertex_att + 9] = vertex_coord[0];
-		vertex[(num_loop_samples*num_circle_samples*num_loop_samples)*vertex_att + 10] = vertex_coord[1];
-		vertex[(num_loop_samples*num_circle_samples*num_loop_samples)*vertex_att + vertex_att + 9] = vertex_coord[0];
-		vertex[(num_loop_samples*num_circle_samples*num_loop_samples)*vertex_att + vertex_att + 10] = vertex_coord[1];
+		vertex[(2*num_circle_samples*2)*vertex_att + 9] = vertex_coord[0];
+		vertex[(2*num_circle_samples*2)*vertex_att + 10] = vertex_coord[1];
+		vertex[(2*num_circle_samples*2)*vertex_att + vertex_att + 9] = vertex_coord[0];
+		vertex[(2*num_circle_samples*2)*vertex_att + vertex_att + 10] = vertex_coord[1];
     }
 
     // Create triangles
     for (int i = 1; i < 2; i++){
         for (int j = 0; j < num_circle_samples; j++){
             // Two triangles per quad
-            glm::vec3 t1(((i + 1) % num_loop_samples)*num_circle_samples + j, 
+            glm::vec3 t1(((i + 1) % 2)*num_circle_samples + j, 
                          i*num_circle_samples + ((j + 1) % num_circle_samples),
                          i*num_circle_samples + j);    
-            glm::vec3 t2(((i + 1) % num_loop_samples)*num_circle_samples + j,
-                         ((i + 1) % num_loop_samples)*num_circle_samples + ((j + 1) % num_circle_samples),
+            glm::vec3 t2(((i + 1) % 2)*num_circle_samples + j,
+                         ((i + 1) % 2)*num_circle_samples + ((j + 1) % num_circle_samples),
                          i*num_circle_samples + ((j + 1) % num_circle_samples));
             // Add two triangles to the data buffer
             for (int k = 0; k < 3; k++){
@@ -223,10 +223,10 @@ Model *CreateTorus(float loop_radius = 0.6, float circle_radius = 0.2, int num_l
         }
     }
 
-	for (int i = (num_circle_samples*num_loop_samples); i < (num_circle_samples*num_loop_samples)+num_circle_samples; i++) {
+	for (int i = (num_circle_samples*2); i < (num_circle_samples*2)+num_circle_samples; i++) {
 
-			glm::vec3 t1((num_loop_samples*num_circle_samples), i+1, i);
-			glm::vec3 t2((num_loop_samples*num_circle_samples*num_loop_samples)+1, i+face_att, i+1+face_att);
+			glm::vec3 t1((2*num_circle_samples), i+1, i);
+			glm::vec3 t2((2*num_circle_samples*2)+1, i+face_att, i+1+face_att);
 			
 			for (int k = 0; k < 3; k++) {
 				face[(i)*face_att + k] = (GLuint)t1[k];

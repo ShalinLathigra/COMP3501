@@ -43,6 +43,8 @@ SceneNode::SceneNode(const std::string name, const Resource *geometry, const Res
 
     // Other attributes
     scale_ = glm::vec3(1.0, 1.0, 1.0);
+	p_ = glm::mat4(1.0);
+	transf_ = glm::mat4(1.0);
 }
 
 
@@ -74,8 +76,13 @@ glm::vec3 SceneNode::GetScale(void) const {
 }
 
 
-glm::mat4 SceneNode::GetTransf(void) const {
+glm::mat4 SceneNode::ComposeMatrix(void)  {
 
+	glm::mat4 rotation = glm::mat4_cast(orientation_);
+	glm::mat4 translation = glm::translate(glm::mat4(1.0), position_);
+	glm::mat4 orbit = glm::mat4_cast(orbit_);
+	glm::mat4 joint = glm::translate(glm::mat4(1.0), -joint_);
+	transf_ = p_ * translation * orbit * joint * rotation;
 	return transf_;
 }
 
@@ -106,6 +113,9 @@ void SceneNode::SetOrbit(glm::quat orbit)
 	orbit_ = orbit;
 }
 
+void SceneNode::SetP(glm::mat4 p) {
+	p_ = p;
+}
 
 void SceneNode::Translate(glm::vec3 trans){
 
@@ -207,17 +217,13 @@ void SceneNode::SetupShader(GLuint program){
 
     // World transformation
     glm::mat4 scaling = glm::scale(glm::mat4(1.0), scale_);
-    glm::mat4 rotation = glm::mat4_cast(orientation_);
-	glm::mat4 translation = glm::translate(glm::mat4(1.0), position_);
-	glm::mat4 orbit = glm::mat4_cast(orbit_);
-	glm::mat4 joint = glm::translate(glm::mat4(1.0), -joint_);
-    glm::mat4 transf = translation * orbit * joint * rotation;
+	ComposeMatrix();
 
     GLint world_mat = glGetUniformLocation(program, "world_mat");
-    glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf * scaling));
+    glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf_ * scaling));
 
     // Normal matrix
-    glm::mat4 normal_matrix = glm::transpose(glm::inverse(transf));
+    glm::mat4 normal_matrix = glm::transpose(glm::inverse(transf_));
     GLint normal_mat = glGetUniformLocation(program, "normal_mat");
     glUniformMatrix4fv(normal_mat, 1, GL_FALSE, glm::value_ptr(normal_matrix));
 
@@ -231,6 +237,8 @@ void SceneNode::SetupShader(GLuint program){
         glGenerateMipmap(GL_TEXTURE_2D);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
 
     // Timer
