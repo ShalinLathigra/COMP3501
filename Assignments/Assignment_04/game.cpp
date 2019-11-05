@@ -177,12 +177,20 @@ void Game::SetupScene(void){
 	torus2->Translate(glm::vec3(-1.1, -0.5, 0.0));
 
 	// Create an instance of the textured cube
-	game::SceneNode *checker = CreateInstance("CylinderInstance1", "CylinderMesh", "TexturedMaterial", "Checker");
+	game::SceneNode *checker1 = CreateInstance("CubeInstance1", "CubeMesh", "TexturedMaterial", "Checker");
 	// Adjust the instance
-	checker->Scale(glm::vec3(0.75, 0.75, 0.75));
+	checker1->Scale(glm::vec3(0.5, 0.5, 0.5));
 	glm::quat rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
-	checker->Rotate(rotation);
-	checker->Translate(glm::vec3(1.4, 0.0, 0.0));
+	checker1->Rotate(rotation);
+	checker1->Translate(glm::vec3(1.4, 0.6, 0.0));
+
+	// Create an instance of the textured cube
+	game::SceneNode *checker2 = CreateInstance("CylinderInstance1", "CylinderMesh", "TexturedMaterial", "Checker");
+	// Adjust the instance
+	checker2->Scale(glm::vec3(0.75, 0.75, 0.75));
+	rotation = glm::angleAxis(-45.0f * -glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
+	checker2->Rotate(rotation);
+	checker2->Translate(glm::vec3(1.4, -0.6, 0.0));
 
 
 
@@ -256,6 +264,11 @@ void Game::MainLoop(void){
 				node->Rotate(rotation);
 
 				// Animate the cube
+				node = scene_.GetNode("CubeInstance1");
+				rotation = -glm::angleAxis(glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
+				node->Rotate(rotation);
+
+				// Animate the Cylinder
 				node = scene_.GetNode("CylinderInstance1");
 				rotation = glm::angleAxis(glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
 				node->Rotate(rotation);

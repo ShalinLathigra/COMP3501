@@ -1,0 +1,157 @@
+1.
+	a) 
+	
+	k = 4, n = 7. 3*3 combos
+	a b c 4 e f g 
+	
+	k = 4, n = 8. 3*4 combos
+	a b c 4 e f g h
+	
+	(k-1)*(n-k) pairs.
+	
+	b)
+	
+	1. n is odd, k=ciel(n/2).
+	2. n is odd, k=n/2
+	
+2.
+	a)
+	
+	n-d pairs with hop distance d.
+	
+	b)
+	
+	Average dist = Weight of all paths / # paths
+	# paths = n choose 2 (All ways to pick 2 elements)
+			= n!/[k!*(n-k)!]
+			= n!/[2!*(n-2)!]
+			= n(n-1)/2
+			
+	Weight of All Paths = 1{n-1} + 2{n-2} + 3{n-3} ... + (n-1){1}
+						= sum (i=1->n-1) of all i
+						= (1 + n-1) + (2 + n-2) + ...
+						= n + n + ...
+						= n(n-1)/2
+	Average Dist = (n(n-1)/2) / (n(n-1)/2) = 1
+	
+	c)
+	
+3.
+
+	L bits max size
+	2 mins max life
+	S number of bits
+	
+4.
+	
+	a)
+	
+	PR(Exactly One Lost)	= PR(One Lost)*PR(4 Not Lost)
+							= .1*(1-.1)*(1-.1)*(1-.1)*(1-.1)
+							= .1*.9*.9*.9*.9
+							= .06561
+							
+	b)
+	
+	PR(1 of 4 lost && Last Arrived) = PR(1<x<=4 fragments lost) * (PR(Last Arrived))
+									= (1-PR(4 Fragments Arrived)) * (1-PR(Last Lost))
+									= (1-.9*.9*.9*.9) * (1-.1)
+									= .3439*.9
+									= .30951
+									
+5. 
+
+	
+	
+6.
+
+	a)
+	
+	case 1: i < j		# hops = j-i. Will be clamped between 1 and 6 hops
+	
+	b)
+	
+	Add links:
+	0 to 2
+	1 to 3
+	2 to 4
+	3 to 5
+	4 to 6
+	5 to 7
+	6 to 0
+	7 to 1
+	
+	c)
+	
+	2 to 5 takes 2 hops. One from 2 to 4, then 4 to 5.
+	6 to 0 takes 3. 6 to 0, 0 to 2, 2 to 3.
+	
+7.
+
+	
+
+8.
+
+	a)
+	
+	All visible lines are length 1, lines from vertices to each station also length one.
+	
+	Equilateral Triangles. Height = sqrt(3) / 2. 
+	opp = hyp * sin theta
+		= sin theta
+		= sin 60.
+	Therefore dist from A to B = sqrt(3)
+		
+	b)
+	
+	Dist = 1.5.
+	Line from C to intersection of all hexes = 1.
+	Dist from intersection to line segment = 1/2 line length = .5.
+	
+	-> Dist = 1.5.
+	
+9.
+
+	a) 
+	
+	min sensor range for every pair to communicate: r = sqrt(2)
+	
+	b)
+	
+	Orient each such that it is looking at it's neighbor. Networks can communicate cyclically
+	
+	c)
+	
+	Angle such that each sensor is pointing directly at the opposite corner, with pi/4 range to the left and right.
+	This requires r to be sqrt(2)
+	
+	d)
+	
+	No orientation with angle less than pi/2 will allow a complete network. Each node must be able to communicate with ALL OTHER nodes.
+	
+10.
+
+	a)
+	
+	First Antenna, place it such that it's range is perfectly along one of the edges.
+	Place second such that it is on the opposite side of the square, positioned at the maximum position of the first's range.
+		Angle second so that it is facing towards First with minimal overlap.
+		
+	This puts two triangles with acute angles of 45 degrees, and side lengths one.
+		This means they have base lengths of: sqrt(2)/2km
+		This means they together have an area of (2*(1)*(sqrt(2)/2))km^2
+			Area = sqrt(2)km^2
+			
+		Duplicate this structure with the remaining area. 
+		
+		Now covering a total area of 2*sqrt(2) km^2. This is greater than the area of the square, which is 1 km^2. 
+		
+	b)
+	
+	Need image to show this.
+	
+11.
+
+	a)
+	
+	
