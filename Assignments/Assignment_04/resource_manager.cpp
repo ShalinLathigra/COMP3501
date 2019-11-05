@@ -774,7 +774,7 @@ void ResourceManager::CreateCylinder(std::string object_name, float circle_radiu
 	// Check the construction algorithm below to understand the numbers
 	// specified below2
 	const int num_loop_samples = 2;
-	const GLuint vertex_num = num_loop_samples * num_circle_samples * 2;
+	const GLuint vertex_num = num_loop_samples * (num_circle_samples+1) * 2;
 	const GLuint face_num = num_loop_samples * num_circle_samples * 2 + (num_circle_samples - 2) * 2;
 
 	// Number of attributes for vertices and faces
@@ -803,6 +803,7 @@ void ResourceManager::CreateCylinder(std::string object_name, float circle_radiu
 	glm::vec2 vertex_coord;
 
 	glm::vec3 alt_normal;
+	glm::vec2 alt_coord;
 	int alt_start = num_circle_samples * num_loop_samples;
 
 	for (int i = 0; i < num_loop_samples; i++) { // large loop
@@ -810,7 +811,7 @@ void ResourceManager::CreateCylinder(std::string object_name, float circle_radiu
 		theta = 2.0*glm::pi<GLfloat>()*i / num_loop_samples; // loop sample (angle theta)
 		loop_center = glm::vec3(0, circle_radius * cos(theta), 0); // centre of a small circle
 
-		for (int j = 0; j < num_circle_samples; j++) { // small circle
+		for (int j = 0; j < num_circle_samples + 1; j++) { // small circle
 
 			phi = 2.0*glm::pi<GLfloat>()*j / num_circle_samples; // circle sample (angle phi)
 
@@ -822,59 +823,69 @@ void ResourceManager::CreateCylinder(std::string object_name, float circle_radiu
 				0.0f);
 			vertex_coord = glm::vec2(theta / (2.0*glm::pi<GLfloat>()),
 				phi / (2.0*glm::pi<GLfloat>()));
+			alt_coord = glm::vec2(cos(phi), sin(phi))/2.0f + 0.5f;
 
 			alt_normal = cos((float)j * glm::pi<GLfloat>()) * glm::vec3(0.0f, 1.0f, 0.0f);
 
+			std::cout << i << " " << alt_start + (i*(num_circle_samples + 1) + j) << std::endl;
+
 			// Add vectors to the data buffer
 			for (int k = 0; k < 3; k++) {
-				vertex[(i*num_circle_samples + j)*vertex_att + k] = vertex_position[k];
-				vertex[(i*num_circle_samples + j)*vertex_att + k + 3] = vertex_normal[k];
-				vertex[(i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
+				vertex[(i*(num_circle_samples + 1) + j)*vertex_att + k] = vertex_position[k];
+				vertex[(i*(num_circle_samples + 1) + j)*vertex_att + k + 3] = vertex_normal[k];
+				vertex[(i*(num_circle_samples + 1) + j)*vertex_att + k + 6] = vertex_color[k];
 
-				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k] = vertex_position[k];
-				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k + 3] = alt_normal[k];
-				vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + k + 6] = vertex_color[k];
+				vertex[alt_start * vertex_att + (i*(num_circle_samples + 1) + j)*vertex_att + k] = vertex_position[k];
+				vertex[alt_start * vertex_att + (i*(num_circle_samples + 1) + j)*vertex_att + k + 3] = alt_normal[k];
+				vertex[alt_start * vertex_att + (i*(num_circle_samples + 1) + j)*vertex_att + k + 6] = vertex_color[k];
 
 			}
-			vertex[(i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
-			vertex[(i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
+			vertex[(i*(num_circle_samples + 1) + j)*vertex_att + 9] = vertex_coord[0];
+			vertex[(i*(num_circle_samples + 1) + j)*vertex_att + 10] = vertex_coord[1];
 
-			vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + 9] = vertex_coord[0];
-			vertex[alt_start * vertex_att + (i*num_circle_samples + j)*vertex_att + 10] = vertex_coord[1];
+			vertex[alt_start * vertex_att + (i*(num_circle_samples + 1) + j)*vertex_att + 9] = alt_coord[0];
+			vertex[alt_start * vertex_att + (i*(num_circle_samples + 1) + j)*vertex_att + 10] = alt_coord[1];
 		}
 	}
 
 	// Create triangles
-	for (int i = 0; i < num_loop_samples; i++) {
-		for (int j = 0; j < num_circle_samples; j++) {
-			// Two triangles per quad
-			glm::vec3 t1(((i + 1) % num_loop_samples)*num_circle_samples + j,
-				i*num_circle_samples + ((j + 1) % num_circle_samples),
-				i*num_circle_samples + j);
-			glm::vec3 t2(((i + 1) % num_loop_samples)*num_circle_samples + j,
-				((i + 1) % num_loop_samples)*num_circle_samples + ((j + 1) % num_circle_samples),
-				i*num_circle_samples + ((j + 1) % num_circle_samples));
-			// Add two triangles to the data buffer
-			for (int k = 0; k < 3; k++) {
-				face[(i*num_circle_samples + j)*face_att * 2 + k] = (GLuint)t1[k];
-				face[(i*num_circle_samples + j)*face_att * 2 + k + face_att] = (GLuint)t2[k];
-			}
+
+	//NEW LOOP
+	for (int j = 0; j <= num_circle_samples; j++) {
+		//// Two triangles per quad
+		glm::vec3 t1(
+			j, 
+			j + num_circle_samples + 1, 
+			j + num_circle_samples + 2
+		);
+		glm::vec3 t2(
+			j + 1,
+			j,
+			j + num_circle_samples + 2
+		);
+		// Add two triangles to the data buffer
+		for (int k = 0; k < 3; k++) {
+			face[j*face_att * 2 + k] = (GLuint)t1[k];
+			face[j*face_att * 2 + k + face_att] = (GLuint)t2[k];
 		}
 	}
 
 	int alt_face_start = num_circle_samples * face_att * 2;
-	for (int i = 0; i < num_circle_samples - 2; i++)
+	for (int i = 0; i < num_circle_samples - 3; i++)
 	{
+		std::cout << alt_start << " " << alt_start + i + 1 << " " << alt_start + i + 2 << std::endl;
+		//NEED TO FIX TOP FACES
 		glm::vec3 t1(
-			alt_start + i + 1,
-			alt_start,
-			alt_start + i + 2
+			alt_start + 2,
+			alt_start + 2 + i + 1,
+			alt_start + 2 + i + 2
 		);
 
+		//std::cout << alt_start + num_circle_samples + 1 << " " << alt_start + num_circle_samples + 1 + i + 1 << " " << alt_start + num_circle_samples + 1 + i + 2 << std::endl;
 		glm::vec3 t2(
-			alt_start + num_circle_samples,
-			alt_start + num_circle_samples + i + 1,
-			alt_start + num_circle_samples + i + 2
+			alt_start + num_circle_samples+1,
+			alt_start + num_circle_samples+1 + i + 1,
+			alt_start + num_circle_samples+1 + i + 2
 		);
 
 		for (int k = 0; k < 3; k++)
