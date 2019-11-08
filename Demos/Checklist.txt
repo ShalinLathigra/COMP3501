@@ -1,0 +1,57 @@
+1. Implementation of three screen-space special effects.
+	1.1 [ 2.0 ] First screen-space effect works reasonably well (the result looks
+	reasonable and fits the description of the chosen effect).
+	1.2 [ 2.0 ] Second screen-space effect works reasonably well.
+	1.3 [ 2.0 ] Third screen-space effect works reasonably well.
+	
+		A. A horizontal wipe, where the screen turns (say) blue beginning from the left and progressing to the right. 
+			When the wipe is done, the screen should remain blue for about 1 second and then return to normal.
+		
+		B. Show a 2X2 tiling of the scene over the image plane.
+		
+		C. Make a "shockwave" effect, where some distortion begins at a point and spreads outward; 
+			once the shockwave has passed, the scene should look normal again.
+		
+		D. Make a strong blur effect. (Suggestion: average at least 25 texture reads. Use a "for loop" or nested "for loops".)
+		
+		E. Make a "swirl" effect where the scene spins around the center in a distorted way.
+		
+		F. Create a fog effect, where the player seems to be immersed in a cloud.
+		
+		G. Create a bloom effect, where a pixel takes the value of the brightest pixel nearby.
+		
+		H. Invent your own effect or implement an effect you have seen in a game. Use your imagination. 
+			Very simple effects or effects very similar to thoseq seen in class will not count to get very good marks.
+
+	Note: for effect H “Invent your own effect or implement an effect you have seen
+	in a game”, you should be able to describe what the effect does or what it is
+	trying to simulate. The description should make it clear that the effect is not just a
+	random modification of pixels.
+
+2. Fireworks particle system.
+	2.1 [ 0.5 ] Particles start with a spherical velocity distribution.
+	2.2 [ 0.5 ] Particles fall under gravity.
+	2.3 [ 0.5 ] Explosions have different colors.
+	2.4 [ 0.5 ] Explosions go on continuously and happen at different times. At least 3
+					explosions on screen at any given time.
+					
+		Create a simple "fireworks" particle system in which, for each explosion, 
+		particles start with a spherical velocity distribution and then fall under gravity. 
+		This means you can directly compute each particle's position from its initial position, velocity, and time: x(t) = x(0) + v*t + 0.5*g*t*t. 
+		Have at least 3 explosions onscreen at any given time. Give the explosions different colours, as well as (obviously) positions and times. 
+		New explosions should appear to replace completed ones (it is an ongoing fireworks show).
+					
+3. Particle system resembling a rocket exhaust.
+	3.1 [ 1.0 ] The particle system looks like a rocket exhaust. The particles spread out
+	in a cone or lobe shape.
+	3.2 [ 0.5 ] Particle phase is used to make the spray continuous.
+	3.3 [ 0.5 ] Interesting color distribution.
+
+Bonus 1. [ 1.0 ] A “ring” style explosion.
+
+Bonus 2. Fog effect using depth of pixels.
+	Bonus 2.1 [ 0.5 ] Depth values are read from the depth buffer.
+	Bonus 2.2 [ 0.5 ] Depth values are used to control the amount of fog added to a
+						pixel.
+						
+Total: 10 points + 2 bonus.
