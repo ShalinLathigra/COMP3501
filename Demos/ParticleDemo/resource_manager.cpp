@@ -865,7 +865,9 @@ void ResourceManager::CreateSphereParticles(std::string object_name, int num_par
 
 
 
-void ResourceManager::CreateFlameParticles(std::string object_name, int num_particles) {
+
+
+void ResourceManager::CreateFireParticles(std::string object_name, int num_particles) {
 
 	// Create a set of points which will be the particles
 	// This is similar to drawing a sphere: we will sample points on a sphere, but will allow them to also deviate a bit from the sphere along the normal (change of radius)
@@ -886,7 +888,8 @@ void ResourceManager::CreateFlameParticles(std::string object_name, int num_part
 
 	float trad = 0.2; // Defines the starting point of the particles along the normal
 	float maxspray = 0.5; // This is how much we allow the points to deviate from the sphere
-	float u, v, w, theta, phi, spray; // Work variables
+	float spread = 1.0 / 16.0f;
+	float u, v, w, theta, phi, offset; // Work variables
 
 	for (int i = 0; i < num_particles; i++) {
 
@@ -894,19 +897,18 @@ void ResourceManager::CreateFlameParticles(std::string object_name, int num_part
 		u = ((double)rand() / (RAND_MAX));
 		v = ((double)rand() / (RAND_MAX));
 		w = ((double)rand() / (RAND_MAX));
+		offset = 4.0 * ((double)rand() / (RAND_MAX));		//time offset vs other particles
 
 		// Use u to define the angle theta along one direction of the sphere
 		theta = u * 2.0*glm::pi<float>();
 		// Use v to define the angle phi along the other direction of the sphere
-		phi = acos(2.0*v - 1.0);
-		// Use w to define how much we can deviate from the surface of the sphere (change of radius)
-		spray = maxspray * pow((float)w, (float)(1.0 / 3.0)); // Cubic root of w
+		phi = acos(v * spread - 1.0);
 
 		// Define the normal and point based on theta, phi and the spray
-		glm::vec3 normal(spray*cos(theta)*sin(phi), spray*sin(theta)*sin(phi), spray*cos(phi));
+		glm::vec3 normal(maxspray*cos(theta)*sin(phi), maxspray*sin(theta)*sin(phi), maxspray*cos(phi));
 		glm::vec3 position(normal.x*trad, normal.y*trad, normal.z*trad);
-		glm::vec3 color(i / (float)num_particles, 0.0, 1.0 - (i / (float)num_particles)); // We can use the color for debug, if needed
-
+		glm::vec3 color(i / (float)num_particles, offset, 1.0 - (i / (float)num_particles)); // We can use the color for debug, if needed
+		//encode time offset in g value of color
 		// Add vectors to the data buffer
 		for (int k = 0; k < 3; k++) {
 			particle[i*particle_att + k] = position[k];
@@ -927,5 +929,7 @@ void ResourceManager::CreateFlameParticles(std::string object_name, int num_part
 	// Create resource
 	AddResource(PointSet, object_name, vbo, 0, num_particles);
 }
+
+
 
 } // namespace game;

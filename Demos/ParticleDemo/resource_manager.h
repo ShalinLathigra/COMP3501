@@ -39,7 +39,7 @@ namespace game {
             void CreateWall(std::string object_name);
             // Create particles distributed over a sphere
 			void CreateSphereParticles(std::string object_name, int num_particles = 20000);
-			void CreateFlameParticles(std::string object_name, int num_particles = 20000);
+			void CreateFireParticles(std::string object_name, int num_particles = 20000);
 
         private:
             // List storing all resources

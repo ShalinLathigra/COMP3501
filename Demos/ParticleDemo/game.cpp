@@ -114,8 +114,10 @@ void Game::SetupResources(void){
     std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/particle");
     resman_.LoadResource(Material, "ParticleMaterial", filename.c_str());
 
-    // Create particles for explosion
-    resman_.CreateSphereParticles("SphereParticles");
+	// Create particles for explosion
+	resman_.CreateSphereParticles("SphereParticles");
+	// Create particles for explosion
+	resman_.CreateFireParticles("FireParticles");
 }
 
 
@@ -125,7 +127,8 @@ void Game::SetupScene(void){
     scene_.SetBackgroundColor(viewport_background_color_g);
 
     // Create particles
-    game::SceneNode *particles = CreateInstance("ParticleInstance1", "SphereParticles", "ParticleMaterial");
+	//game::SceneNode *particles = CreateInstance("ParticleInstance1", "SphereParticles", "ParticleMaterial");
+	game::SceneNode *particles2 = CreateInstance("ParticleInstance2", "FireParticles", "ParticleMaterial");
 }
 
 
