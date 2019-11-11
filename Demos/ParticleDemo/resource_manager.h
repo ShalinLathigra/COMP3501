@@ -38,7 +38,8 @@ namespace game {
             void CreateSphere(std::string object_name, float radius = 0.6, int num_samples_theta = 90, int num_samples_phi = 45);
             void CreateWall(std::string object_name);
             // Create particles distributed over a sphere
-            void CreateSphereParticles(std::string object_name, int num_particles = 20000);
+			void CreateSphereParticles(std::string object_name, int num_particles = 20000);
+			void CreateFlameParticles(std::string object_name, int num_particles = 20000);
 
         private:
             // List storing all resources
