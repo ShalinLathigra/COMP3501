@@ -183,7 +183,7 @@ void SceneGraph::DisplayTexture(GLuint program){
     // Configure output to the screen
     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDisable(GL_DEPTH_TEST);
-
+	
     // Set up quad geometry
     glBindBuffer(GL_ARRAY_BUFFER, quad_array_buffer_);
 
@@ -203,6 +203,7 @@ void SceneGraph::DisplayTexture(GLuint program){
 	GLint timer_var = glGetUniformLocation(program, "timer");
 	float current_time = glfwGetTime();
 	glUniform1f(timer_var, current_time);
+	
 	
     // Bind texture
     glActiveTexture(GL_TEXTURE0);

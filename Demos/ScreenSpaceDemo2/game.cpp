@@ -118,6 +118,10 @@ void Game::SetupResources(void){
     filename = std::string(MATERIAL_DIRECTORY) + std::string("/screen_space");
     resman_.LoadResource(Material, "ScreenSpaceMaterial", filename.c_str());
 
+	// Load hex map
+	filename = std::string(MATERIAL_DIRECTORY) + std::string("/hex_map.png");
+	resman_.LoadResource(Texture, "hex_map", filename.c_str());
+
     // Setup drawing to texture
     scene_.SetupDrawToTexture();
 
