@@ -110,14 +110,23 @@ void Game::InitEventHandlers(void){
 
 void Game::SetupResources(void){
 
-    // Load material to be applied to particles
-    std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/particle");
-    resman_.LoadResource(Material, "ParticleMaterial", filename.c_str());
+	// Load material to be applied to particles
+	std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/particle");
+	resman_.LoadResource(Material, "ParticleMaterial", filename.c_str());
+	// Load material to be applied to particles
+	filename = std::string(MATERIAL_DIRECTORY) + std::string("/fire");
+	resman_.LoadResource(Material, "FireMaterial", filename.c_str());
 
 	// Create particles for explosion
 	resman_.CreateSphereParticles("SphereParticles");
 	// Create particles for explosion
 	resman_.CreateFireParticles("FireParticles");
+	// Create particles for explosion
+	resman_.CreateRingParticles("RingParticles");
+
+	//Flame effect texture
+	filename = std::string(MATERIAL_DIRECTORY) + std::string("/flame4x4orig.png");
+	resman_.LoadResource(Texture, "Flame", filename.c_str());
 }
 
 
@@ -127,8 +136,10 @@ void Game::SetupScene(void){
     scene_.SetBackgroundColor(viewport_background_color_g);
 
     // Create particles
-	//game::SceneNode *particles = CreateInstance("ParticleInstance1", "SphereParticles", "ParticleMaterial");
-	game::SceneNode *particles2 = CreateInstance("ParticleInstance2", "FireParticles", "ParticleMaterial");
+	game::SceneNode *fireworks1 = CreateInstance("FireworksInstance1", "SphereParticles", "ParticleMaterial");
+	//game::SceneNode *fire1 = CreateInstance("FireInstance1", "FireParticles", "FireMaterial", "Flame");
+	//fire1->SetBlending(true);
+	//game::SceneNode *ring1 = CreateInstance("RingInstance1", "RingParticles", "FireMaterial", "Flame");
 }
 
 

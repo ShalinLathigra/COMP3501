@@ -6,9 +6,9 @@ in vec2 uv0;
 // Passed from outside
 uniform float timer;
 uniform sampler2D texture_map;
+uniform int effect_num = 0;
 
-vec4 b_edge_color = vec4(1.0, 0.0, 0.0, 1.0);
-vec4 f_edge_color = vec4(0.0, 1.0, 0.0, 1.0);
+vec4 f_edge_color = vec4(0.005, 1.0, 0.005, 1.0);
 float edge_width = .05;
 float speed = .5;
 
@@ -17,73 +17,163 @@ float overlay_intensity = 2.0;
 vec4 overlay_color = vec4(1.0, 1.0, 1.0, 1.0);
 
 float pixel_compression = 8.0;
+
+/*
+Random, Noise, Rotate2D functions found at: https://thebookofshaders.com/11/
+*/
+
+float random(in vec2 st) {
+	return fract(sin(dot(st.xy,
+		vec2(12.9898, 78.233)))
+		* 43758.5453123);
+}
+float noise(in vec2 st) {
+	vec2 i = floor(st);
+	vec2 f = fract(st);
+
+	// Four corners in 2D of a tile
+	float a = random(i);
+	float b = random(i + vec2(1.0, 0.0));
+	float c = random(i + vec2(0.0, 1.0));
+	float d = random(i + vec2(1.0, 1.0));
+
+	// Smooth Interpolation
+
+	// Cubic Hermine Curve.  Same as SmoothStep()
+	vec2 u = smoothstep(0.,1.,f);
+
+	// Mix 4 coorners percentages
+	return mix(a, b, u.x) +
+		(c - a)* u.y * (1.0 - u.x) +
+		(d - b) * u.x * u.y;
+}
+mat2 rotate2d(float angle) {
+	return mat2(cos(angle), -sin(angle),
+		sin(angle), cos(angle));
+}
+
 void main()
 {
 	// Do nothing (just copy input to output)
-	/*
+	if (effect_num == 1)
+	{
 	vec2 pos = uv0;
 	vec4 pixel = texture(texture_map, pos);
 	gl_FragColor = pixel;
-	*/
+	}
 
 	//Fade-in/out from Center
-	//Looping animation, I'd like to apply a bloom effect to the edge, but I think that'd need a second rendering pass.
-	//Start from black, green ring expands and brings image back. A few seconds later a red ring erases the image.
-	//Can modify edge_width, and the edge colors. b_edge_color = the erasing edge, f_edge_color = drawing edge.
-	/*
-	vec2 pos = uv0;
-	vec4 pixel = texture(texture_map, pos);
+	//Looping animation, 
+	else if (effect_num == 2)
+	{
+		vec2 pos = uv0;
+		vec4 pixel = texture(texture_map, pos);
 
-	vec2 o = vec2(0.5, 0.5);
-	float dist = 1.0 - (pow(o.x - uv0.x, 2) + pow(o.y - uv0.y, 2))* 2.0;
+		vec2 o = vec2(0.5, 0.5);
 
-	float step = timer * speed;
+		vec2 tra = pos - o;
+		tra.x *= sin(timer * 2);
+		tra.y *= cos(timer * 2);
 
-	float mask = clamp(mod(int(dist + step), 4), 0, 1);
-	float f_mask = clamp(mod(int(dist + step + edge_width), 2), 0, 1);
-	float b_mask = clamp(mod(int(dist + step - edge_width), 2), 0, 1);
-	float f_edge = clamp(f_mask - mask, 0, 1);
-	float b_edge = clamp(b_mask - mask, 0, 1);
+		float dist = 1.0 - (pow(tra.x, 2) + pow(tra.y, 2))* 2.0;
 
-	vec4 fade_state = pixel * mask + f_edge_color * f_edge + b_edge_color * b_edge;
-	gl_FragColor = fade_state;
-	*/
+		dist = max(sin(dist + timer), 0);
 
-	//Pixelate
-	//Lowers resolution. 
-	//Can modify based on pixel_compression value at top.
-	/*
-	int width = 800;	//width
-	int height = 600;	//height
+		float gb = max(dist - .5, 0);
+		float gs = dist;
+		float gd = min(dist + .5, 1);
+			  
+		float g_s = gd - gs;
+		float g_b = gs - gb;
 
-	//Will Assume resolution is constant for now.
-	float x_compress = width / pixel_compression;
-	float y_compress = height / pixel_compression;
-	float x_coord = int(uv0.x * x_compress) / x_compress;
-	float y_coord = int(uv0.y * y_compress) / y_compress;
+		float edge = pow((g_s + g_b), 10);
 
-	vec4 pixel = texture(texture_map, vec2(x_coord,y_coord));
+		gl_FragColor = edge * f_edge_color + clamp(2 * g_s, 0, 1) * pixel;
 
-	float c_dist = dot(pixel, vec4(0.0, 0.0, 1.0, 1.0));
-	gl_FragColor = pixel;
-	*/
+	}
+	//gl_FragColor = vec4(g_s, 0.0, g_b, 1.0);
 
-	//Shields Online
-	//Gives impression of shields being active. faint pattern glowing and flashing around the very fringes of the screen. Not intended to be incredibly distracting.
-	//Modify by altering overlay_intensity, overlay_tiling, and overlay_color, to affect the brightness, density of the pattern, and color of the overlay.
-	/*
-	vec2 pos = uv0;
-	vec2 offset = pos + vec2(sin(timer*.5), cos(timer*-.125))*.25;
-	vec2 o = vec2(0.5, 0.5);
+	//Noise, Outlines only, Everything is red.
+	//Intentionally imperfect, supposed to give impression of things having gone horribly wrong.
+	//Torus is turned red, appears slightly pixelated, screen is covered in red static.
+	else if (effect_num == 3)
+	{
+		int width = 800;	//width
+		int height = 600;	//height
 
-	float dist = (pow(o.x - uv0.x, 2) + pow(o.y - uv0.y, 2))*overlay_intensity;
-	dist = pow(dist, 2);
-	float step = max(sin(timer), 0)*.125 + .25;
-	float map = abs(sin(offset.x * overlay_tiling) + cos(offset.y * overlay_tiling));
-	float t = abs(dist * step * map);
+		//Will Assume resolution is constant for now.
+		float x_compress = width / pixel_compression;
+		float y_compress = height / pixel_compression;
+		float x_coord = int(uv0.x * x_compress) / x_compress;
+		float y_coord = int(uv0.y * y_compress) / y_compress;
 
-	vec4 pixel = texture(texture_map, pos);
+		vec4 pixel = texture(texture_map, vec2(x_coord, y_coord));
 
-	gl_FragColor = pixel + t * overlay_color;
-	*/
+		//float c_dist = dot(pixel, vec4(0.0, 0.0, 1.0, 1.0));
+		gl_FragColor = pixel;
+
+		vec2 pos = uv0;
+		
+		float xm = pos.x - 0.005;
+		float xp = pos.x + 0.005;
+		float ym = pos.y - 0.005;
+		float yp = pos.y + 0.005;
+
+		vec4 hp1 = texture(texture_map, vec2(xm, ym));
+		vec4 hp2 = texture(texture_map, vec2(xp, ym));
+		vec4 hp3 = texture(texture_map, vec2(xm, pos.y));
+		vec4 hp4 = texture(texture_map, vec2(xp, pos.y));
+		vec4 hp5 = texture(texture_map, vec2(xm, yp));
+		vec4 hp6 = texture(texture_map, vec2(xp, yp));
+		vec4 hdiff = hp1 - hp2 + 2.0*hp3 - 2.0*hp4 + hp5 - hp6;
+
+
+		vec4 vp1 = texture(texture_map, vec2(xm, ym));
+		vec4 vp2 = texture(texture_map, vec2(xm, yp));
+		vec4 vp3 = texture(texture_map, vec2(pos.x, ym));
+		vec4 vp4 = texture(texture_map, vec2(pos.x, yp));
+		vec4 vp5 = texture(texture_map, vec2(xp, ym));
+		vec4 vp6 = texture(texture_map, vec2(xp, yp));
+		vec4 vdiff = hp1 - hp2 + 2.0*hp3 - 2.0*hp4 + hp5 - hp6;
+
+		float d = pow(hdiff.z, 2);// +pow(hdiff.y, 2) + pow(hdiff.z, 2);
+
+		gl_FragColor = pixel * vec4(d, d, d, 1);
+
+		//Need to add kind of static + lines
+		float n = noise((uv0 + vec2(sin(timer*25)*12, cos(timer*-35)*7))*256);
+
+		gl_FragColor = 0.25 * n * vec4(0.7, 0.1, 0.2, 1.0) + pixel.bgra * vec4(d, d, d, 1);
+	}
+	//Woozy
+	//Psychadelic pattern in shifting colours around the edges, pulsating a bit to make it more noticeable.
+	//Screen rotates back and forth a bit to make it a bit worse. Screen will flash about once a second
+	else if (effect_num == 4)
+	{
+		vec2 pos = uv0;
+		//Create swirling around edges of screen
+		vec2 offset = rotate2d(noise(pos*sin(timer/4.0)))*pos + vec2(sin(timer*.5), cos(timer*-.125))*.25;
+		vec2 o = vec2(0.5, 0.5);
+		offset *= 16;
+		offset.x = sin(sin(offset.x) + cos(offset.y));
+		offset.y = cos(sin(offset.x*offset.y) + cos(offset.x));
+		float dist = (pow(o.x - uv0.x, 2) + pow(o.y - uv0.y, 2))*overlay_intensity;
+		dist = pow(dist, 2);
+		float step = max(sin(timer), 0)*.125 + .25;
+		float map = abs(sin(offset.x * overlay_tiling) + cos(offset.y * overlay_tiling));
+		float t = abs(dist * step * map);
+
+		vec2 tra = pos - o;
+		tra.x *= sin(timer * 2);
+		tra.y *= cos(timer * 2);
+
+		float brightness = 1.0 - (pow(tra.x, 2) + pow(tra.y, 2))*2.0;
+
+
+		//Add slight swirl effect to screen
+		vec2 tex_off = (rotate2d(sin(timer) * cos(timer) * .125) *(pos - vec2(0.5))) + vec2(0.5);
+		vec4 pixel = texture(texture_map, tex_off);
+
+		gl_FragColor = brightness * pixel + t * vec4(abs(sin(timer + .5)), abs(cos(-timer)), sin(0.9 + timer) * 5.0 - 4.0, 1.0);
+	}
 }

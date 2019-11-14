@@ -44,6 +44,7 @@ void Game::Init(void){
 
     // Set variables
     animating_ = true;
+	effect_num = 1;
 }
 
        
@@ -118,10 +119,6 @@ void Game::SetupResources(void){
     filename = std::string(MATERIAL_DIRECTORY) + std::string("/screen_space");
     resman_.LoadResource(Material, "ScreenSpaceMaterial", filename.c_str());
 
-	// Load hex map
-	filename = std::string(MATERIAL_DIRECTORY) + std::string("/hex_map.png");
-	resman_.LoadResource(Texture, "hex_map", filename.c_str());
-
     // Setup drawing to texture
     scene_.SetupDrawToTexture();
 
@@ -177,7 +174,7 @@ void Game::MainLoop(void){
 
         // Process the texture with a screen-space effect and display
         // the texture
-        scene_.DisplayTexture(resman_.GetResource("ScreenSpaceMaterial")->GetResource());
+        scene_.DisplayTexture(resman_.GetResource("ScreenSpaceMaterial")->GetResource(), effect_num);
 
         // Push buffer drawn in the background onto the display
         glfwSwapBuffers(window_);
@@ -240,12 +237,29 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
     if (key == GLFW_KEY_I){
         game->camera_.Translate(game->camera_.GetUp()*trans_factor);
     }
-    if (key == GLFW_KEY_K){
-        game->camera_.Translate(-game->camera_.GetUp()*trans_factor);
-    }
+	if (key == GLFW_KEY_K) {
+		game->camera_.Translate(-game->camera_.GetUp()*trans_factor);
+	}
+
+	if (key == GLFW_KEY_1) {
+		game->SetEffect(1);
+	}
+	if (key == GLFW_KEY_2) {
+		game->SetEffect(2); 
+	}
+	if (key == GLFW_KEY_3) {
+		game->SetEffect(3);
+	}
+	if (key == GLFW_KEY_4) {
+		game->SetEffect(4);
+	}
 }
 
 
+void Game::SetEffect(int effect)
+{
+	effect_num = effect;
+}
 void Game::ResizeCallback(GLFWwindow* window, int width, int height){
 
     // Set up viewport and camera projection based on new window size

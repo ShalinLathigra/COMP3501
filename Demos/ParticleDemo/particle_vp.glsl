@@ -15,41 +15,39 @@ uniform float timer;
 out vec3 vertex_color;
 out float timestep;
 
+
 // Simulation parameters (constants)
 uniform vec3 up_vec = vec3(0.0, 1.0, 0.0);
-uniform vec3 back_vec = vec3(0.0, 0.0, -1.0);
 uniform vec3 object_color = vec3(0.8, 0.8, 0.8);
-float acc = 0.05; // drag
-float lift_acc = 0.01; // rate of rising
+float grav = 0.005; // Gravity
 float speed = 2.5; // Allows to control the speed of the explosion
-float lifespan = 4.0;
+
 
 void main()
 {
-    // Not fully resetting timer, have each particle reset after lifetime seconds
-    float t = mod(timer + color.g, lifespan); // Our time parameter
+    // Let time cycle every four seconds
+    float circtime = timer - 4.0 * floor(timer / 4);
+    float t = circtime; // Our time parameter
     
     // Let's first work in model space (apply only world matrix)
     vec4 position = world_mat * vec4(vertex, 1.0);
     vec4 norm = normal_mat * vec4(normal, 1.0);
 
     // Move point along normal and down with t*t (acceleration under gravity)
-    position.x += norm.x*t*speed - acc * speed*back_vec.x*t*t + lift_acc * speed*up_vec.x*t*t;
-	position.y += norm.y*t*speed - acc * speed*back_vec.y*t*t + lift_acc * speed*up_vec.y*t*t;
-	position.z += norm.z*t*speed - acc * speed*back_vec.z*t*t + lift_acc * speed*up_vec.z*t*t;
+    position.x += norm.x*t*speed - grav*speed*up_vec.x*t*t;
+    position.y += norm.y*t*speed - grav*speed*up_vec.y*t*t;
+    position.z += norm.z*t*speed - grav*speed*up_vec.z*t*t;
     
     // Now apply view transformation
     gl_Position = view_mat * position;
         
     // Define outputs
     // Define color of vertex
-    //vertex_color = color.rgb; // Color defined during the construction of the particles
+    vertex_color = color.rgb; // Color defined during the construction of the particles
     //vertex_color = object_color; // Uniform color 
     //vertex_color = vec3(t, 0.0, 1-t);
-    vertex_color = (4-t) * vec3(clamp(1-t, 0, 1), 2-t, t);
-	//linearly interpolate through 3 colors. blue, orange, dark grey
-	//vertex_color = max(0.5 - t, 0) * b;
-	//vertex_color = max(3.5 - t, 0) * o;
+    //vertex_color = vec3(1.0, 1-t, 0.0);
+
     // Forward time step to geometry shader
     timestep = t;
 }

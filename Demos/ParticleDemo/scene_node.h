@@ -31,11 +31,13 @@ namespace game {
             glm::vec3 GetPosition(void) const;
             glm::quat GetOrientation(void) const;
             glm::vec3 GetScale(void) const;
+            bool GetBlending(void) const;
 
             // Set node attributes
             void SetPosition(glm::vec3 position);
             void SetOrientation(glm::quat orientation);
             void SetScale(glm::vec3 scale);
+            void SetBlending(bool blending);
             
             // Perform transformations on node
             void Translate(glm::vec3 trans);
@@ -67,6 +69,7 @@ namespace game {
             glm::vec3 position_; // Position of node
             glm::quat orientation_; // Orientation of node
             glm::vec3 scale_; // Scale of node
+            bool blending_; // Draw with blending or not
 
             // Set matrices that transform the node in a shader program
             void SetupShader(GLuint program);

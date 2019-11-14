@@ -43,6 +43,7 @@ SceneNode::SceneNode(const std::string name, const Resource *geometry, const Res
 
     // Other attributes
     scale_ = glm::vec3(1.0, 1.0, 1.0);
+    blending_ = false;
 }
 
 
@@ -71,6 +72,12 @@ glm::quat SceneNode::GetOrientation(void) const {
 glm::vec3 SceneNode::GetScale(void) const {
 
     return scale_;
+}
+
+
+bool SceneNode::GetBlending(void) const {
+
+    return blending_;
 }
 
 
@@ -111,6 +118,12 @@ void SceneNode::Scale(glm::vec3 scale){
 }
 
 
+void SceneNode::SetBlending(bool blending){
+
+    blending_ = blending;
+}
+
+
 GLenum SceneNode::GetMode(void) const {
 
     return mode_;
@@ -142,6 +155,22 @@ GLuint SceneNode::GetMaterial(void) const {
 
 
 void SceneNode::Draw(Camera *camera){
+
+    // Select blending or not
+    if (blending_){
+        // Disable z-buffer
+        glDisable(GL_DEPTH_TEST);
+
+        // Enable blending
+        glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Simpler form
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX);
+    } else {
+        // Enable z-buffer
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+    }
 
     // Select proper material (shader program)
     glUseProgram(material_);

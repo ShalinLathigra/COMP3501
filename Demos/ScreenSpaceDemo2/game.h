@@ -39,8 +39,11 @@ namespace game {
             // Set up initial scene
             void SetupScene(void);
             // Run the game: keep the application active
-            void MainLoop(void); 
+			void MainLoop(void);
 
+			void SetEffect(int effect);
+
+			int effect_num;
         private:
             // GLFW window
             GLFWwindow* window_;
@@ -74,7 +77,6 @@ namespace game {
 
             // Create an instance of an object stored in the resource manager
             SceneNode *CreateInstance(std::string entity_name, std::string object_name, std::string material_name, std::string texture_name = std::string(""));
-
 
     }; // class Game
 
