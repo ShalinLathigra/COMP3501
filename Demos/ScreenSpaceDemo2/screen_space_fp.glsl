@@ -136,14 +136,16 @@ void main()
 		vec4 vp6 = texture(texture_map, vec2(xp, yp));
 		vec4 vdiff = hp1 - hp2 + 2.0*hp3 - 2.0*hp4 + hp5 - hp6;
 
-		float d = pow(hdiff.z, 2);// +pow(hdiff.y, 2) + pow(hdiff.z, 2);
+		float d = pow(hdiff.z, 2) + pow(vdiff.z, 2);
 
 		gl_FragColor = pixel * vec4(d, d, d, 1);
 
 		//Need to add kind of static + lines
-		float n = noise((uv0 + vec2(sin(timer*25)*12, cos(timer*-35)*7))*256);
+		float static_map = noise((uv0 + vec2(sin(timer * 25) * 12, cos(timer*-35) * 7)) * 256);
+		float brightness_map = noise((uv0 + vec2(sin(timer * -10) * 4, cos(timer*3) * 2)) * 10);
+		float line_map = cos((pos.x + pixel.b) * 50.0 - timer * 3.0) * mod(pos.y * 10, 1) * mod(pos.x * 10 + timer, 1) + 0.75;
 
-		gl_FragColor = 0.25 * n * vec4(0.7, 0.1, 0.2, 1.0) + pixel.bgra * vec4(d, d, d, 1);
+		gl_FragColor = clamp(line_map * brightness_map, .2, .5) * static_map * vec4(0.7, 0.1, 0.2, 1.0) + pixel.bgra * vec4(d, d, d, 1);
 	}
 	//Woozy
 	//Psychadelic pattern in shifting colours around the edges, pulsating a bit to make it more noticeable.
@@ -151,17 +153,20 @@ void main()
 	else if (effect_num == 4)
 	{
 		vec2 pos = uv0;
-		//Create swirling around edges of screen
-		vec2 offset = rotate2d(noise(pos*sin(timer/4.0)))*pos + vec2(sin(timer*.5), cos(timer*-.125))*.25;
 		vec2 o = vec2(0.5, 0.5);
-		offset *= 16;
-		offset.x = sin(sin(offset.x) + cos(offset.y));
-		offset.y = cos(sin(offset.x*offset.y) + cos(offset.x));
+
 		float dist = (pow(o.x - uv0.x, 2) + pow(o.y - uv0.y, 2))*overlay_intensity;
 		dist = pow(dist, 2);
 		float step = max(sin(timer), 0)*.125 + .25;
-		float map = abs(sin(offset.x * overlay_tiling) + cos(offset.y * overlay_tiling));
-		float t = abs(dist * step * map);
+
+		//Create swirling around edges of screen
+		vec2 offset = rotate2d(noise(pos*sin(timer / 4.0)))*pos + vec2(sin(timer*.5), cos(timer*-.125))*.25;
+		offset *= 16;
+		offset.x = sin(sin(offset.x) + cos(offset.y));
+		offset.y = cos(sin(offset.x*offset.y) + cos(offset.x));
+		float swirl_map = abs(sin(offset.x * overlay_tiling) + cos(offset.y * overlay_tiling));
+
+		float t = abs(dist * step * swirl_map);
 
 		vec2 tra = pos - o;
 		tra.x *= sin(timer * 2);
