@@ -19,14 +19,14 @@ out float timestep;
 // Simulation parameters (constants)
 uniform vec3 up_vec = vec3(0.0, 1.0, 0.0);
 uniform vec3 object_color = vec3(0.8, 0.8, 0.8);
-float grav = 0.005; // Gravity
+float grav = 0.1; // Gravity
 float speed = 2.5; // Allows to control the speed of the explosion
-
+float lifetime = 2.0;
 
 void main()
 {
     // Let time cycle every four seconds
-    float circtime = timer - 4.0 * floor(timer / 4);
+    float circtime = timer - lifetime * floor(timer / lifetime);
     float t = circtime; // Our time parameter
     
     // Let's first work in model space (apply only world matrix)
@@ -43,8 +43,8 @@ void main()
         
     // Define outputs
     // Define color of vertex
-    vertex_color = color.rgb; // Color defined during the construction of the particles
-    //vertex_color = object_color; // Uniform color 
+    //vertex_color = color.rgb; // Color defined during the construction of the particles
+    vertex_color = object_color * (1-pow(circtime / lifetime, 2)); // Uniform color 
     //vertex_color = vec3(t, 0.0, 1-t);
     //vertex_color = vec3(1.0, 1-t, 0.0);
 
