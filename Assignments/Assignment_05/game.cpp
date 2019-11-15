@@ -20,7 +20,7 @@ const bool window_full_screen_g = false;
 float camera_near_clip_distance_g = 0.01;
 float camera_far_clip_distance_g = 1000.0;
 float camera_fov_g = 20.0; // Field-of-view of camera
-const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
+const glm::vec3 viewport_background_color_g(0.3, 0.5, 0.8);
 glm::vec3 camera_position_g(0.5, 0.5, 10.0);
 glm::vec3 camera_look_at_g(0.0, 0.0, 0.0);
 glm::vec3 camera_up_g(0.0, 1.0, 0.0);
@@ -44,6 +44,7 @@ void Game::Init(void){
 
     // Set variables
     animating_ = true;
+	effect_num = 1;
 }
 
        
@@ -110,8 +111,23 @@ void Game::InitEventHandlers(void){
 
 void Game::SetupResources(void){
 
+    // Load material to be applied to torus
+    std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/three-term_shiny_blue");
+    resman_.LoadResource(Material, "ShinyBlueMaterial", filename.c_str());
+
+    // Load material for screen-space effect
+    filename = std::string(MATERIAL_DIRECTORY) + std::string("/screen_space");
+    resman_.LoadResource(Material, "ScreenSpaceMaterial", filename.c_str());
+
+    // Setup drawing to texture
+    scene_.SetupDrawToTexture();
+	
+    // Create a torus
+    resman_.CreateTorus("TorusMesh");
+
+
 	// Load material to be applied to particles
-	std::string filename = std::string(MATERIAL_DIRECTORY) + std::string("/particle");
+	filename = std::string(MATERIAL_DIRECTORY) + std::string("/particle");
 	resman_.LoadResource(Material, "ParticleMaterial", filename.c_str());
 	// Load material to be applied to flamethrower
 	filename = std::string(MATERIAL_DIRECTORY) + std::string("/fire");
@@ -119,15 +135,15 @@ void Game::SetupResources(void){
 	// Load material to be applied to ring effect
 	filename = std::string(MATERIAL_DIRECTORY) + std::string("/ring");
 	resman_.LoadResource(Material, "RingMaterial", filename.c_str());
-
+	
 	// Create particles for explosion
 	resman_.CreateSphereParticles("SphereParticles");
 	// Create particles for explosion
 	resman_.CreateFireParticles("FireParticles");
 	// Create particles for explosion
 	resman_.CreateRingParticles("RingParticles");
-
-	//Flame effect texture
+	
+	////Flame effect texture
 	filename = std::string(MATERIAL_DIRECTORY) + std::string("/flame4x4orig.png");
 	resman_.LoadResource(Texture, "Flame", filename.c_str());
 }
@@ -138,24 +154,39 @@ void Game::SetupScene(void){
     // Set background color for the scene
     scene_.SetBackgroundColor(viewport_background_color_g);
 
-    // Create particles
+    // Create an instance of the torus mesh
+	game::SceneNode *torus1 = CreateInstance("TorusInstance1", "TorusMesh", "ShinyBlueMaterial");
+	torus1->Scale(glm::vec3(1.5, 1.5, 1.5));
+	torus1->SetPosition(glm::vec3(-1.5, 0.0, 0.0));
+	game::SceneNode *torus2 = CreateInstance("TorusInstance2", "TorusMesh", "ShinyBlueMaterial");
+	torus2->Scale(glm::vec3(1.5, 1.5, 1.5));
+	torus2->SetPosition(glm::vec3(0.0, 0.0, -4.0));
+	game::SceneNode *torus3 = CreateInstance("TorusInstance3", "TorusMesh", "ShinyBlueMaterial");
+	torus3->Scale(glm::vec3(1.5, 1.5, 1.5));
+	torus3->SetPosition(glm::vec3(2.0, 0.0, -12.0));
+	game::SceneNode *torus4 = CreateInstance("TorusInstance4", "TorusMesh", "ShinyBlueMaterial");
+	torus4->Scale(glm::vec3(1.5, 1.5, 1.5));
+	torus4->SetPosition(glm::vec3(6.0, 0.0, -28.0));
+
+	// Create particles
 	game::SceneNode *fireworks1 = CreateInstance("FireworksInstance1", "SphereParticles", "ParticleMaterial");
 	game::SceneNode *fireworks2 = CreateInstance("FireworksInstance2", "SphereParticles", "ParticleMaterial");
 	game::SceneNode *fireworks3 = CreateInstance("FireworksInstance3", "SphereParticles", "ParticleMaterial");
-
+	
 	fireworks3->SetScale(glm::vec3(0.0));
 	fireworks1->SetScale(glm::vec3(0.0));
 	fireworks2->SetScale(glm::vec3(0.0));
-
-
+	
+	
 	game::SceneNode *fire1 = CreateInstance("FireInstance1", "FireParticles", "FireMaterial", "Flame");
 	fire1->SetBlending(true);
 	fire1->SetScale(glm::vec3(0.0));
-			
+	
 	game::SceneNode *ring1 = CreateInstance("RingInstance1", "RingParticles", "RingMaterial");
 	ring1->SetBlending(true);
 	ring1->SetScale(glm::vec3(0.0));
 }
+
 
 void Game::ResetFirework(SceneNode* node, float current)
 {
@@ -215,51 +246,86 @@ void Game::ToggleRing(bool state)
 		node->SetScale(glm::vec3(1.0));
 	}
 }
+
 void Game::MainLoop(void){
 
     // Loop while the user did not close the window
-	float current = glfwGetTime();
-	float last_time = glfwGetTime();
-	float start1 = 0.0;
-	float start2 = 0.7;
-	float start3 = 1.4;
-	
     while (!glfwWindowShouldClose(window_)){
-		current = glfwGetTime();
-		float deltaTime = current - last_time;
-		start1 += deltaTime;
-		start2 += deltaTime;
-		start3 += deltaTime;
+        // Animate the scene
+        if (animating_){
+            static double last_time = 0;
+			static float start1 = 0.0;
+			static float start2 = 0.7;
+			static float start3 = 1.4;
 
-		if (start1 >= 2.0)
-		{
-			SceneNode* node = scene_.GetNode("FireworksInstance1");
-			ResetFirework(node, current);
-			start1 = 0.0;
-		}
-		if (start2 >= 2.0)
-		{
-			SceneNode* node = scene_.GetNode("FireworksInstance2");
-			ResetFirework(node, current);
-			start2 = 0.0;
-		}
-		if (start3 >= 2.0)
-		{
-			SceneNode* node = scene_.GetNode("FireworksInstance3");
-			ResetFirework(node, current);
-			start3 = 0.0;
-		}
+            double current_time = glfwGetTime();
+
+
+			float deltaTime = current_time - last_time;
+            if (deltaTime > 0.01){
+                //scene_.Update();
+
+                // Animate the torus
+				glm::quat rotation = glm::angleAxis(glm::pi<float>() / 180.0f, glm::vec3(0.0, 1.0, 0.0));
+
+                SceneNode *node = scene_.GetNode("TorusInstance1");
+                node->Rotate(rotation);
+				node = scene_.GetNode("TorusInstance2");
+				node->Rotate(rotation);
+				node = scene_.GetNode("TorusInstance3");
+				node->Rotate(rotation);
+				node = scene_.GetNode("TorusInstance4");
+				node->Rotate(rotation);
+
+				start1 += deltaTime;
+				start2 += deltaTime;
+				start3 += deltaTime;
+
+				if (start1 >= 2.0)
+				{
+					SceneNode* node = scene_.GetNode("FireworksInstance1");
+					ResetFirework(node, current_time);
+					start1 = 0.0;
+				}
+				if (start2 >= 2.0)
+				{
+					SceneNode* node = scene_.GetNode("FireworksInstance2");
+					ResetFirework(node, current_time);
+					start2 = 0.0;
+				}
+				if (start3 >= 2.0)
+				{
+					SceneNode* node = scene_.GetNode("FireworksInstance3");
+					ResetFirework(node, current_time);
+					start3 = 0.0;
+				}
+
+                last_time = current_time;
+            }
+        }
 
         // Draw the scene
-        scene_.Draw(&camera_);
+        //scene_.Draw(&camera_);
+
+        // Draw the scene to a texture
+        scene_.DrawToTexture(&camera_, effect_num);
+
+        // Save the texture to a file for debug
+        /*static int first = 1;
+        if (first){
+            scene_.SaveTexture("texture.ppm");
+            first = 0;
+        }*/
+
+        // Process the texture with a screen-space effect and display
+        // the texture
+        scene_.DisplayTexture(resman_.GetResource("ScreenSpaceMaterial")->GetResource(), effect_num);
 
         // Push buffer drawn in the background onto the display
         glfwSwapBuffers(window_);
 
         // Update other events like input handling
         glfwPollEvents();
-
-		last_time = current;
     }
 }
 
@@ -310,27 +376,44 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
     if (key == GLFW_KEY_J){
         game->camera_.Translate(-game->camera_.GetSide()*trans_factor);
     }
-	if (key == GLFW_KEY_L) {
-		game->camera_.Translate(game->camera_.GetSide()*trans_factor);
-	}
-	if (key == GLFW_KEY_I) {
-		game->camera_.Translate(game->camera_.GetUp()*trans_factor);
-	}
+    if (key == GLFW_KEY_L){
+        game->camera_.Translate(game->camera_.GetSide()*trans_factor);
+    }
+    if (key == GLFW_KEY_I){
+        game->camera_.Translate(game->camera_.GetUp()*trans_factor);
+    }
 	if (key == GLFW_KEY_K) {
 		game->camera_.Translate(-game->camera_.GetUp()*trans_factor);
 	}
 
 	if (key == GLFW_KEY_1) {
+		game->SetEffect(1);
+	}
+	if (key == GLFW_KEY_2) {
+		game->SetEffect(2); 
+	}
+	if (key == GLFW_KEY_3) {
+		game->SetEffect(3);
+	}
+	if (key == GLFW_KEY_4) {
+		game->SetEffect(4);
+	}
+	if (key == GLFW_KEY_5) {
+		game->ToggleFireworks(false);
+		game->ToggleFlamethrower(false);
+		game->ToggleRing(false);
+	}
+	if (key == GLFW_KEY_6) {
 		game->ToggleFireworks(true);
 		game->ToggleFlamethrower(false);
 		game->ToggleRing(false);
 	}
-	if (key == GLFW_KEY_2) {
+	if (key == GLFW_KEY_7) {
 		game->ToggleFireworks(false);
 		game->ToggleFlamethrower(true);
 		game->ToggleRing(false);
 	}
-	if (key == GLFW_KEY_3) {
+	if (key == GLFW_KEY_8) {
 		game->ToggleFireworks(false);
 		game->ToggleFlamethrower(false);
 		game->ToggleRing(true);
@@ -338,6 +421,10 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 }
 
 
+void Game::SetEffect(int effect)
+{
+	effect_num = effect;
+}
 void Game::ResizeCallback(GLFWwindow* window, int width, int height){
 
     // Set up viewport and camera projection based on new window size

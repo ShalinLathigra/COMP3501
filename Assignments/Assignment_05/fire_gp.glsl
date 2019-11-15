@@ -17,6 +17,7 @@ uniform mat4 projection_mat;
 // Attributes passed to the fragment shader
 out vec4 frag_color;
 out vec2 tex_coord;
+out float step;
 
 
 void main(void){
@@ -38,6 +39,7 @@ void main(void){
     // Create the new geometry: a quad with four vertices from the vector v
     int fid = int(floor(particle_id[0] * 4.0)); // 0-3 used to pick sector from flame 2x2 drawing
     for (int i = 0; i < 4; i++){
+		step = particle_step[0];
         gl_Position = projection_mat * v[i];
         tex_coord = vec2(floor(i / 2)*0.5 + 0.5*(fid / 2), (i % 2)*0.5 + 0.5*(fid % 2));
         frag_color = vec4(vec3(particle_step[0]), particle_color[0].a); // Specify only blending value
@@ -45,5 +47,4 @@ void main(void){
         EmitVertex();
      }
      EndPrimitive();
-
 }

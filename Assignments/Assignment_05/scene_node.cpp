@@ -171,18 +171,25 @@ GLuint SceneNode::GetMaterial(void) const {
 }
 
 
-void SceneNode::Draw(Camera *camera){
+void SceneNode::Draw(Camera *camera, int effect_num){
 
     // Select blending or not
-    if (blending_){
-        // Disable z-buffer
-        glDisable(GL_DEPTH_TEST);
+	if (blending_) {
+		// Disable z-buffer
+		glDisable(GL_DEPTH_TEST);
+		// Enable blending
+		glEnable(GL_BLEND);
 
-        // Enable blending
-        glEnable(GL_BLEND);
-        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Simpler form
-        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX);
+		if (effect_num == 3)
+		{
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // Simpler form
+		} 
+		else 
+		{
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_DST_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+        glBlendEquationSeparate(GL_FUNC_ADD, GL_MIN);
     } else {
         // Enable z-buffer
 		glDisable(GL_BLEND);
