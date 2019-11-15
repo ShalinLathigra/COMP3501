@@ -819,7 +819,7 @@ void ResourceManager::CreateSphereParticles(std::string object_name, int num_par
 		throw e;
 	}
 
-	float trad = 0.2; // Defines the starting point of the particles along the normal
+	float trad = 0.0; // Defines the starting point of the particles along the normal
 	float maxspray = 0.5; // This is how much we allow the points to deviate from the sphere
 	float u, v, w, theta, phi, spray; // Work variables
 
@@ -840,7 +840,7 @@ void ResourceManager::CreateSphereParticles(std::string object_name, int num_par
 		// Define the normal and point based on theta, phi and the spray
 		glm::vec3 normal(spray*cos(theta)*sin(phi), spray*sin(theta)*sin(phi), spray*cos(phi));
 		glm::vec3 position(normal.x*trad, normal.y*trad, normal.z*trad);
-		glm::vec3 color(i / (float)num_particles, 0.0, 1.0 - (i / (float)num_particles)); // We can use the color for debug, if needed
+		glm::vec3 color(i / (float)num_particles, 0.0, 1.0 - (i / (float)num_particles)); 
 
 		// Add vectors to the data buffer
 		for (int k = 0; k < 3; k++) {
@@ -956,32 +956,32 @@ void ResourceManager::CreateRingParticles(std::string object_name, int num_parti
 	float maxspray = 0.5; // This is how much we allow the points to deviate from the sphere
 	float u, v, w, theta, phi, spray; // Work variables
 
-	int num_explosion_particles = num_particles / 4.0;
+	int num_explosion_particles = num_particles / 100;
 	int num_ring_particles = num_particles - num_explosion_particles;
 
 	for (int i = 0; i < num_explosion_particles; i++) {
-
+	
 		// Get three random numbers
 		u = ((double)rand() / (RAND_MAX));
 		v = ((double)rand() / (RAND_MAX));
 		w = ((double)rand() / (RAND_MAX));
-
+	
 		// Use u to define the angle theta along one direction of the sphere
 		theta = u * 2.0*glm::pi<float>();
 		// Use v to define the angle phi along the other direction of the sphere
 		phi = acos(2.0*v - 1.0);
 		// Use w to define how much we can deviate from the surface of the sphere (change of radius)
 		spray = maxspray * pow((float)w, (float)(1.0 / 3.0)); // Cubic root of w
-
+	
 		// Define the normal and point based on theta, phi and the spray
 		glm::vec3 normal(spray*cos(theta)*sin(phi), spray*sin(theta)*sin(phi), spray*cos(phi));
 		glm::vec3 position(normal.x*trad, normal.y*trad, normal.z*trad);
 		glm::vec3 color(i / (float)num_explosion_particles, 0.0, 1.0 - (i / (float)num_explosion_particles)); // We can use the color for debug, if needed
-
+	
 		// Add vectors to the data buffer
 		for (int k = 0; k < 3; k++) {
 			particle[i*particle_att + k] = position[k];
-			particle[i*particle_att + k + 3] = normal[k];
+			particle[i*particle_att + k + 3] = normal[k]*1;
 			particle[i*particle_att + k + 6] = color[k];
 		}
 	}
@@ -1010,7 +1010,7 @@ void ResourceManager::CreateRingParticles(std::string object_name, int num_parti
 		// Add vectors to the data buffer
 		for (int k = 0; k < 3; k++) {
 			particle[(i+num_explosion_particles)*particle_att + k] = position[k];
-			particle[(i+num_explosion_particles)*particle_att + k + 3] = normal[k];
+			particle[(i+num_explosion_particles)*particle_att + k + 3] = normal[k] * 1.0;
 			particle[(i+num_explosion_particles)*particle_att + k + 6] = color[k];
 		}
 	}

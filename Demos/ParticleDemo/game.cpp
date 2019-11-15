@@ -137,16 +137,62 @@ void Game::SetupScene(void){
 
     // Create particles
 	game::SceneNode *fireworks1 = CreateInstance("FireworksInstance1", "SphereParticles", "ParticleMaterial");
+	game::SceneNode *fireworks2 = CreateInstance("FireworksInstance2", "SphereParticles", "ParticleMaterial");
+	game::SceneNode *fireworks3 = CreateInstance("FireworksInstance3", "SphereParticles", "ParticleMaterial");
+
 	//game::SceneNode *fire1 = CreateInstance("FireInstance1", "FireParticles", "FireMaterial", "Flame");
 	//fire1->SetBlending(true);
-	//game::SceneNode *ring1 = CreateInstance("RingInstance1", "RingParticles", "FireMaterial", "Flame");
+	//game::SceneNode *ring1 = CreateInstance("RingInstance1", "RingParticles", "ParticleMaterial");
 }
 
-
+void Game::ResetFirework(SceneNode* node, float current)
+{
+	float x = -1 + 2.0 * (float)rand() / RAND_MAX;
+	float y = -1 + 2.0 * (float)rand() / RAND_MAX;
+	float z = 0 + 1.0 * (float)rand() / RAND_MAX;
+	node->SetPosition(glm::vec3(x, y, z));
+	node->SetStart(current);
+	node->SetEnd(current + 2.0);
+	x = -1 + 2.0 * (float)rand() / RAND_MAX;
+	y = -1 + 2.0 * (float)rand() / RAND_MAX;
+	z = 0 + 1.0 * (float)rand() / RAND_MAX;
+	node->SetMomentum(glm::vec3(x, y, z));
+	node->SetColorAtt(glm::vec4(x, y, z, 1.0f));
+}
 void Game::MainLoop(void){
 
     // Loop while the user did not close the window
+	float current = glfwGetTime();
+	float last_time = glfwGetTime();
+	float start1 = 0.0;
+	float start2 = 0.7;
+	float start3 = 1.4;
+	
     while (!glfwWindowShouldClose(window_)){
+		current = glfwGetTime();
+		float deltaTime = current - last_time;
+		start1 += deltaTime;
+		start2 += deltaTime;
+		start3 += deltaTime;
+
+		if (start1 >= 2.0)
+		{
+			SceneNode* node = scene_.GetNode("FireworksInstance1");
+			ResetFirework(node, current);
+			start1 = 0.0;
+		}
+		if (start2 >= 2.0)
+		{
+			SceneNode* node = scene_.GetNode("FireworksInstance2");
+			ResetFirework(node, current);
+			start2 = 0.0;
+		}
+		if (start3 >= 2.0)
+		{
+			SceneNode* node = scene_.GetNode("FireworksInstance3");
+			ResetFirework(node, current);
+			start3 = 0.0;
+		}
 
         // Draw the scene
         scene_.Draw(&camera_);
@@ -156,6 +202,8 @@ void Game::MainLoop(void){
 
         // Update other events like input handling
         glfwPollEvents();
+
+		last_time = current;
     }
 }
 

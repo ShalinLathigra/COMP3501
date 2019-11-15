@@ -37,7 +37,11 @@ namespace game {
             void SetPosition(glm::vec3 position);
             void SetOrientation(glm::quat orientation);
             void SetScale(glm::vec3 scale);
-            void SetBlending(bool blending);
+			void SetBlending(bool blending);
+			void SetStart(double time);
+			void SetEnd(double time);
+			void SetMomentum(glm::vec3 momentum);
+			void SetColorAtt(glm::vec4 color);
             
             // Perform transformations on node
             void Translate(glm::vec3 trans);
@@ -73,6 +77,11 @@ namespace game {
 
             // Set matrices that transform the node in a shader program
             void SetupShader(GLuint program);
+
+			float start_time;
+			float end_time;
+			glm::vec3 momentum_;
+			glm::vec4 color_;
 
     }; // class SceneNode
 

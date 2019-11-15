@@ -123,6 +123,23 @@ void SceneNode::SetBlending(bool blending){
     blending_ = blending;
 }
 
+void SceneNode::SetStart(double time)
+{
+	start_time = time;
+}
+void SceneNode::SetEnd(double time)
+{
+	end_time = time;
+}
+void SceneNode::SetMomentum(glm::vec3 momentum)
+{
+	momentum_ = momentum;
+}
+void SceneNode::SetColorAtt(glm::vec4 color)
+{
+	color_ = color;
+}
+
 
 GLenum SceneNode::GetMode(void) const {
 
@@ -245,10 +262,20 @@ void SceneNode::SetupShader(GLuint program){
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
-    // Timer
-    GLint timer_var = glGetUniformLocation(program, "timer");
-    double current_time = glfwGetTime();
-    glUniform1f(timer_var, (float) current_time);
+	// Time vars
+	GLint start_var = glGetUniformLocation(program, "start");
+	glUniform1f(start_var, (float)start_time);
+	GLint timer_var = glGetUniformLocation(program, "timer");
+	double current_time = glfwGetTime();
+	glUniform1f(timer_var, (float)current_time);
+	GLint end_var = glGetUniformLocation(program, "end");
+	glUniform1f(end_var, (float)end_time);
+	GLint momentum_var = glGetUniformLocation(program, "momentum");
+	glUniform3fv(momentum_var, 3, glm::value_ptr(momentum_));
+
+
+	GLint color_var = glGetUniformLocation(program, "color_att");
+	glUniform3fv(color_var, 4, glm::value_ptr(color_));
 }
 
 } // namespace game;
