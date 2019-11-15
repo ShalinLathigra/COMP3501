@@ -41,7 +41,7 @@ namespace game {
 			void SetStart(double time);
 			void SetEnd(double time);
 			void SetMomentum(glm::vec3 momentum);
-			void SetColorAtt(glm::vec4 color);
+			void SetColorAtt(glm::vec3 color);
             
             // Perform transformations on node
             void Translate(glm::vec3 trans);
@@ -81,7 +81,7 @@ namespace game {
 			float start_time;
 			float end_time;
 			glm::vec3 momentum_;
-			glm::vec4 color_;
+			glm::vec3 color_;
 
     }; // class SceneNode
 

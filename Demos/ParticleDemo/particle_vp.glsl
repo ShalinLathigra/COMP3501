@@ -13,7 +13,6 @@ uniform float start;
 uniform float timer;
 uniform float end;
 uniform vec3 momentum;
-uniform vec3 color_att;
 
 // Attributes forwarded to the geometry shader
 out vec3 vertex_color;
@@ -49,8 +48,7 @@ void main()
     // Define outputs
     // Define color of vertex
     //vertex_color = color.rgb; // Color defined during the construction of the particles
-    vertex_color = color_att.xyz * (1-pow(circtime / lifetime, 2)); // Uniform color 
-    //vertex_color = object_color * (1-pow(circtime / lifetime, 2)); // Uniform color 
+    vertex_color = object_color * (1-pow(circtime / lifetime, 2)); // Uniform color 
     //vertex_color = vec3(t, 0.0, 1-t);
     //vertex_color = vec3(1.0, 1-t, 0.0);
 

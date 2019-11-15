@@ -140,9 +140,17 @@ void Game::SetupScene(void){
 	game::SceneNode *fireworks2 = CreateInstance("FireworksInstance2", "SphereParticles", "ParticleMaterial");
 	game::SceneNode *fireworks3 = CreateInstance("FireworksInstance3", "SphereParticles", "ParticleMaterial");
 
-	//game::SceneNode *fire1 = CreateInstance("FireInstance1", "FireParticles", "FireMaterial", "Flame");
-	//fire1->SetBlending(true);
-	//game::SceneNode *ring1 = CreateInstance("RingInstance1", "RingParticles", "ParticleMaterial");
+	fireworks3->SetScale(glm::vec3(0.0));
+	fireworks1->SetScale(glm::vec3(0.0));
+	fireworks2->SetScale(glm::vec3(0.0));
+
+
+	game::SceneNode *fire1 = CreateInstance("FireInstance1", "FireParticles", "FireMaterial", "Flame");
+	fire1->SetBlending(true);
+	fire1->SetScale(glm::vec3(0.0));
+			
+	game::SceneNode *ring1 = CreateInstance("RingInstance1", "RingParticles", "ParticleMaterial");
+	ring1->SetScale(glm::vec3(0.0));
 }
 
 void Game::ResetFirework(SceneNode* node, float current)
@@ -157,7 +165,51 @@ void Game::ResetFirework(SceneNode* node, float current)
 	y = -1 + 2.0 * (float)rand() / RAND_MAX;
 	z = 0 + 1.0 * (float)rand() / RAND_MAX;
 	node->SetMomentum(glm::vec3(x, y, z));
-	node->SetColorAtt(glm::vec4(x, y, z, 1.0f));
+	node->SetColorAtt(glm::vec3(abs(x), abs(y), abs(z)));
+}
+
+void Game::ToggleFireworks(bool state)
+{
+	SceneNode* node1 = scene_.GetNode("FireworksInstance1");
+	SceneNode* node2 = scene_.GetNode("FireworksInstance2");
+	SceneNode* node3 = scene_.GetNode("FireworksInstance3");
+
+	if (!state)
+	{
+		node1->SetScale(glm::vec3(0.0));
+		node2->SetScale(glm::vec3(0.0));
+		node3->SetScale(glm::vec3(0.0));
+	}
+	else
+	{
+		node1->SetScale(glm::vec3(1.0));
+		node2->SetScale(glm::vec3(1.0));
+		node3->SetScale(glm::vec3(1.0));
+	}
+}
+void Game::ToggleFlamethrower(bool state)
+{
+	SceneNode* node = scene_.GetNode("FireInstance1");
+	if (!state)
+	{
+		node->SetScale(glm::vec3(0.0));
+	}
+	else
+	{
+		node->SetScale(glm::vec3(1.0));
+	}
+}
+void Game::ToggleRing(bool state)
+{
+	SceneNode* node = scene_.GetNode("RingInstance1");
+	if (!state)
+	{
+		node->SetScale(glm::vec3(0.0));
+	}
+	else
+	{
+		node->SetScale(glm::vec3(1.0));
+	}
 }
 void Game::MainLoop(void){
 
@@ -254,15 +306,31 @@ void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
     if (key == GLFW_KEY_J){
         game->camera_.Translate(-game->camera_.GetSide()*trans_factor);
     }
-    if (key == GLFW_KEY_L){
-        game->camera_.Translate(game->camera_.GetSide()*trans_factor);
-    }
-    if (key == GLFW_KEY_I){
-        game->camera_.Translate(game->camera_.GetUp()*trans_factor);
-    }
-    if (key == GLFW_KEY_K){
-        game->camera_.Translate(-game->camera_.GetUp()*trans_factor);
-    }
+	if (key == GLFW_KEY_L) {
+		game->camera_.Translate(game->camera_.GetSide()*trans_factor);
+	}
+	if (key == GLFW_KEY_I) {
+		game->camera_.Translate(game->camera_.GetUp()*trans_factor);
+	}
+	if (key == GLFW_KEY_K) {
+		game->camera_.Translate(-game->camera_.GetUp()*trans_factor);
+	}
+
+	if (key == GLFW_KEY_1) {
+		game->ToggleFireworks(true);
+		game->ToggleFlamethrower(false);
+		game->ToggleRing(false);
+	}
+	if (key == GLFW_KEY_2) {
+		game->ToggleFireworks(false);
+		game->ToggleFlamethrower(true);
+		game->ToggleRing(false);
+	}
+	if (key == GLFW_KEY_3) {
+		game->ToggleFireworks(false);
+		game->ToggleFlamethrower(false);
+		game->ToggleRing(true);
+	}
 }
 
 

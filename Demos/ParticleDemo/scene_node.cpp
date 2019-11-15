@@ -135,7 +135,7 @@ void SceneNode::SetMomentum(glm::vec3 momentum)
 {
 	momentum_ = momentum;
 }
-void SceneNode::SetColorAtt(glm::vec4 color)
+void SceneNode::SetColorAtt(glm::vec3 color)
 {
 	color_ = color;
 }
@@ -263,19 +263,20 @@ void SceneNode::SetupShader(GLuint program){
     }
 
 	// Time vars
-	GLint start_var = glGetUniformLocation(program, "start");
-	glUniform1f(start_var, (float)start_time);
 	GLint timer_var = glGetUniformLocation(program, "timer");
 	double current_time = glfwGetTime();
 	glUniform1f(timer_var, (float)current_time);
-	GLint end_var = glGetUniformLocation(program, "end");
-	glUniform1f(end_var, (float)end_time);
-	GLint momentum_var = glGetUniformLocation(program, "momentum");
-	glUniform3fv(momentum_var, 3, glm::value_ptr(momentum_));
-
-
-	GLint color_var = glGetUniformLocation(program, "color_att");
-	glUniform3fv(color_var, 4, glm::value_ptr(color_));
+	if (glm::length(color_) > 0.0f)
+	{
+		GLint start_var = glGetUniformLocation(program, "start");
+		glUniform1f(start_var, (float)start_time);
+		GLint end_var = glGetUniformLocation(program, "end");
+		glUniform1f(end_var, (float)end_time);
+		GLint momentum_var = glGetUniformLocation(program, "momentum");
+		glUniform3fv(momentum_var, 3, glm::value_ptr(momentum_));
+		GLint color_var = glGetUniformLocation(program, "object_color");
+		glUniform3fv(color_var, 1, glm::value_ptr(color_));
+	}
 }
 
 } // namespace game;

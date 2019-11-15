@@ -66,6 +66,9 @@ namespace game {
             static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
             static void ResizeCallback(GLFWwindow* window, int width, int height);
 
+			void ToggleFireworks(bool state);
+			void ToggleFlamethrower(bool state);
+			void ToggleRing(bool state);
             // Asteroid field
             // Create instance of one asteroid
             Asteroid *CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name);
