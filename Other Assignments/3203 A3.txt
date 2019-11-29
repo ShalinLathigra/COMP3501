@@ -1,0 +1,88 @@
+1.
+S->3->14->21->19->T
+
+S->3->(10)14->(13,31,21)20->27->(28)29->T
+
+S->4->5->8->(10)12->(13)23->(31)22->(21,28)19->T
+
+2.
+
+Example: Range = r.
+
+
+Center has access to all external nodes.
+All other nodes have access Center Only.
+
+Therefore:
+for all nodes, dist to C = r, dist to next node > r
+	
+	As an example, say dist to node = r.
+	This means that any two adjacent nodes on exterior form an equilateral triangle with the center.
+	This in turn means that you can fit exactly 6 nodes on the exterior.
+
+Now, say we want dist to next node to be > r
+	This means we need to make space on the exterior. Changing the dist to center will make no difference, therefore we must remove at least one 
+	node from exterior, which means k must be <= 5.
+	
+4.
+
+the center is furthest from all three corners. It's an equilateral triangle.
+If the point is any distance from the center, then it will be distancing from at most two edges, and approaching all other edges.
+
+Halfway point = a/2
+angle to halfway point = 30 degrees
+cos 30 = (adj/hyp)
+hyp = adj/(cos 30)
+hyp = a/(2 cos 30)
+hyp = a/sqrt(2)
+
+therefore dist = a/sqrt(2)
+
+6. 
+
+Pseudocode:
+
+	Request coords of A
+	Request coords of B
+	Request coords of C
+	
+	Construct the following system of equations:
+	
+		(x+a)^2 + (x'+a')^2 = 4
+		(x+b)^2 + (x'+b')^2 = 9
+		(x+c)^2 + (x'+c')^2 = 4
+	
+	Solve the system for x, x'.
+	
+8. 
+
+	Each of the n/2 nodes is sending out a packet to each of the n/2 end packets.
+	Therefore there at lease (n^2)/4 packets being sent, which is Omega(n^2)
+	
+	given the (n^2)/4 packets being sent, and the knowledge that there are (n+1) possible nodes along line L.
+	
+	Assuming a completely uniform distribution of nodes, (The best possible case), each node is forced to take 1/(n+1) * (n^2)/4 packets.
+	1/(n+1)*(n^2)/4 <= (1/n)(n^2)/4 <= n/4 = Omega(n)
+	
+	Applying the same logic as before, now there are at most l possible nodes. Therefore it is (1/l)*(n^2)/4 <= (n^2)/(4*l) = Omega((n^2)/l)
+	
+10.
+
+	E(change) = I(w)(1-p) + (-D(w))p
+	
+	if given p, a congestion window with I(w)(1-p) = D(w)p will result in an equilibrium
+	
+	more precisely, 
+	I(w) = w + 1/w
+	D(w) = w/2
+	
+	want 
+
+	I(w)(1-p)-D(w)p = 0
+	I(w)(1-p) = D(w)p
+	(1/w)(1-p) = (w/2)p
+	(w/2)(1/(1/w)) = (1-p)/p
+	w/(1/w) = 2*(1-p)/p  
+	(1/w)/w = p/(2*(1-p))
+	1/w^2 = p/(2*(1-p))
+	w = sqrt(2(1-p)/p)
